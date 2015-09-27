@@ -6,7 +6,7 @@ soname := $(shell cat src/soname.txt)
 
 .PHONY: override_dh_strip
 override_dh_strip:
-	dh_strip --dbg-package=libwait$(soname)-dbg
+	dh_strip --dbg-package=libpogodi$(soname)-dbg
 
 .PHONY: override_dh_auto_install
 override_dh_auto_install:

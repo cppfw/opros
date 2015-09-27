@@ -12,7 +12,7 @@ this_cflags += -fstrict-aliasing #strict aliasing!!!
 
 this_srcs += main.cpp tests.cpp
 
-this_ldlibs += -lwait
+this_ldlibs += -lpogodi
 
 ifeq ($(prorab_os),macosx)
     this_cflags += -stdlib=libc++ #this is needed to be able to use c++11 std lib
@@ -25,8 +25,8 @@ endif
 
 this_ldflags += -L$(prorab_this_dir)../../src/
 
-#add dependency on libwait.so
-$(abspath $(prorab_this_dir)tests): $(abspath $(prorab_this_dir)../../src/libwait$(prorab_lib_extension))
+#add dependency on libpogodi.so
+$(abspath $(prorab_this_dir)tests): $(abspath $(prorab_this_dir)../../src/libpogodi$(prorab_lib_extension))
 
 
 $(eval $(prorab-build-app))
@@ -34,5 +34,5 @@ $(eval $(prorab-build-app))
 include $(prorab_this_dir)../test_target.mk
 
 
-#include makefile for building ting
+#include makefile for building pogodi
 $(eval $(call prorab-include,$(prorab_this_dir)../../src/makefile))

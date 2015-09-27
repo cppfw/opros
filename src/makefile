@@ -4,15 +4,15 @@ include prorab.mk
 debug := false
 
 
-this_name := wait
+this_name := pogodi
 
 this_soname := $(shell cat $(prorab_this_dir)soname.txt)
 
 
 #Sources
 this_srcs :=
-this_srcs += wait/WaitSet.cpp
-this_srcs += wait/Waitable.cpp
+this_srcs += pogodi/WaitSet.cpp
+this_srcs += pogodi/Waitable.cpp
 
 
 

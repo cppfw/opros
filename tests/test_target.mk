@@ -1,5 +1,5 @@
 ifeq ($(prorab_os),windows)
-    this_test_cmd := (cd $(prorab_this_dir); cp ../../src/libwait.dll . || true; ./$$(notdir $$^))
+    this_test_cmd := (cd $(prorab_this_dir); cp ../../src/libpogodi.dll . || true; ./$$(notdir $$^))
 else
     ifeq ($(prorab_os),macosx)
         this_test_cmd := (cd $(prorab_this_dir); DYLD_LIBRARY_PATH=../../src ./$$(notdir $$^))
@@ -21,7 +21,7 @@ $(eval $(this_rule))
 
 
 ifeq ($(prorab_os),windows)
-    this_gdb_cmd := (cd $(prorab_this_dir); cp ../../src/libwait.dll . || true; gdb ./$$(notdir $$^))
+    this_gdb_cmd := (cd $(prorab_this_dir); cp ../../src/libpogodi.dll . || true; gdb ./$$(notdir $$^))
 else
     ifeq ($(prorab_os),macosx)
         this_gdb_cmd := (cd $(prorab_this_dir); DYLD_LIBRARY_PATH=../../src gdb ./$$(notdir $$^))

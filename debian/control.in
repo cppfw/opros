@@ -1,4 +1,4 @@
-Source: libwait
+Source: libpogodi
 Section: misc
 Priority: extra
 Maintainer: Ivan Gagis <igagis@gmail.com>
@@ -6,30 +6,30 @@ Build-Depends: debhelper (>= 9), libc6-dev, prorab, libutki-dev
 Build-Depends-Indep: doxygen
 Standards-Version: 3.9.2
 
-Package: libwait$(soname)
+Package: libpogodi$(soname)
 Section: libs
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: cross-platform C++ waiting library.
  Waiting library.
 
-Package: libwait$(soname)-dbg
+Package: libpogodi$(soname)-dbg
 Section: libdevel
 Architecture: any
-Depends: libwait$(soname) (= ${binary:Version}), ${misc:Depends}
-Description: debugging symbols for libwait$(soname) package.
+Depends: libpogodi$(soname) (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for libpogodi$(soname) package.
 
-Package: libwait-dev
+Package: libpogodi-dev
 Section: devel
 Architecture: all
-Depends: libutki-dev, libwait$(soname) (= ${binary:Version}), ${misc:Depends}
-Suggests: libwait$(soname)-dbg (= ${binary:Version}), libwait-doc
+Depends: libutki-dev, libpogodi$(soname) (= ${binary:Version}), ${misc:Depends}
+Suggests: libpogodi$(soname)-dbg (= ${binary:Version}), libpogodi-doc
 Description: cross-platform C++ waiting library.
  Waiting library.
 
-Package: libwait-doc
+Package: libpogodi-doc
 Section: devel
 Architecture: all
 Depends: ${misc:Depends}
-Description: documentation for libwait - waiting library.
- For more details see description to libwait-dev package.
+Description: documentation for libpogodi - waiting library.
+ For more details see description to libpogodi-dev package.
