@@ -2,7 +2,7 @@
 #include "WaitSet.hpp"
 
 
-using namespace wt;
+using namespace pogodi;
 
 
 

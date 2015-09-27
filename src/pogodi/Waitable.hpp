@@ -5,7 +5,7 @@
 #include <utki/config.hpp>
 #include <utki/debug.hpp>
 
-namespace wt{
+namespace pogodi{
 
 /**
  * @brief Base class for objects which can be waited for.

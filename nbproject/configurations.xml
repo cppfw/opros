@@ -6,10 +6,6 @@
         <in>WaitSet.cpp</in>
         <in>Waitable.cpp</in>
       </df>
-      <df name="wait">
-        <in>WaitSet.cpp</in>
-        <in>Waitable.cpp</in>
-      </df>
     </df>
     <df root="tests" name="1">
       <df name="WaitSet">
@@ -73,14 +69,6 @@
         </ccTool>
       </item>
       <item path="src/pogodi/Waitable.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="0">
-        </ccTool>
-      </item>
-      <item path="src/wait/WaitSet.cpp" ex="false" tool="1" flavor2="8">
-        <ccTool flags="0">
-        </ccTool>
-      </item>
-      <item path="src/wait/Waitable.cpp" ex="false" tool="1" flavor2="8">
         <ccTool flags="0">
         </ccTool>
       </item>

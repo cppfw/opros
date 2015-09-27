@@ -45,7 +45,7 @@
 #include "Waitable.hpp"
 
 
-namespace wt{
+namespace pogodi{
 
 /**
  * @brief Set of Waitable objects to wait for.
