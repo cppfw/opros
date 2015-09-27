@@ -1,0 +1,35 @@
+Source: libwait
+Section: misc
+Priority: extra
+Maintainer: Ivan Gagis <igagis@gmail.com>
+Build-Depends: debhelper (>= 9), libc6-dev, prorab, libutki-dev
+Build-Depends-Indep: doxygen
+Standards-Version: 3.9.2
+
+Package: libwait$(soname)
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: cross-platform C++ waiting library.
+ Waiting library.
+
+Package: libwait$(soname)-dbg
+Section: libdevel
+Architecture: any
+Depends: libwait$(soname) (= ${binary:Version}), ${misc:Depends}
+Description: debugging symbols for libwait$(soname) package.
+
+Package: libwait-dev
+Section: devel
+Architecture: all
+Depends: libutki-dev, libwait$(soname) (= ${binary:Version}), ${misc:Depends}
+Suggests: libwait$(soname)-dbg (= ${binary:Version}), libwait-doc
+Description: cross-platform C++ waiting library.
+ Waiting library.
+
+Package: libwait-doc
+Section: devel
+Architecture: all
+Depends: ${misc:Depends}
+Description: documentation for libwait - waiting library.
+ For more details see description to libwait-dev package.
