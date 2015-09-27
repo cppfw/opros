@@ -2,6 +2,10 @@
 <configurationDescriptor version="97">
   <logicalFolder name="root" displayName="root" projectFiles="true" kind="ROOT">
     <df root="src" name="0">
+      <df name="pogodi">
+        <in>WaitSet.cpp</in>
+        <in>Waitable.cpp</in>
+      </df>
       <df name="wait">
         <in>WaitSet.cpp</in>
         <in>Waitable.cpp</in>
@@ -64,6 +68,14 @@
           </preprocessorList>
         </ccTool>
       </folder>
+      <item path="src/pogodi/WaitSet.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
+      <item path="src/pogodi/Waitable.cpp" ex="false" tool="1" flavor2="8">
+        <ccTool flags="0">
+        </ccTool>
+      </item>
       <item path="src/wait/WaitSet.cpp" ex="false" tool="1" flavor2="8">
         <ccTool flags="0">
         </ccTool>
