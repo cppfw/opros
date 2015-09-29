@@ -18,7 +18,7 @@ using namespace pogodi;
 void WaitSet::AddFilter(Waitable& w, int16_t filter){
 	struct kevent e;
 
-	EV_SET(&e, w.GetHandle(), filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
+	EV_SET(&e, w.getHandle(), filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
 
 	const timespec timeout = {0, 0}; //0 to make effect of polling, because passing NULL will cause to wait indefinitely.
 
@@ -39,7 +39,7 @@ void WaitSet::AddFilter(Waitable& w, int16_t filter){
 void WaitSet::RemoveFilter(Waitable& w, int16_t filter){
 	struct kevent e;
 
-	EV_SET(&e, w.GetHandle(), filter, EV_DELETE | EV_RECEIPT, 0, 0, 0);
+	EV_SET(&e, w.getHandle(), filter, EV_DELETE | EV_RECEIPT, 0, 0, 0);
 
 	const timespec timeout = {0, 0}; //0 to make effect of polling, because passing NULL will cause to wait indefinitely.
 
@@ -374,13 +374,13 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Wait
 				struct kevent &e = this->revents[i];
 				Waitable *w = reinterpret_cast<Waitable*>(e.udata);
 				if(e.filter == EVFILT_WRITE){
-					w->SetCanWriteFlag();
+					w->setCanWriteFlag();
 				}else if(e.filter == EVFILT_READ){
-					w->SetCanReadFlag();
+					w->setCanReadFlag();
 				}
 				
 				if((e.flags & EV_ERROR) != 0){
-					w->SetErrorFlag();
+					w->setErrorFlag();
 				}
 				
 				if(out_events){
