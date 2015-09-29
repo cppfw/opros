@@ -1,6 +1,6 @@
 Name: pogodi   # human-readable name
 Description: C++ waiting library # human-readable description
-Version: 1.0.0
+Version: 1.0.1
 URL: https://github.com/igagis/pogodi
 Requires:
 Conflicts:
