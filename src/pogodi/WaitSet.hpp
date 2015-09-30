@@ -50,7 +50,7 @@ namespace pogodi{
 /**
  * @brief Set of Waitable objects to wait for.
  */
-class WaitSet{
+class DLLEXPORT WaitSet{
 	const unsigned size_var;
 	unsigned numWaitables_var = 0;//number of Waitables added
 
