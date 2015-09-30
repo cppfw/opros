@@ -19,7 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{56CB4C41-BBC3-4D83-A478-602055265F01}</ProjectGuid>
+    <ProjectGuid>{D655A284-4321-43D5-AC4B-3B89D41AC44B}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>test_WaitSet</RootNamespace>
     <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
@@ -154,12 +154,12 @@
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
-    <Import Project="..\packages\libutki.1.0.4.2\build\native\libutki.targets" Condition="Exists('..\packages\libutki.1.0.4.2\build\native\libutki.targets')" />
+    <Import Project="..\packages\libutki.1.0.4.3\build\native\libutki.targets" Condition="Exists('..\packages\libutki.1.0.4.3\build\native\libutki.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
-    <Error Condition="!Exists('..\packages\libutki.1.0.4.2\build\native\libutki.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libutki.1.0.4.2\build\native\libutki.targets'))" />
+    <Error Condition="!Exists('..\packages\libutki.1.0.4.3\build\native\libutki.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\libutki.1.0.4.3\build\native\libutki.targets'))" />
   </Target>
 </Project>
