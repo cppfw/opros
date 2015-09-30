@@ -5,6 +5,10 @@
 #include <utki/config.hpp>
 #include <utki/debug.hpp>
 
+#if M_OS == M_OS_WINDOWS
+#	include <utki/windows.hpp>
+#endif
+
 namespace pogodi{
 
 /**

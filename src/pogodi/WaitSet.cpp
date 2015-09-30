@@ -58,7 +58,7 @@ void WaitSet::RemoveFilter(Waitable& w, int16_t filter){
 
 void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 //		TRACE(<< "WaitSet::Add(): enter" << std::endl)
-	ASSERT(!w.isAdded)
+	ASSERT(!w.isAdded())
 
 #if M_OS == M_OS_WINDOWS
 	ASSERT(this->numWaitables_var <= this->handles.size())
@@ -68,7 +68,7 @@ void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 
 	//NOTE: Setting wait flags may throw an exception, so do that before
 	//adding object to the array and incrementing number of added objects.
-	w.SetWaitingEvents(flagsToWaitFor);
+	w.setWaitingEvents(flagsToWaitFor);
 
 	this->handles[this->numWaitables_var] = w.getHandle();
 	this->waitables[this->numWaitables_var] = &w;
@@ -113,7 +113,7 @@ void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 
 
 void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
-	ASSERT(w.isAdded)
+	ASSERT(w.isAdded())
 
 #if M_OS == M_OS_WINDOWS
 	//check if the Waitable object is added to this wait set
@@ -131,7 +131,7 @@ void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 	}
 
 	//set new wait flags
-	w.SetWaitingEvents(flagsToWaitFor);
+	w.setWaitingEvents(flagsToWaitFor);
 
 #elif M_OS == M_OS_LINUX
 	epoll_event e;
@@ -169,9 +169,9 @@ void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 
 
 void WaitSet::remove(Waitable& w)noexcept{
-	ASSERT(w.isAdded)
+	ASSERT(w.isAdded())
 	
-	ASSERT(this->NumWaitables() != 0)
+	ASSERT(this->numWaitables() != 0)
 
 #if M_OS == M_OS_WINDOWS
 	//remove object from array
@@ -194,7 +194,7 @@ void WaitSet::remove(Waitable& w)noexcept{
 	}
 
 	//clear wait flags (disassociate socket and Windows event)
-	w.SetWaitingEvents(0);
+	w.setWaitingEvents(0);
 
 #elif M_OS == M_OS_LINUX
 	int res = epoll_ctl(
@@ -261,7 +261,7 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Wait
 	//check for activities
 	unsigned numEvents = 0;
 	for(unsigned i = 0; i < this->numWaitables_var; ++i){
-		if(this->waitables[i]->CheckSignaled()){
+		if(this->waitables[i]->checkSignaled()){
 			if(out_events){
 				ASSERT(numEvents < out_events->size())
 				out_events->operator[](numEvents) = this->waitables[i];
