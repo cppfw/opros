@@ -1,0 +1,51 @@
+nuget{
+	nuspec{
+		id = libpogodi;
+		version : $(version).1;
+		title: C++ event waiting library;
+		authors: {Ivan Gagis};
+		owners: {Ivan Gagis};
+		licenseUrl: "https://raw.githubusercontent.com/igagis/pogodi/master/LICENSE";
+		projectUrl: "https://github.com/igagis/pogodi";
+		iconUrl: "https://github.com/igagis/pogodi/blob/master/logo.svg";
+		requireLicenseAcceptance:false;
+		summary: C++ event waiting library;
+
+		description: @"C++ event waiting library";
+		releaseNotes: "Initial release";
+		copyright: Copyright 2015 Ivan Gagis;
+		tags: { native};
+	}
+	dependencies {
+		packages : {
+			libutki/1.0.6.1
+		};
+	}
+	files {
+		include: { "src\**\*.hpp" };
+		
+		[x86,release] { 
+			lib: msvs_solution\Release\libpogodi.lib;
+			symbols: msvs_solution\Release\libpogodi.pdb;
+			bin: msvs_solution\Release\libpogodi.dll;
+		}
+
+		[x86,debug] { 
+			lib: msvs_solution\Debug\libpogodi.lib;
+			symbols: msvs_solution\Debug\libpogodi.pdb;
+			bin: msvs_solution\Debug\libpogodi.dll;
+		}
+
+		[x64,release] { 
+			lib: msvs_solution\x64\Release\libpogodi.lib;
+			symbols: msvs_solution\x64\Release\libpogodi.pdb;
+			bin: msvs_solution\x64\Release\libpogodi.dll;
+		}
+
+		[x64,debug] { 
+			lib: msvs_solution\x64\Debug\libpogodi.lib;
+			symbols: msvs_solution\x64\Debug\libpogodi.pdb;
+			bin: msvs_solution\x64\Debug\libpogodi.dll;
+		}  
+	}
+}
