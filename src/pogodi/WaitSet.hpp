@@ -35,13 +35,6 @@
 #endif
 
 
-//disable warning about throw specification is ignored.
-#if M_COMPILER == M_COMPILER_MSVC
-#	pragma warning(push) //push warnings state
-#	pragma warning( disable : 4290)
-#endif
-
-
 #include "Waitable.hpp"
 
 
@@ -55,8 +48,15 @@ class DLLEXPORT WaitSet{
 	unsigned numWaitables_var = 0;//number of Waitables added
 
 #if M_OS == M_OS_WINDOWS
+#	if M_COMPILER == M_COMPILER_MSVC
+#		pragma warning(push)
+#		pragma warning( disable : 4251)
+#	endif
 	std::vector<Waitable*> waitables;
 	std::vector<HANDLE> handles; //used to pass array of HANDLEs to WaitForMultipleObjectsEx()
+#if M_COMPILER == M_COMPILER_MSVC
+#	pragma warning(pop)
+#endif
 
 #elif M_OS == M_OS_LINUX
 	int epollSet;
@@ -267,12 +267,4 @@ private:
 
 };
 
-
-
 }
-
-
-//restore warnings state
-#if M_COMPILER == M_COMPILER_MSVC
-#	pragma warning(pop) //pop warnings state
-#endif
