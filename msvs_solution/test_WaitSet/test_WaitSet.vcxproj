@@ -152,6 +152,11 @@
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\libpogodi\libpogodi.vcxproj">
+      <Project>{1aa66d02-60e2-47ca-90cf-3cf566d6641c}</Project>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\libutki.1.0.7.1\build\native\libutki.targets" Condition="Exists('..\packages\libutki.1.0.7.1\build\native\libutki.targets')" />
