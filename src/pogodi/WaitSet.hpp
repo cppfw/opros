@@ -48,15 +48,8 @@ class DLLEXPORT WaitSet{
 	unsigned numWaitables_var = 0;//number of Waitables added
 
 #if M_OS == M_OS_WINDOWS
-#	if M_COMPILER == M_COMPILER_MSVC
-#		pragma warning(push)
-#		pragma warning( disable : 4251)
-#	endif
 	std::vector<Waitable*> waitables;
 	std::vector<HANDLE> handles; //used to pass array of HANDLEs to WaitForMultipleObjectsEx()
-#if M_COMPILER == M_COMPILER_MSVC
-#	pragma warning(pop)
-#endif
 
 #elif M_OS == M_OS_LINUX
 	int epollSet;
