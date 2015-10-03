@@ -1,7 +1,7 @@
 nuget{
 	nuspec{
 		id = libpogodi;
-		version : 1.0.1.6;
+		version : 1.0.1.7;
 		title: C++ event waiting library;
 		authors: {Ivan Gagis};
 		owners: {Ivan Gagis};
@@ -18,7 +18,7 @@ nuget{
 	}
 	dependencies {
 		packages : {
-			libutki/1.0.6.1
+			libutki/1.0.8.4
 		};
 	}
 	files {
