@@ -15,7 +15,7 @@ namespace pogodi{
  * @brief Base class for objects which can be waited for.
  * Base class for objects which can be used in wait sets.
  */
-class DLLEXPORT Waitable{
+class Waitable{
 	friend class WaitSet;
 
 	bool isAdded_var = false;
