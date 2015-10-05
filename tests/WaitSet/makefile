@@ -18,6 +18,7 @@ ifeq ($(prorab_os),macosx)
     this_cflags += -stdlib=libc++ #this is needed to be able to use c++11 std lib
     this_ldlibs += -lc++
 else ifeq ($(prorab_os),windows)
+    this_cflags += -I/usr/include -I/usr/local/include
 else
     this_cflags += -fPIC
     this_ldlibs += -lpthread
