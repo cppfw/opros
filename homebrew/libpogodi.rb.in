@@ -8,7 +8,7 @@ class Libpogodi < Formula
   depends_on "libutki"
 
   def install
-    system "export", "PATH=$PATH:/usr/local/bin"
+    ENV['PATH'] << ':/usr/local/bin'
     system "make", "install"
   end
 
