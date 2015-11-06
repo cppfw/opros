@@ -1,0 +1,17 @@
+class Libpogodi < Formula
+  desc "C++ cross-platform event waiting library."
+  homepage "https://github.com/igagis/pogodi"
+  url "https://github.com/igagis/pogodi/archive/$(version).tar.gz"
+  sha256 "$(sha256)"
+
+  depends_on "prorab" => :build
+  depends_on "libutki"
+
+  def install
+    system "make", "install"
+  end
+
+  test do
+    system "make", "test"
+  end
+end
