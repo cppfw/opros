@@ -92,7 +92,7 @@ void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 		throw Exc("WaitSet::Add(): epoll_ctl() failed");
 	}
 #elif M_OS == M_OS_MACOSX
-	ASSERT(this->NumWaitables() <= revents.size() / 2)
+	ASSERT(this->numWaitables() <= revents.size() / 2)
 	
 	if((std::uint32_t(flagsToWaitFor) & Waitable::READ) != 0){
 		this->AddFilter(w, EVFILT_READ);
@@ -354,7 +354,7 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Wait
 				0,
 				0,
 				&*this->revents.begin(),
-				this->revents.size(),
+				int(this->revents.size()),
 				(waitInfinitly) ? 0 : &ts
 			);
 
