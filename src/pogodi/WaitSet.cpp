@@ -343,8 +343,8 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Wait
 	return unsigned(res);
 #elif M_OS == M_OS_MACOSX
 	struct timespec ts = {
-		timeout / 1000, //seconds
-		(timeout % 1000) * 1000000 //nanoseconds
+		decltype(timespec::tv_sec)(timeout / 1000), //seconds
+		decltype(timespec::tv_nsec)((timeout % 1000) * 1000000) //nanoseconds
 	};
 
 	//loop forever
