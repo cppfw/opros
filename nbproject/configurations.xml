@@ -19,7 +19,7 @@
                    kind="IMPORTANT_FILES_FOLDER">
       <itemPath>.travis.yml</itemPath>
       <itemPath>nbproject/private/launcher.properties</itemPath>
-      <itemPath>cocoapods/libpapki.podspec.in</itemPath>
+      <itemPath>cocoapods/libpogodi.podspec.in</itemPath>
       <itemPath>homebrew/libpogodi.rb.in</itemPath>
       <itemPath>src/makefile</itemPath>
     </logicalFolder>
