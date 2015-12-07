@@ -47,8 +47,7 @@ script:
     make;
     make test;
     
-    xcodebuild -project ios/Pods/Pods.xcodeproj CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO;
-    xcodebuild -project ios/tests.xcodeproj CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO;
+    xcodebuild -workspace ios/tests.xcworkspace -scheme tests CODE_SIGN_IDENTITY="" CODE_SIGNING_REQUIRED=NO;
     
     if [ -n "$TRAVIS_TAG" ]; then prorab-deploy-cocoapods.sh igagis; else echo "Skip deploying to cocoapods because not a tagged commit!!!"; fi;
   fi
