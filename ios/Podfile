@@ -1,4 +1,5 @@
 source 'https://github.com/igagis/cocoapods-repo.git'
 
-pod 'libutki', '>= 1.0.8'
-
+target "tests" do
+	pod 'libutki', '>= 1.0.21'
+end

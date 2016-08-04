@@ -22,30 +22,30 @@ nuget{
 		};
 	}
 	files {
-		include: { "..\src\**\*.hpp" };
+		//this is needed to put headers in the base folder
+		nestedInclude: {
+			#destination = ${d_include}pogodi;
+			"..\src\pogodi\**\*.hpp"
+		};
 		
 		[x86,release] { 
 			lib: ..\msvs_solution\Release\libpogodi.lib;
 			symbols: ..\msvs_solution\libpogodi\Release\libpogodi.pdb;
-//			bin: ..\msvs_solution\Release\libpogodi.dll;
 		}
 
 		[x86,debug] { 
 			lib: ..\msvs_solution\Debug\libpogodi.lib;
 			symbols: ..\msvs_solution\libpogodi\Debug\libpogodi.pdb;
-//			bin: ..\msvs_solution\Debug\libpogodi.dll;
 		}
 
 		[x64,release] { 
 			lib: ..\msvs_solution\x64\Release\libpogodi.lib;
 			symbols: ..\msvs_solution\libpogodi\x64\Release\libpogodi.pdb;
-//			bin: ..\msvs_solution\x64\Release\libpogodi.dll;
 		}
 
 		[x64,debug] { 
 			lib: ..\msvs_solution\x64\Debug\libpogodi.lib;
 			symbols: ..\msvs_solution\libpogodi\x64\Debug\libpogodi.pdb;
-//			bin: ..\msvs_solution\x64\Debug\libpogodi.dll;
 		}  
 	}
 }
