@@ -12,5 +12,5 @@ Pod::Spec.new do |s|
   s.source_files  = "src/**/*.{hpp,cpp}"
   s.header_mappings_dir = "src"
 
-  s.dependency 'libutki', '>= 1.0.8'
+  s.dependency 'libutki', '>= 1.0.21'
 end
