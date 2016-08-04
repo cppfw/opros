@@ -1,3 +1,9 @@
+libpogodi (1.0.9) unstable; urgency=medium
+
+  * build fix
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 04 Aug 2016 20:07:16 +0300
+
 libpogodi (1.0.8) unstable; urgency=medium
 
   * nuget: add pdb files to package
