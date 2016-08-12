@@ -18,7 +18,7 @@ nuget{
 	}
 	dependencies {
 		packages : {
-			libutki/1.0.21;
+			libutki/1.0.22;
 		};
 	}
 	files {
@@ -27,25 +27,21 @@ nuget{
 			#destination = ${d_include}pogodi;
 			"..\src\pogodi\**\*.hpp"
 		};
-		
-		[x86,release] { 
+
+		[x86,release] {
 			lib: ..\msvs_solution\Release\libpogodi.lib;
-			symbols: ..\msvs_solution\libpogodi\Release\libpogodi.pdb;
 		}
 
-		[x86,debug] { 
+		[x86,debug] {
 			lib: ..\msvs_solution\Debug\libpogodi.lib;
-			symbols: ..\msvs_solution\libpogodi\Debug\libpogodi.pdb;
 		}
 
-		[x64,release] { 
+		[x64,release] {
 			lib: ..\msvs_solution\x64\Release\libpogodi.lib;
-			symbols: ..\msvs_solution\libpogodi\x64\Release\libpogodi.pdb;
 		}
 
-		[x64,debug] { 
+		[x64,debug] {
 			lib: ..\msvs_solution\x64\Debug\libpogodi.lib;
-			symbols: ..\msvs_solution\libpogodi\x64\Debug\libpogodi.pdb;
-		}  
+		}
 	}
 }
