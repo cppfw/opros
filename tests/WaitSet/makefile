@@ -13,7 +13,7 @@ this_cxxflags += -O3
 
 this_srcs += main.cpp tests.cpp
 
-this_ldlibs += -lpogodi
+this_ldlibs += -lpogodi -lstdc++
 
 ifeq ($(prorab_os),macosx)
     this_cxxflags += -stdlib=libc++ #this is needed to be able to use c++11 std lib
