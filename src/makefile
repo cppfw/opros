@@ -38,7 +38,7 @@ this_cxxflags += -g #include debugging symbols
 this_cxxflags += -O3
                 #-P -E #-Wreorder
 
-
+this_ldlibs += -lstdc++
 
 ifeq ($(prorab_os),linux)
     this_cxxflags += -fPIC # Since we are building shared library, we need Position-Independend Code
