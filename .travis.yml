@@ -54,7 +54,7 @@ script:
     prorab-deb-prepare.sh &&
     dpkg-buildpackage -us -uc;
   fi
-- if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$CC" == "clang" ]; then
+- if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$CC" == "gcc" ]; then
     sudo chroot /tmp/rasp bash -c "cd /build && prorab-deb-prepare.sh" &&
     sudo chroot /tmp/rasp bash -c "cd /build && dpkg-buildpackage -us -uc";
   fi
