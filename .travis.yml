@@ -30,7 +30,7 @@ before_install:
     sudo apt-get update -qq &&
     sudo apt-get install -qq debhelper prorab doxygen libutki-dev;
   fi
-- if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$CC" == "clang" ]; then
+- if [ "$TRAVIS_OS_NAME" == "linux" ] && [ "$CC" == "gcc" ]; then
     sudo prorab-make-raspberry-chroot.sh /tmp/rasp &&
     echo "deb http://dl.bintray.com/igagis/rasp /" | sudo tee /tmp/rasp/etc/apt/sources.list.d/igagis.list > /dev/null &&
     sudo chroot /tmp/rasp apt-get update &&
