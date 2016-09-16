@@ -1,9 +1,9 @@
 Source: libpogodi
-Section: misc
+Section: libs
 Priority: extra
 Maintainer: Ivan Gagis <igagis@gmail.com>
 Build-Depends: debhelper (>= 9), prorab,
-		libc6-dev, libutki-dev
+		libutki-dev
 Build-Depends-Indep: doxygen
 Standards-Version: 3.9.2
 
@@ -15,13 +15,14 @@ Description: cross-platform C++ waiting library.
  Waiting library.
 
 Package: libpogodi$(soname)-dbg
-Section: libdevel
+Section: debug
 Architecture: any
 Depends: libpogodi$(soname) (= ${binary:Version}), ${misc:Depends}
 Description: debugging symbols for libpogodi$(soname) package.
+ Debug symbols for libpogodi.
 
 Package: libpogodi-dev
-Section: devel
+Section: libdevel
 Architecture: all
 Depends: libpogodi$(soname) (= ${binary:Version}), libpogodi$(soname)-dbg (= ${binary:Version}), ${misc:Depends},
 		libutki-dev
@@ -30,7 +31,7 @@ Description: cross-platform C++ waiting library.
  Waiting library.
 
 Package: libpogodi-doc
-Section: devel
+Section: doc
 Architecture: all
 Depends: ${misc:Depends}
 Description: documentation for libpogodi - waiting library.
