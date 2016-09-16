@@ -1,3 +1,9 @@
+libpogodi (1.0.13) unstable; urgency=medium
+
+  * deploy to ubuntu,debian,rasp
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 16 Sep 2016 12:19:34 +0300
+
 libpogodi (1.0.12) unstable; urgency=medium
 
   * rasp deploy
