@@ -23,7 +23,7 @@ Description: debugging symbols for libpogodi$(soname) package.
 
 Package: libpogodi-dev
 Section: libdevel
-Architecture: all
+Architecture: any
 Depends: libpogodi$(soname) (= ${binary:Version}), libpogodi$(soname)-dbg (= ${binary:Version}), ${misc:Depends},
 		libutki-dev
 Suggests: libpogodi-doc
