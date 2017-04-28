@@ -1,3 +1,9 @@
+libpogodi (1.0.14) unstable; urgency=medium
+
+  * deploy to android
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 28 Apr 2017 11:01:50 +0300
+
 libpogodi (1.0.13) unstable; urgency=medium
 
   * deploy to ubuntu,debian,rasp
