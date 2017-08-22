@@ -51,6 +51,7 @@ env:
   - secure: "5N3WCLkGAbj50kPLgES80DqqvcZjlIufQoUI8jAsTiktKrC4Qv2s/BJIitnCjUP8dRB/FYlbSpgQXHZHeVxfOs3zREGPzryrkAAGXdARHsGDk3cYLq502NyknMJ+ElIu1my+pfgrccNirBYwATq/w0d6j53r10wb6mFFMwcHlxZQYLLTAPCnK0V2sCT708mV5ZCHgYGpfL/qOS/XjFGVSU2pu9KLypLf/tjpkqKLUsIg9Bx01i6LZ7wNsUleo8ytRzUjy9krJEIAmXHDuWeZZfsp22ylNTHeVWL5wWBQCgrRmNeiZtqTAbSx8y/z95l7GFYPinzoWDCB4THeZX7DjlKe2mmccjZjNFB3ETPsj+v7gAWahRZ1nYII3np2Zo/5ZM7O8vQoPEmwOC9OVZ5fscFCsJ/7UJS1WMR6Hdrp7vkiXguB7VqjDAGp5g8+YEI9OMIpPyqKTjT2lpj+hmN38T9uabZzpVcTvnjauphjqGQbOLZ++BWoUkk38pI+I/f0ZVyJW7hE78+DigjV1TZi2M8UEJK/Y9IkYrNEcvjViD/PuL5b4lB9QeL3mQbFqflR/jbD6gReVR6oTdQSpaCf6edIdEJHfdi/UWrGT1F2CTxpnWHk8ztU/nbtzaI8H/qWblHARXYhCHrdcr+l4kJ7GoQeFA6asAQ88u9Jq5KZUu0="
   - PRORAB_GIT_USERNAME=igagis
   - PRORAB_GIT_ACCESS_TOKEN=$HOMEBREW_GITHUB_ACCESS_TOKEN
+  - USE_ANDROID_NDK_VERSION=15c
   - linuxDependencies="debhelper prorab doxygen libutki-dev"
 
 
@@ -91,7 +92,7 @@ before_install:
     sudo sbuild-adduser $LOGNAME &&
     echo lQHYBFfZDkYBBACyRm0LCwK/9rSzqSJyEBihVNA61meWp9MVjn3EBPp6MV1/mjZ80LPJ6ecYX6VMu861a5yQLnlA9krUxuHxjnsEYvMQiz0zHapp8Zqu0FIvcU1IWZV7Eio5Lej7QFeHFmtPlrSqT152lVUmQFW9ZCtWOOM1KnKBhoWWLf9z7LnwSwARAQABAAP/SWyYHKQ8TbPeWOCgPzpB6rBz0sfbgkE8vvQg+ErUnt8WEygAqQeMBO1BMNizzBbN3AqmQPvjFM5bo6cGB+cW4tbmWVtp8wMGVm8dobiZP3p1YLtvrweX3gYo1P4km8B7JkeJ0oyGa1k4yP5m4+o7t97EanKLFTFCbJvV/txT+YECAMLhKBMGJBqa8766tsyXbKaHQKvUDwlVCltAbeRb/V7cnIEuf/bn5DcN2O3yhN35OX5EvCeJxtCSBDh9HkQfK0cCAOowGoepffgLuuOfnpNU3GcHU9lNsLUnYJ17Oa38z1JGjggrUvQ5V6UbH0YY14vQXbrOVn+YE9Job9UCnM6DzN0B/19ZoYzH9anOf+nmTM56Rrk8itQXhN/gpI22EZ9n8koELvYrHj3iUgPJ+BOCKTP3E9brojEC048pK58GFJkr+/qjqbRgU2J1aWxkIFNpZ25lciAoU2J1aWxkIEJ1aWxkIERlcGVuZGVuY3kgQXJjaGl2ZSBLZXkpIDxidWlsZGQtdG9vbHMtZGV2ZWxAbGlzdHMuYWxpb3RoLmRlYmlhbi5vcmc+iLgEEwECACIFAlfZDkYCGy8GCwkIBwMCBhUIAgkKCwQWAgMBAh4BAheAAAoJELG4iKvjYvQgomAEAJzhmqIVxIU3+ROL0B8Q2Iv1gWRe6X17J1UQPYIGkRYcZWYUllWjmk32snT5Yv+x2TMVojD0JCCgltU0JBvydovItd+g6H+C8I/bhoq5twC9CIYGKmhDInxwCdHG8yU7AVdEopf38VsEC+3Hazh4V5sPldHMo9Lx6u5uXiil5qKi | base64 -d | sudo tee /var/lib/sbuild/apt-keys/sbuild-key.sec > /dev/null &&
     echo mI0EV9kORgEEALJGbQsLAr/2tLOpInIQGKFU0DrWZ5an0xWOfcQE+noxXX+aNnzQs8np5xhfpUy7zrVrnJAueUD2StTG4fGOewRi8xCLPTMdqmnxmq7QUi9xTUhZlXsSKjkt6PtAV4cWa0+WtKpPXnaVVSZAVb1kK1Y44zUqcoGGhZYt/3PsufBLABEBAAG0YFNidWlsZCBTaWduZXIgKFNidWlsZCBCdWlsZCBEZXBlbmRlbmN5IEFyY2hpdmUgS2V5KSA8YnVpbGRkLXRvb2xzLWRldmVsQGxpc3RzLmFsaW90aC5kZWJpYW4ub3JnPoi4BBMBAgAiBQJX2Q5GAhsvBgsJCAcDAgYVCAIJCgsEFgIDAQIeAQIXgAAKCRCxuIir42L0IKJgBACc4ZqiFcSFN/kTi9AfENiL9YFkXul9eydVED2CBpEWHGVmFJZVo5pN9rJ0+WL/sdkzFaIw9CQgoJbVNCQb8naLyLXfoOh/gvCP24aKubcAvQiGBipoQyJ8cAnRxvMlOwFXRKKX9/FbBAvtx2s4eFebD5XRzKPS8erubl4opeaiog== | base64 -d | sudo tee /var/lib/sbuild/apt-keys/sbuild-key.pub > /dev/null &&
-    sudo sbuild-createchroot --include=gnupg1,dirmngr,build-essential testing /srv/chroot/deb-amd64 http://httpredir.debian.org/debian &&
+    sudo sbuild-createchroot --include=gnupg1,dirmngr,build-essential stretch /srv/chroot/deb-amd64 http://httpredir.debian.org/debian &&
     echo "deb [trusted=yes] http://dl.bintray.com/igagis/deb unstable main" | sudo tee /srv/chroot/deb-amd64/etc/apt/sources.list.d/igagis.list > /dev/null &&
     sudo chroot /srv/chroot/deb-amd64 apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 &&
     sudo chroot /srv/chroot/deb-amd64 ln -s /usr/bin/gpg1 /usr/bin/gpg;
@@ -120,22 +121,16 @@ before_install:
     sudo mkdir -p /srv/chroot/rasp-armhf/build &&
     sudo rsync -av $TRAVIS_BUILD_DIR/ /srv/chroot/rasp-armhf/build/;
   fi
-- if [ "$BUILD_NAME" == "clang" ]; then
-    echo "deb http://dl.bintray.com/igagis/deb /" | sudo tee /etc/apt/sources.list.d/igagis.list > /dev/null &&
-    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 379CE192D401AB61 &&
-    sudo apt-get update -qq &&
-    sudo apt-get install -qq $linuxDependencies lintian;
-  fi
 
 
 before_script:
   # download and install android NDK
   - if [ "$BUILD_NAME" == "android" ]; then
       export TERM=dumb &&
-      curl -L https://dl.google.com/android/repository/android-ndk-r14b-linux-x86_64.zip -O &&
-      unzip ./android-ndk-r14b-linux-x86_64.zip > /dev/null &&
-      rm android-ndk-r14b-linux-x86_64.zip &&
-      export ANDROID_NDK_HOME=`pwd`/android-ndk-r14b &&
+      curl -L https://dl.google.com/android/repository/android-ndk-r$USE_ANDROID_NDK_VERSION-linux-x86_64.zip -O &&
+      unzip ./android-ndk-r$USE_ANDROID_NDK_VERSION-linux-x86_64.zip > /dev/null &&
+      rm android-ndk-r$USE_ANDROID_NDK_VERSION-linux-x86_64.zip &&
+      export ANDROID_NDK_HOME=`pwd`/android-ndk-r$USE_ANDROID_NDK_VERSION &&
       export LOCAL_ANDROID_NDK_HOME="$ANDROID_NDK_HOME" &&
       export LOCAL_ANDROID_NDK_HOST_PLATFORM="linux-x86_64" &&
       export PATH=$PATH:${ANDROID_NDK_HOME} &&
@@ -145,15 +140,11 @@ before_script:
 script:
 - if [ "$BUILD_NAME" == "debian" ]; then
     prorab-deb-prepare.sh &&
-    sg sbuild -c "sbuild -A -d testing-amd64-sbuild --run-lintian --debbuildopts '-us -uc'";
+    sg sbuild -c "sbuild -n -A -d stretch-amd64-sbuild --run-lintian --debbuildopts '-us -uc'";
   fi
 - if [ "$BUILD_NAME" == "ubuntu" ]; then
     prorab-deb-prepare.sh &&
-    sg sbuild -c "sbuild -A -d xenial-amd64-sbuild --debbuildopts '-us -uc'";
-  fi
-- if [ "$BUILD_NAME" == "clang" ]; then
-    prorab-deb-prepare.sh &&
-    dpkg-buildpackage -uc -us;
+    sg sbuild -c "sbuild -n -A -d xenial-amd64-sbuild --debbuildopts '-us -uc'";
   fi
 - if [ "$BUILD_NAME" == "macosx" ]; then
     make &&
