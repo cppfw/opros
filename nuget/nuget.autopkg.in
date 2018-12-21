@@ -1,3 +1,11 @@
+configurations {
+	UserPlatformToolset {
+		// Needed because autopackage lacks VS2015+ support
+		key = "PlatformToolset";
+		choices: "v140,v141";
+	};
+}
+
 nuget{
 	nuspec{
 		id = libpogodi;
@@ -28,20 +36,36 @@ nuget{
 			"..\src\pogodi\**\*.hpp"
 		};
 
-		[x86,release] {
-			lib: ..\msvs_solution\Release\libpogodi.lib;
+		[x86,v140,release] {
+			lib: ..\msvs_solution\v140_Release\libpogodi.lib;
 		}
 
-		[x86,debug] {
-			lib: ..\msvs_solution\Debug\libpogodi.lib;
+		[x86,v140,debug] {
+			lib: ..\msvs_solution\v140_Debug\libpogodi.lib;
 		}
 
-		[x64,release] {
-			lib: ..\msvs_solution\x64\Release\libpogodi.lib;
+		[x64,v140,release] {
+			lib: ..\msvs_solution\x64\v140_Release\libpogodi.lib;
 		}
 
-		[x64,debug] {
-			lib: ..\msvs_solution\x64\Debug\libpogodi.lib;
+		[x64,v140,debug] {
+			lib: ..\msvs_solution\x64\v140_Debug\libpogodi.lib;
+		}
+
+		[x86,v141,release] {
+			lib: ..\msvs_solution\v141_Release\libpogodi.lib;
+		}
+
+		[x86,v141,debug] {
+			lib: ..\msvs_solution\v141_Debug\libpogodi.lib;
+		}
+
+		[x64,v141,release] {
+			lib: ..\msvs_solution\x64\v141_Release\libpogodi.lib;
+		}
+
+		[x64,v141,debug] {
+			lib: ..\msvs_solution\x64\v141_Debug\libpogodi.lib;
 		}
 	}
 }
