@@ -52,7 +52,7 @@ env:
   - MYCI_GIT_USERNAME=igagis
   - MYCI_GIT_ACCESS_TOKEN=$HOMEBREW_GITHUB_ACCESS_TOKEN
   - USE_ANDROID_NDK_VERSION=15c
-  - linuxDependencies="debhelper prorab doxygen libutki-dev"
+  - linuxDependencies="debhelper prorab prorab-extra myci doxygen libutki-dev"
 
 
 
