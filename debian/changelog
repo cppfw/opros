@@ -1,3 +1,9 @@
+libpogodi (1.0.18) unstable; urgency=medium
+
+  * deploying to msys
+
+ -- Ivan Gagis <igagis@gmail.com>  Tue, 01 Jan 2019 21:13:39 +0200
+
 libpogodi (1.0.17) unstable; urgency=medium
 
   * build for stretch
