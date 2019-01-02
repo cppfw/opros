@@ -1,3 +1,9 @@
+libpogodi (1.0.19) unstable; urgency=medium
+
+  * deploying to msys
+
+ -- Ivan Gagis <igagis@gmail.com>  Wed, 02 Jan 2019 22:16:55 +0200
+
 libpogodi (1.0.18) unstable; urgency=medium
 
   * deploying to msys
