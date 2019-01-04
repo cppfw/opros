@@ -16,8 +16,6 @@ this_srcs += pogodi/Waitable.cpp
 
 
 
-this_cxxflags := 
-
 ifeq ($(debug),true)
     this_cxxflags += -DDEBUG
 endif
