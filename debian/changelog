@@ -1,3 +1,9 @@
+libpogodi (1.0.20) unstable; urgency=medium
+
+  * CXXFLAGS fix
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 04 Jan 2019 02:43:44 +0200
+
 libpogodi (1.0.19) unstable; urgency=medium
 
   * deploying to msys
