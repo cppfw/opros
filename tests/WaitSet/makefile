@@ -26,6 +26,7 @@ endif
 
 this_ldflags += -L$(d)../../src/
 
+this_no_install := true
 
 $(eval $(prorab-build-app))
 
