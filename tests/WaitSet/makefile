@@ -37,4 +37,4 @@ include $(d)../test_target.mk
 
 
 #include makefile for building pogodi
-$(eval $(call prorab-include,$(d)../../src/makefile))
+$(eval $(call prorab-try-include,$(d)../../src/makefile))
