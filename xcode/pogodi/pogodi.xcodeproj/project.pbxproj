@@ -6,6 +6,10 @@
 	objectVersion = 50;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2EE165EDE3B88AF94E6EDD67 /* libPods-pogodi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CFAF76C902298516850B8A2 /* libPods-pogodi.a */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		2C767F45234776190057CB2C /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -19,7 +23,10 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		1CFAF76C902298516850B8A2 /* libPods-pogodi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-pogodi.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C767F47234776190057CB2C /* libpogodi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpogodi.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		49D42B5FE9580FF681B5737F /* Pods-pogodi.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pogodi.release.xcconfig"; path = "Target Support Files/Pods-pogodi/Pods-pogodi.release.xcconfig"; sourceTree = "<group>"; };
+		C0E39DED4B6B0EC0221CF8DF /* Pods-pogodi.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pogodi.debug.xcconfig"; path = "Target Support Files/Pods-pogodi/Pods-pogodi.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -27,16 +34,29 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2EE165EDE3B88AF94E6EDD67 /* libPods-pogodi.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		00F0BD0FB70B647B6F034F88 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				C0E39DED4B6B0EC0221CF8DF /* Pods-pogodi.debug.xcconfig */,
+				49D42B5FE9580FF681B5737F /* Pods-pogodi.release.xcconfig */,
+			);
+			name = Pods;
+			path = ../Pods;
+			sourceTree = "<group>";
+		};
 		2C767F3E234776190057CB2C = {
 			isa = PBXGroup;
 			children = (
 				2C767F48234776190057CB2C /* Products */,
+				00F0BD0FB70B647B6F034F88 /* Pods */,
+				7360E1EA241B06C1D3AF8F73 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -48,6 +68,14 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
+		7360E1EA241B06C1D3AF8F73 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				1CFAF76C902298516850B8A2 /* libPods-pogodi.a */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -55,6 +83,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2C767F50234776190057CB2C /* Build configuration list for PBXNativeTarget "pogodi" */;
 			buildPhases = (
+				2B09B6138F05CF92FBC58991 /* [CP] Check Pods Manifest.lock */,
 				2C767F43234776190057CB2C /* Sources */,
 				2C767F44234776190057CB2C /* Frameworks */,
 				2C767F45234776190057CB2C /* CopyFiles */,
@@ -99,6 +128,31 @@
 			);
 		};
 /* End PBXProject section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		2B09B6138F05CF92FBC58991 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-pogodi-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2C767F43234776190057CB2C /* Sources */ = {
@@ -223,9 +277,10 @@
 		};
 		2C767F51234776190057CB2C /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = C0E39DED4B6B0EC0221CF8DF /* Pods-pogodi.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -234,9 +289,10 @@
 		};
 		2C767F52234776190057CB2C /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 49D42B5FE9580FF681B5737F /* Pods-pogodi.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
-				OTHER_LDFLAGS = "-ObjC";
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
