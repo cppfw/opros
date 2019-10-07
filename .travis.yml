@@ -93,7 +93,7 @@ before_install:
 
     sudo gem install cocoapods &&
     pod repo add --silent igagis https://$MYCI_GIT_USERNAME:$MYCI_GIT_ACCESS_TOKEN@github.com/igagis/cocoapods-repo.git &&
-    pod install --project-directory=ios;
+    pod install --project-directory=xcode;
   fi
 
 
