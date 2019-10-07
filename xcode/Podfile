@@ -1,8 +1,5 @@
 source 'https://github.com/igagis/cocoapods-repo.git'
 
-install! 'cocoapods',
-		:share_schemes_for_development_pods => true
-
 project 'pogodi/pogodi.xcodeproj'
 
 platform :ios, '8.0'

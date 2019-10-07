@@ -117,7 +117,7 @@ script:
     make test;
   fi
 - if [ "$TRAVIS_JOB_NAME" == "ios" ]; then
-    xcodebuild -workspace xcode/$PACKAGE_NAME.xcworkspace -scheme $PACKAGE_NAME CONFIGURATION_BUILD_DIR=../build -configuration Release;
+    xcodebuild -workspace xcode/$PACKAGE_NAME.xcworkspace -scheme $PACKAGE_NAME CONFIGURATION_BUILD_DIR=../build -configuration Release -list;
   fi
 - if [ "$TRAVIS_JOB_NAME" == "android" ]; then
     (cd android && ./gradlew build) &&
