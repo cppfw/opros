@@ -23,11 +23,11 @@ matrix:
     - name: macosx
       os: osx
       compiler: clang
-      osx_image: xcode8.3
+      osx_image: xcode11
     - name: ios
       os: osx
       compiler: clang
-      osx_image: xcode8.3
+      osx_image: xcode11
     - name: android
       language: android
       android:
@@ -117,7 +117,7 @@ script:
     make test;
   fi
 - if [ "$TRAVIS_JOB_NAME" == "ios" ]; then
-    xcodebuild -workspace xcode/$PACKAGE_NAME.xcworkspace -scheme $PACKAGE_NAME CONFIGURATION_BUILD_DIR=../build -configuration Release -list;
+    xcodebuild -workspace xcode/$PACKAGE_NAME.xcworkspace -scheme $PACKAGE_NAME CONFIGURATION_BUILD_DIR=../build -configuration Release;
   fi
 - if [ "$TRAVIS_JOB_NAME" == "android" ]; then
     (cd android && ./gradlew build) &&
