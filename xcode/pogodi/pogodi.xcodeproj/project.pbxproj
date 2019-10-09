@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2C861719234E37D500BA30E5 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2C861717234E37D500BA30E5 /* tests.cpp */; };
+		2C86171A234E37D500BA30E5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2C861718234E37D500BA30E5 /* main.cpp */; };
 		2EE165EDE3B88AF94E6EDD67 /* libPods-pogodi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CFAF76C902298516850B8A2 /* libPods-pogodi.a */; };
 /* End PBXBuildFile section */
 
@@ -25,6 +27,8 @@
 /* Begin PBXFileReference section */
 		1CFAF76C902298516850B8A2 /* libPods-pogodi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-pogodi.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C767F47234776190057CB2C /* libpogodi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpogodi.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C861717234E37D500BA30E5 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tests.cpp; path = ../../../tests/WaitSet/tests.cpp; sourceTree = "<group>"; };
+		2C861718234E37D500BA30E5 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../tests/WaitSet/main.cpp; sourceTree = "<group>"; };
 		49D42B5FE9580FF681B5737F /* Pods-pogodi.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pogodi.release.xcconfig"; path = "Target Support Files/Pods-pogodi/Pods-pogodi.release.xcconfig"; sourceTree = "<group>"; };
 		C0E39DED4B6B0EC0221CF8DF /* Pods-pogodi.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pogodi.debug.xcconfig"; path = "Target Support Files/Pods-pogodi/Pods-pogodi.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -54,6 +58,7 @@
 		2C767F3E234776190057CB2C = {
 			isa = PBXGroup;
 			children = (
+				2C861716234E379F00BA30E5 /* tests */,
 				2C767F48234776190057CB2C /* Products */,
 				00F0BD0FB70B647B6F034F88 /* Pods */,
 				7360E1EA241B06C1D3AF8F73 /* Frameworks */,
@@ -66,6 +71,15 @@
 				2C767F47234776190057CB2C /* libpogodi.a */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		2C861716234E379F00BA30E5 /* tests */ = {
+			isa = PBXGroup;
+			children = (
+				2C861718234E37D500BA30E5 /* main.cpp */,
+				2C861717234E37D500BA30E5 /* tests.cpp */,
+			);
+			path = tests;
 			sourceTree = "<group>";
 		};
 		7360E1EA241B06C1D3AF8F73 /* Frameworks */ = {
@@ -159,6 +173,8 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2C86171A234E37D500BA30E5 /* main.cpp in Sources */,
+				2C861719234E37D500BA30E5 /* tests.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
