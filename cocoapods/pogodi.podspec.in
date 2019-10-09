@@ -3,7 +3,7 @@ Pod::Spec.new do |s|
   s.version      = "$(version)"
   s.summary      = "C++ cross-platform event waiting library."
   s.homepage     = "https://github.com/igagis/pogodi"
-  s.license      = 'MIT'
+  s.license      = { :type => 'MIT', :file => 'LICENSE' }
   s.author       = { "Ivan Gagis" => "igagis@gmail.com" }
   s.platform     = :ios
   s.ios.deployment_target = '8.0'
