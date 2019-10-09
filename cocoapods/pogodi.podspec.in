@@ -14,7 +14,7 @@ Pod::Spec.new do |s|
   s.header_mappings_dir = "include"
 
   # the binary package provides static library
-  s.ios.vendored_library = "lib/lib#{s.name}.a"
+  s.ios.vendored_library = "lib/ios/lib#{s.name}.a"
 
   s.dependency 'libutki', '>= 1.0.21'
 end

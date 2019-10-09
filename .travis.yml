@@ -118,7 +118,7 @@ script:
   fi
 - if [ "$TRAVIS_JOB_NAME" == "ios" ]; then
     xcodebuild -workspace xcode/$PACKAGE_NAME.xcworkspace -scheme $PACKAGE_NAME CONFIGURATION_BUILD_DIR=../build -configuration Release &&
-    myci-create-zip-package.sh -h src -a xcode/build/lib$PACKAGE_NAME.a $PACKAGE_NAME-`myci-deb-version.sh debian/changelog`.zip;
+    myci-create-zip-package.sh -h src -f xcode/build/lib$PACKAGE_NAME.a///lib/ios -f LICENSE $PACKAGE_NAME-`myci-deb-version.sh debian/changelog`.zip;
   fi
 - if [ "$TRAVIS_JOB_NAME" == "android" ]; then
     (cd android && ./gradlew build) &&
