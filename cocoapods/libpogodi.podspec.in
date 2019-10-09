@@ -13,6 +13,7 @@ Pod::Spec.new do |s|
 
   # the binary package provides static library
   s.ios.library = 'pogodi'
+  s.ios.vendored_library = 'lib/libpogodi.a'
 
   s.dependency 'libutki', '>= 1.0.21'
 end
