@@ -7,13 +7,12 @@ Pod::Spec.new do |s|
   s.author       = { "Ivan Gagis" => "igagis@gmail.com" }
   s.platform     = :ios, "8.0"
 
-  s.source = { :http => "http://dl.bintray.com/igagis/cocoapods/pogodi/$(version)/libpogodi.zip" }
+  s.source = { :http => "https://dl.bintray.com/igagis/cocoapods/#{s.name}/#{s.version}/#{s.name}-#{s.version}.zip" }
 
   s.header_mappings_dir = "include"
 
   # the binary package provides static library
-  s.ios.library = 'pogodi'
-  s.ios.vendored_library = 'lib/libpogodi.a'
+  s.ios.vendored_library = "lib/#{s.name}.a"
 
   s.dependency 'libutki', '>= 1.0.21'
 end
