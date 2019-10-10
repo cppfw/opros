@@ -5,5 +5,5 @@ project 'pogodi/pogodi.xcodeproj'
 platform :ios, '8.0'
 
 target "pogodi" do
-	pod 'libutki', '>= 1.0.21'
+	pod 'utki', '>= 1.1.30'
 end
