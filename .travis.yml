@@ -129,7 +129,7 @@ script:
 
 
 before_deploy:
-  - myci-apply-version.sh -v $PACKAGE_VERSION travis_bintray_*.json.in
+
 
 deploy:
 - provider: script
