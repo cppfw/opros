@@ -1,1 +1,1 @@
-include ':app', ':libpogodi'
+include ':app', ':pogodi'

@@ -3,11 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
-      <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libpogodi/libpogodi.iml" filepath="$PROJECT_DIR$/libpogodi/libpogodi.iml" />
-      <module fileurl="file://$PROJECT_DIR$/libpogodi/libpogodi.iml" filepath="$PROJECT_DIR$/libpogodi/libpogodi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pogodi/pogodi.iml" filepath="$PROJECT_DIR$/pogodi/pogodi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/pogodi/pogodi.iml" filepath="$PROJECT_DIR$/pogodi/pogodi.iml" />
     </modules>
   </component>
 </project>
