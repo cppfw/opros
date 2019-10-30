@@ -1,3 +1,9 @@
+libpogodi (1.0.29) unstable; urgency=medium
+
+  * deployment fixed
+
+ -- Ivan Gagis <igagis@gmail.com>  Wed, 30 Oct 2019 16:37:25 +0200
+
 libpogodi (1.0.28) unstable; urgency=medium
 
   * update podspec
