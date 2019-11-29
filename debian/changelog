@@ -1,3 +1,9 @@
+libpogodi (1.0.30) unstable; urgency=medium
+
+  * debian buster
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 29 Nov 2019 14:53:48 +0200
+
 libpogodi (1.0.29) unstable; urgency=medium
 
   * deployment fixed
