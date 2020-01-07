@@ -1,3 +1,9 @@
+libpogodi (1.0.31) unstable; urgency=medium
+
+  * relink to libs
+
+ -- Ivan Gagis <igagis@gmail.com>  Wed, 08 Jan 2020 01:59:56 +0200
+
 libpogodi (1.0.30) unstable; urgency=medium
 
   * debian buster
