@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#include <utki/exception.hpp>
 
 #if M_OS == M_OS_MACOSX
 #	include <sys/time.h>
@@ -20,17 +21,17 @@ void WaitSet::AddFilter(Waitable& w, int16_t filter){
 
 	EV_SET(&e, w.getHandle(), filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
 
-	const timespec timeout = {0, 0}; //0 to make effect of polling, because passing NULL will cause to wait indefinitely.
+	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing NULL will cause to wait indefinitely.
 
 	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
 	if(res < 0){
-		throw Exc("WaitSet::Add(): AddFilter(): kevent() failed");
+		throw std::system_error(errno, std::generic_category(), "WaitSet::Add(): AddFilter(): kevent() failed");
 	}
 	
-	ASSERT((e.flags & EV_ERROR) != 0) //EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
-	if(e.data != 0){//data should be 0 if added successfully
+	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
+	if(e.data != 0){ // data should be 0 if added successfully
 		TRACE(<< "WaitSet::Add(): e.data = " << e.data << std::endl)
-		throw Exc("WaitSet::Add(): AddFilter(): kevent() failed to add filter");
+		throw std::runtime_error("WaitSet::Add(): AddFilter(): kevent() failed to add filter");
 	}
 }
 
@@ -63,7 +64,7 @@ void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 #if M_OS == M_OS_WINDOWS
 	ASSERT(this->numWaitables_var <= this->handles.size())
 	if(this->numWaitables_var == this->handles.size()){
-		throw Exc("WaitSet::Add(): wait set is full");
+		throw utki::invalid_state("WaitSet::Add(): wait set is full");
 	}
 
 	//NOTE: Setting wait flags may throw an exception, so do that before
@@ -89,7 +90,7 @@ void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 		);
 	if(res < 0){
 		TRACE(<< "WaitSet::Add(): epoll_ctl() failed. If you are adding socket, please check that is is opened before adding to WaitSet." << std::endl)
-		throw Exc("WaitSet::Add(): epoll_ctl() failed");
+		throw std::system_error(errno, std::generic_category(), "WaitSet::Add(): epoll_ctl() failed");
 	}
 #elif M_OS == M_OS_MACOSX
 	ASSERT(this->numWaitables() <= revents.size() / 2)
@@ -126,7 +127,7 @@ void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 		}
 		ASSERT(i <= this->numWaitables_var)
 		if(i == this->numWaitables_var){
-			throw Exc("WaitSet::Change(): the Waitable is not added to this wait set");
+			throw utki::invalid_state("WaitSet::Change(): the Waitable is not added to this wait set");
 		}
 	}
 
@@ -148,7 +149,7 @@ void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 			&e
 		);
 	if(res < 0){
-		throw Exc("WaitSet::Change(): epoll_ctl() failed");
+		throw std::system_error(errno, std::generic_category(), "WaitSet::Change(): epoll_ctl() failed");
 	}
 #elif M_OS == M_OS_MACOSX
 	if((std::uint32_t(flagsToWaitFor) & Waitable::READ) != 0){
@@ -221,14 +222,14 @@ void WaitSet::remove(Waitable& w)noexcept{
 
 
 
-unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Waitable*>* out_events){
+unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::span<Waitable*>* out_events){
 	if(this->numWaitables_var == 0){
-		throw Exc("WaitSet::Wait(): no Waitable objects were added to the WaitSet, can't perform Wait()");
+		throw utki::invalid_state("WaitSet::Wait(): no Waitable objects were added to the WaitSet, can't perform Wait()");
 	}
 
 	if(out_events){
 		if(out_events->size() < this->numWaitables_var){
-			throw Exc("WaitSet::Wait(): passed out_events buffer is not large enough to hold all possible triggered objects");
+			throw std::invalid_argument("WaitSet::Wait(): passed out_events buffer is not large enough to hold all possible triggered objects");
 		}
 	}
 
@@ -249,7 +250,7 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Wait
 	ASSERT(res < WAIT_ABANDONED_0 || (WAIT_ABANDONED_0 + this->numWaitables_var) <= res)
 
 	if(res == WAIT_FAILED){
-		throw Exc("WaitSet::Wait(): WaitForMultipleObjectsEx() failed");
+		throw std::system_error(GetLastError(), std::generic_category(), "WaitSet::Wait(): WaitForMultipleObjectsEx() failed");
 	}
 
 	if(res == WAIT_TIMEOUT){
@@ -303,10 +304,7 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Wait
 			if(errno == EINTR){
 				continue;
 			}
-
-			std::stringstream ss;
-			ss << "WaitSet::Wait(): epoll_wait() failed, error code = " << errno << ": " << strerror(errno);
-			throw Exc(ss.str().c_str());
+			throw std::system_error(errno, std::generic_category(), "WaitSet::wait(): epoll_wait() failed");
 		}
 		break;
 	};
@@ -362,10 +360,7 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Wait
 			if(errno == EINTR){
 				continue;
 			}
-			
-			std::stringstream ss;
-			ss << "WaitSet::Wait(): kevent() failed, error code = " << errno << ": " << strerror(errno);
-			throw Exc(ss.str().c_str());
+			throw std::system_error(errno, std::generic_category(), "WaitSet::wait(): kevent() failed");
 		}else if(res == 0){
 			return 0; // timeout
 		}else if(res > 0){

@@ -1,6 +1,7 @@
 #include "Waitable.hpp"
 #include "WaitSet.hpp"
 
+#include <utki/exception.hpp>
 
 using namespace pogodi;
 
@@ -11,9 +12,9 @@ Waitable::Waitable(Waitable&& w) :
 		userData(w.userData),
 		readinessFlags(NOT_READY)//Treat copied Waitable as NOT_READY
 {
-	//cannot move from waitable which is added to WaitSet
+	// cannot move from waitable which is added to WaitSet
 	if(w.isAdded_var){
-		throw WaitSet::Exc("Waitable::Waitable(move): cannot move Waitable which is added to WaitSet");
+		throw std::invalid_argument("Waitable::Waitable(move): cannot move Waitable which is added to WaitSet");
 	}
 
 	const_cast<Waitable&>(w).clearAllReadinessFlags();
@@ -24,11 +25,11 @@ Waitable::Waitable(Waitable&& w) :
 
 Waitable& Waitable::operator=(Waitable&& w){
 	if(this->isAdded_var){
-		throw WaitSet::Exc("Waitable::Waitable(move): cannot move while this Waitable is added to WaitSet");
+		throw utki::invalid_state("Waitable::Waitable(move): cannot move while this Waitable is added to WaitSet");
 	}
 
 	if(w.isAdded_var){
-		throw WaitSet::Exc("Waitable::Waitable(move): cannot move Waitable which is added to WaitSet");
+		throw std::invalid_argument("Waitable::Waitable(move): cannot move Waitable which is added to WaitSet");
 	}
 
 	ASSERT(!this->isAdded_var)

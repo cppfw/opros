@@ -11,11 +11,11 @@
 #include <sstream>
 #include <cerrno>
 #include <cstdint>
+#include <stdexcept>
 
 #include <utki/config.hpp>
 #include <utki/debug.hpp>
-#include <utki/Exc.hpp>
-#include <utki/Buf.hpp>
+#include <utki/span.hpp>
 
 
 #if M_OS == M_OS_WINDOWS
@@ -64,17 +64,6 @@ class WaitSet{
 #endif
 
 public:
-
-	/**
-	 * @brief WaitSet related exception class.
-	 */
-	class Exc : public utki::Exc{
-	public:
-		Exc(const std::string& message = std::string()) :
-				utki::Exc(message)
-		{}
-	};
-	
 	/**
 	 * @brief Constructor.
 	 * @param maxSize - maximum number of Waitable objects can be added to this wait set.
@@ -87,7 +76,7 @@ public:
 	{
 		ASSERT_INFO(maxSize <= MAXIMUM_WAIT_OBJECTS, "maxSize should be less than " << MAXIMUM_WAIT_OBJECTS)
 		if(maxSize > MAXIMUM_WAIT_OBJECTS){
-			throw Exc("WaitSet::WaitSet(): requested WaitSet size is too big");
+			throw std::invalid_argument("WaitSet::WaitSet(): requested WaitSet size is too big");
 		}
 	}
 
@@ -97,7 +86,7 @@ public:
 		ASSERT(int(maxSize) > 0)
 		this->epollSet = epoll_create(int(maxSize));
 		if(this->epollSet < 0){
-			throw Exc("WaitSet::WaitSet(): epoll_create() failed");
+			throw std::system_error(errno, std::generic_category(), "WaitSet::WaitSet(): epoll_create() failed");
 		}
 	}
 #elif M_OS == M_OS_MACOSX
@@ -105,7 +94,7 @@ public:
 	{
 		this->queue = kqueue();
 		if(this->queue == -1){
-			throw Exc("WaitSet::WaitSet(): kqueue creation failed");
+			throw system_error(errno, std::generic_category(), "WaitSet::WaitSet(): kqueue creation failed");
 		}
 	}
 #else
@@ -153,7 +142,7 @@ public:
 		return this->numWaitables_var;
 	}
 
-
+	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief Add Waitable object to the wait set.
 	 * @param w - Waitable object to add to the WaitSet.
@@ -163,7 +152,7 @@ public:
 	void add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor);
 
 
-
+	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief Change wait flags for a given Waitable.
 	 * Changes wait flags for a given waitable, which is in this WaitSet.
@@ -175,7 +164,7 @@ public:
 	void change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor);
 
 
-
+	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief Remove Waitable from wait set.
 	 * @param w - Waitable object to be removed from the WaitSet.
@@ -185,7 +174,7 @@ public:
 	void remove(Waitable& w)noexcept;
 
 
-
+	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief wait for event.
 	 * This function blocks calling thread execution until one of the Waitable objects in the WaitSet
@@ -202,7 +191,7 @@ public:
 	 *         NOTE: for some reason, on Windows it can return 0 objects triggered.
 	 * @throw ting::WaitSet::Exc - in case of errors.
 	 */
-	unsigned wait(utki::Buf<Waitable*> out_events){
+	unsigned wait(utki::span<Waitable*> out_events){
 		return this->wait(true, 0, &out_events);
 	}
 	
@@ -216,6 +205,7 @@ public:
 	}
 
 
+	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief wait for event with timeout.
 	 * The same as Wait() function, but takes wait timeout as parameter. Thus,
@@ -231,7 +221,7 @@ public:
 	 *         NOTE: for some reason, on Windows it can return 0 before timeout was hit.
 	 * @throw ting::WaitSet::Exc - in case of errors.
 	 */
-	unsigned waitWithTimeout(std::uint32_t timeout, utki::Buf<Waitable*> out_events){
+	unsigned waitWithTimeout(std::uint32_t timeout, utki::span<Waitable*> out_events){
 		return this->wait(false, timeout, &out_events);
 	}
 	
@@ -250,7 +240,7 @@ public:
 
 
 private:
-	unsigned wait(bool waitInfinitly, std::uint32_t timeout, utki::Buf<Waitable*>* out_events);
+	unsigned wait(bool waitInfinitly, std::uint32_t timeout, utki::span<Waitable*>* out_events);
 	
 	
 #if M_OS == M_OS_MACOSX
