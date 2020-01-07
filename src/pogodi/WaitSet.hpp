@@ -1,10 +1,3 @@
-/**
- * @file WaitSet.hpp
- * @author Ivan Gagis <igagis@gmail.com>
- * @author Jose Luis Hidalgo <joseluis.hidalgo@gmail.com> - Mac OS X port
- * @brief Wait set.
- */
-
 #pragma once
 
 #include <vector>
@@ -94,7 +87,7 @@ public:
 	{
 		this->queue = kqueue();
 		if(this->queue == -1){
-			throw system_error(errno, std::generic_category(), "WaitSet::WaitSet(): kqueue creation failed");
+			throw std::system_error(errno, std::generic_category(), "WaitSet::WaitSet(): kqueue creation failed");
 		}
 	}
 #else
