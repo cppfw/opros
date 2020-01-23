@@ -272,6 +272,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\tests\wait_set\*.cpp" />
+    <ClCompile Include="..\..\tests\helpers\queue.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libopros\libopros.vcxproj">
