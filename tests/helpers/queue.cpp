@@ -1,7 +1,10 @@
 #include "queue.hpp"
 
 #include <mutex>
-#include <unistd.h>
+
+#if M_OS != M_OS_WINDOWS
+#	include <unistd.h>
+#endif
 
 #if M_OS == M_OS_LINUX
 #	include <sys/eventfd.h>
