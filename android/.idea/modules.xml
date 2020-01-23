@@ -4,8 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/android.iml" filepath="$PROJECT_DIR$/android.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/pogodi/pogodi.iml" filepath="$PROJECT_DIR$/pogodi/pogodi.iml" />
-      <module fileurl="file://$PROJECT_DIR$/pogodi/pogodi.iml" filepath="$PROJECT_DIR$/pogodi/pogodi.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opros/opros.iml" filepath="$PROJECT_DIR$/opros/opros.iml" />
+      <module fileurl="file://$PROJECT_DIR$/opros/opros.iml" filepath="$PROJECT_DIR$/opros/opros.iml" />
     </modules>
   </component>
 </project>

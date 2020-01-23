@@ -1,7 +1,7 @@
 # Maintainer: Ivan Gagis <igagis@gmail.com>
 
 if [ "$MSYSTEM" == "MSYS" ]; then
-	pkgPrefix=
+	pkgPrefix=lib
 	dirPrefix=/usr
 	arch=('x86_64' 'i686')
 elif [ "$MSYSTEM" == "MINGW32" ]; then
@@ -17,7 +17,7 @@ else
 	exit 1
 fi
 
-packageName=pogodi
+packageName=opros
 
 pkgname="${pkgPrefix}${packageName}"
 pkgver=$(version)

@@ -1,1 +1,1 @@
-include ':app', ':pogodi'
+include ':app', ':opros'

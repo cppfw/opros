@@ -1,9 +1,9 @@
-Name: pogodi   # human-readable name
+Name: opros   # human-readable name
 Description: C++ waiting library # human-readable description
 Version: $(version)
-URL: https://github.com/igagis/pogodi
+URL: https://github.com/igagis/opros
 Requires:
 Conflicts:
-Libs: -lpogodi
+Libs: -lopros
 Libs.private:
 Cflags:

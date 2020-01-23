@@ -9,7 +9,7 @@
 /* Begin PBXBuildFile section */
 		2C861719234E37D500BA30E5 /* tests.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2C861717234E37D500BA30E5 /* tests.cpp */; };
 		2C86171A234E37D500BA30E5 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 2C861718234E37D500BA30E5 /* main.cpp */; };
-		2EE165EDE3B88AF94E6EDD67 /* libPods-pogodi.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CFAF76C902298516850B8A2 /* libPods-pogodi.a */; };
+		2EE165EDE3B88AF94E6EDD67 /* libPods-opros.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 1CFAF76C902298516850B8A2 /* libPods-opros.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -25,12 +25,12 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
-		1CFAF76C902298516850B8A2 /* libPods-pogodi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-pogodi.a"; sourceTree = BUILT_PRODUCTS_DIR; };
-		2C767F47234776190057CB2C /* libpogodi.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libpogodi.a; sourceTree = BUILT_PRODUCTS_DIR; };
+		1CFAF76C902298516850B8A2 /* libPods-opros.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-opros.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+		2C767F47234776190057CB2C /* libopros.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libopros.a; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C861717234E37D500BA30E5 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tests.cpp; path = ../../../tests/WaitSet/tests.cpp; sourceTree = "<group>"; };
 		2C861718234E37D500BA30E5 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../tests/WaitSet/main.cpp; sourceTree = "<group>"; };
-		49D42B5FE9580FF681B5737F /* Pods-pogodi.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pogodi.release.xcconfig"; path = "Target Support Files/Pods-pogodi/Pods-pogodi.release.xcconfig"; sourceTree = "<group>"; };
-		C0E39DED4B6B0EC0221CF8DF /* Pods-pogodi.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-pogodi.debug.xcconfig"; path = "Target Support Files/Pods-pogodi/Pods-pogodi.debug.xcconfig"; sourceTree = "<group>"; };
+		49D42B5FE9580FF681B5737F /* Pods-opros.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-opros.release.xcconfig"; path = "Target Support Files/Pods-opros/Pods-opros.release.xcconfig"; sourceTree = "<group>"; };
+		C0E39DED4B6B0EC0221CF8DF /* Pods-opros.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-opros.debug.xcconfig"; path = "Target Support Files/Pods-opros/Pods-opros.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -38,7 +38,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2EE165EDE3B88AF94E6EDD67 /* libPods-pogodi.a in Frameworks */,
+				2EE165EDE3B88AF94E6EDD67 /* libPods-opros.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -48,8 +48,8 @@
 		00F0BD0FB70B647B6F034F88 /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				C0E39DED4B6B0EC0221CF8DF /* Pods-pogodi.debug.xcconfig */,
-				49D42B5FE9580FF681B5737F /* Pods-pogodi.release.xcconfig */,
+				C0E39DED4B6B0EC0221CF8DF /* Pods-opros.debug.xcconfig */,
+				49D42B5FE9580FF681B5737F /* Pods-opros.release.xcconfig */,
 			);
 			name = Pods;
 			path = ../Pods;
@@ -68,7 +68,7 @@
 		2C767F48234776190057CB2C /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				2C767F47234776190057CB2C /* libpogodi.a */,
+				2C767F47234776190057CB2C /* libopros.a */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -85,7 +85,7 @@
 		7360E1EA241B06C1D3AF8F73 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1CFAF76C902298516850B8A2 /* libPods-pogodi.a */,
+				1CFAF76C902298516850B8A2 /* libPods-opros.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -93,9 +93,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		2C767F46234776190057CB2C /* pogodi */ = {
+		2C767F46234776190057CB2C /* opros */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 2C767F50234776190057CB2C /* Build configuration list for PBXNativeTarget "pogodi" */;
+			buildConfigurationList = 2C767F50234776190057CB2C /* Build configuration list for PBXNativeTarget "opros" */;
 			buildPhases = (
 				2B09B6138F05CF92FBC58991 /* [CP] Check Pods Manifest.lock */,
 				2C767F43234776190057CB2C /* Sources */,
@@ -106,9 +106,9 @@
 			);
 			dependencies = (
 			);
-			name = pogodi;
-			productName = pogodi;
-			productReference = 2C767F47234776190057CB2C /* libpogodi.a */;
+			name = opros;
+			productName = opros;
+			productReference = 2C767F47234776190057CB2C /* libopros.a */;
 			productType = "com.apple.product-type.library.static";
 		};
 /* End PBXNativeTarget section */
@@ -125,7 +125,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 2C767F42234776190057CB2C /* Build configuration list for PBXProject "pogodi" */;
+			buildConfigurationList = 2C767F42234776190057CB2C /* Build configuration list for PBXProject "opros" */;
 			compatibilityVersion = "Xcode 9.3";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -138,7 +138,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				2C767F46234776190057CB2C /* pogodi */,
+				2C767F46234776190057CB2C /* opros */,
 			);
 		};
 /* End PBXProject section */
@@ -159,7 +159,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-pogodi-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-opros-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -293,7 +293,7 @@
 		};
 		2C767F51234776190057CB2C /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = C0E39DED4B6B0EC0221CF8DF /* Pods-pogodi.debug.xcconfig */;
+			baseConfigurationReference = C0E39DED4B6B0EC0221CF8DF /* Pods-opros.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -306,7 +306,7 @@
 		};
 		2C767F52234776190057CB2C /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 49D42B5FE9580FF681B5737F /* Pods-pogodi.release.xcconfig */;
+			baseConfigurationReference = 49D42B5FE9580FF681B5737F /* Pods-opros.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				OTHER_LDFLAGS = "$(inherited)";
@@ -320,7 +320,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		2C767F42234776190057CB2C /* Build configuration list for PBXProject "pogodi" */ = {
+		2C767F42234776190057CB2C /* Build configuration list for PBXProject "opros" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2C767F4E234776190057CB2C /* Debug */,
@@ -329,7 +329,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		2C767F50234776190057CB2C /* Build configuration list for PBXNativeTarget "pogodi" */ = {
+		2C767F50234776190057CB2C /* Build configuration list for PBXNativeTarget "opros" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2C767F51234776190057CB2C /* Debug */,

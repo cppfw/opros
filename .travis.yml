@@ -58,7 +58,7 @@ env:
   # Encrypted MYCI_GIT_ACCESS_TOKEN for publishing to homebrew-tap and cocoapods repo.
   - secure: "nfJJKJoVkS0EuxV8oTS79mtiFG8IARoqJKew91vB6h2aieFTvdWVB+tk/XiuogmDz4ogX3jonpPBzJzSPT4btCq52apCLr/L1OX14qfRlzlNBMCB4XQW/Biyfx+jyUlhsB7nHElAGvjM/wD7Foy6svPnW0zL7ckX8ALMh9qV1acT6Fw1NF+tSo0lCNxzEn47cRdsX+V+0sYlbWDE/PJAh/m4jkggPOocwBhHdzdJ1QVGeLd/HkP7jrSZw4+wR14ApJHKn+wW9oNhjfcPxge7Xcq2Y/nMeT6mR6Jr370E4EcFI2wrHWA/107vY/h809JosFWNXBAsc/H5NXq87WEbP7mTeE73GiYw6j/VTOVcFPw5wPS4IgB6+SPxDCTilZ3tR4IUd3WeuSQYN9kpaLx8nVxpSjQ+u1gd5Ucyz5KOl9W+X8tQfYkpD/nko7LIUC+vC+ovXpawsQTa/bluldusvc+1ns7tcG3NKJZZwHzR7K2ZFLsdlXmjW/KcHpI4sBtNZ/EAXKRY70SHketfMzcFfUs7AmYTRclJx4/Mf0Z6rpXXI7Zh2vl3v0wkfo2PUlNuy+N7c9LaRj9rYalk6vFBk4CmLf4moWMcTHb2J7b/gq2afrTP5SitKXXBgqviUxTeUT1DMKA04qNOkvWPJVmScQo5C7DmMjm6AH7X6fDGVT4="
   - MYCI_GIT_USERNAME=igagis
-  - PACKAGE_NAME=pogodi
+  - PACKAGE_NAME=opros
   matrix:
   - OS_REL=xenial OS=ubuntu DOCKER_IMAGE=$OS:$OS_REL PACKAGE_TYPE=deb
   - OS_REL=bionic OS=ubuntu DOCKER_IMAGE=$OS:$OS_REL PACKAGE_TYPE=deb

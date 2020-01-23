@@ -33,5 +33,5 @@ $(prorab_this_name): $(abspath $(d)../../src/build/libopros$(dot_so))
 include $(d)../test_target.mk
 
 
-#include makefile for building pogodi
+#include makefile for building opros
 $(eval $(call prorab-include, ../../src/makefile))

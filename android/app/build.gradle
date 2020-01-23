@@ -44,7 +44,7 @@ repositories {
     }
 }
 dependencies {
-    implementation project(path: ':pogodi', configuration: 'default')
+    implementation project(path: ':opros', configuration: 'default')
 }
 
 

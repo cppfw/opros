@@ -27,7 +27,7 @@ namespace test_message_queue_as_waitable{
 //};
 
 void Run(){
-	pogodi::WaitSet ws(1);
+	opros::WaitSet ws(1);
 
 	ws.numWaitables();
 

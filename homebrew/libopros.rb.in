@@ -1,7 +1,7 @@
-class Libpogodi < Formula
+class Libopros < Formula
   desc "C++ cross-platform event waiting library."
-  homepage "https://github.com/igagis/pogodi"
-  url "https://github.com/igagis/pogodi/archive/$(version).tar.gz"
+  homepage "https://github.com/igagis/opros"
+  url "https://github.com/igagis/opros/archive/$(version).tar.gz"
   sha256 "$(sha256)"
 
   depends_on "prorab" => :build

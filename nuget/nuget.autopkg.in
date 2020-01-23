@@ -8,64 +8,64 @@ configurations {
 
 nuget{
 	nuspec{
-		id = libpogodi;
+		id = libopros;
 		version : $(version);
 		title: C++ event waiting library;
 		authors: {Ivan Gagis};
 		owners: {Ivan Gagis};
-		licenseUrl: "https://raw.githubusercontent.com/igagis/pogodi/master/LICENSE";
-		projectUrl: "https://github.com/igagis/pogodi";
-		iconUrl: "https://github.com/igagis/pogodi/blob/master/logo.svg";
+		licenseUrl: "https://raw.githubusercontent.com/igagis/opros/master/LICENSE";
+		projectUrl: "https://github.com/igagis/opros";
+		iconUrl: "https://github.com/igagis/opros/blob/master/logo.svg";
 		requireLicenseAcceptance:false;
 		summary: C++ event waiting library;
 
 		description: @"C++ event waiting library";
 		releaseNotes: "Initial release";
-		copyright: Copyright 2015 Ivan Gagis;
-		tags: { native};
+		copyright: Copyright 2020 Ivan Gagis;
+		tags: { native };
 	}
 	dependencies {
 		packages : {
-			libutki/1.0.22;
+			libutki/1.1.68;
 		};
 	}
 	files {
 		//this is needed to put headers in the base folder
 		nestedInclude: {
-			#destination = ${d_include}pogodi;
-			"..\src\pogodi\**\*.hpp"
+			#destination = ${d_include}opros;
+			"..\src\opros\**\*.hpp"
 		};
 
 		[x86,v140,release] {
-			lib: ..\msvs_solution\v140_Release\libpogodi.lib;
+			lib: ..\msvs_solution\v140_Release\libopros.lib;
 		}
 
 		[x86,v140,debug] {
-			lib: ..\msvs_solution\v140_Debug\libpogodi.lib;
+			lib: ..\msvs_solution\v140_Debug\libopros.lib;
 		}
 
 		[x64,v140,release] {
-			lib: ..\msvs_solution\x64\v140_Release\libpogodi.lib;
+			lib: ..\msvs_solution\x64\v140_Release\libopros.lib;
 		}
 
 		[x64,v140,debug] {
-			lib: ..\msvs_solution\x64\v140_Debug\libpogodi.lib;
+			lib: ..\msvs_solution\x64\v140_Debug\libopros.lib;
 		}
 
 		[x86,v141,release] {
-			lib: ..\msvs_solution\v141_Release\libpogodi.lib;
+			lib: ..\msvs_solution\v141_Release\libopros.lib;
 		}
 
 		[x86,v141,debug] {
-			lib: ..\msvs_solution\v141_Debug\libpogodi.lib;
+			lib: ..\msvs_solution\v141_Debug\libopros.lib;
 		}
 
 		[x64,v141,release] {
-			lib: ..\msvs_solution\x64\v141_Release\libpogodi.lib;
+			lib: ..\msvs_solution\x64\v141_Release\libopros.lib;
 		}
 
 		[x64,v141,debug] {
-			lib: ..\msvs_solution\x64\v141_Debug\libpogodi.lib;
+			lib: ..\msvs_solution\x64\v141_Debug\libopros.lib;
 		}
 	}
 }
