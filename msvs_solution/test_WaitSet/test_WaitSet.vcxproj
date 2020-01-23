@@ -268,12 +268,10 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\tests\WaitSet\main.hpp" />
-    <ClInclude Include="..\..\tests\WaitSet\tests.hpp" />
+    <ClInclude Include="..\..\tests\wait_set\*.hpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\tests\WaitSet\main.cpp" />
-    <ClCompile Include="..\..\tests\WaitSet\tests.cpp" />
+    <ClCompile Include="..\..\tests\wait_set\*.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libopros\libopros.vcxproj">
