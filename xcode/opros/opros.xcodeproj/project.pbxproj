@@ -27,8 +27,8 @@
 /* Begin PBXFileReference section */
 		1CFAF76C902298516850B8A2 /* libPods-opros.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-opros.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		2C767F47234776190057CB2C /* libopros.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = libopros.a; sourceTree = BUILT_PRODUCTS_DIR; };
-		2C861717234E37D500BA30E5 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tests.cpp; path = ../../../tests/WaitSet/tests.cpp; sourceTree = "<group>"; };
-		2C861718234E37D500BA30E5 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../tests/WaitSet/main.cpp; sourceTree = "<group>"; };
+		2C861717234E37D500BA30E5 /* tests.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = tests.cpp; path = ../../../tests/wait_set/tests.cpp; sourceTree = "<group>"; };
+		2C861718234E37D500BA30E5 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = main.cpp; path = ../../../tests/wait_set/main.cpp; sourceTree = "<group>"; };
 		49D42B5FE9580FF681B5737F /* Pods-opros.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-opros.release.xcconfig"; path = "Target Support Files/Pods-opros/Pods-opros.release.xcconfig"; sourceTree = "<group>"; };
 		C0E39DED4B6B0EC0221CF8DF /* Pods-opros.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-opros.debug.xcconfig"; path = "Target Support Files/Pods-opros/Pods-opros.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
