@@ -9,8 +9,8 @@ using namespace opros;
 
 waitable::waitable(waitable&& w) :
 		isAdded_var(false),
-		userData(w.userData),
-		readinessFlags(NOT_READY)//Treat copied waitable as NOT_READY
+		user_data(w.user_data),
+		readinessFlags(NOT_READY) // Treat copied waitable as NOT_READY
 {
 	// cannot move from waitable which is added to WaitSet
 	if(w.isAdded_var){
@@ -18,7 +18,7 @@ waitable::waitable(waitable&& w) :
 	}
 
 	const_cast<waitable&>(w).clearAllReadinessFlags();
-	const_cast<waitable&>(w).userData = 0;
+	const_cast<waitable&>(w).user_data = nullptr;
 }
 
 
@@ -39,7 +39,7 @@ waitable& waitable::operator=(waitable&& w){
 	this->clearAllReadinessFlags();
 	const_cast<waitable&>(w).clearAllReadinessFlags();
 
-	this->userData = w.userData;
-	const_cast<waitable&>(w).userData = 0;
+	this->user_data = w.user_data;
+	const_cast<waitable&>(w).user_data = nullptr;
 	return *this;
 }

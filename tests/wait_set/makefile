@@ -8,7 +8,7 @@ this_cxxflags += -DDEBUG
 this_cxxflags += -fstrict-aliasing
 this_cxxflags += -O3
 
-this_srcs += main.cpp tests.cpp
+this_srcs += main.cpp tests.cpp ../helpers/queue.cpp
 
 this_ldlibs += -lopros -lstdc++
 

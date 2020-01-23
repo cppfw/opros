@@ -20,9 +20,30 @@ class waitable{
 
 	bool isAdded_var = false;
 
-	void* userData = nullptr;
-
 public:
+	void* user_data = nullptr;
+
+	/**
+	 * @brief Get user data associated with this waitable.
+	 * Returns the pointer to the user data which was previously set by SetUserData() method.
+	 * @return pointer to the user data.
+	 * @return zero pointer if the user data was not set.
+	 */
+	// TODO: deprecated, remove.
+	void* getUserData()noexcept{
+		return this->user_data;
+	}
+
+	/**
+	 * @brief Set user data.
+	 * See description of GetUserData() for more details.
+	 * @param data - pointer to the user data to associate with this waitable.
+	 */
+	// TODO: deprecated, remove.
+	void setUserData(void* data)noexcept{
+		this->user_data = data;
+	}
+
 	enum EReadinessFlags{
 		NOT_READY = 0,      // bin: 00000000
 		READ = 1,           // bin: 00000001
@@ -101,25 +122,6 @@ public:
 	 */
 	bool errorCondition()const noexcept{
 		return (this->readinessFlags & ERROR_CONDITION) != 0;
-	}
-
-	/**
-	 * @brief Get user data associated with this waitable.
-	 * Returns the pointer to the user data which was previously set by SetUserData() method.
-	 * @return pointer to the user data.
-	 * @return zero pointer if the user data was not set.
-	 */
-	void* getUserData()noexcept{
-		return this->userData;
-	}
-
-	/**
-	 * @brief Set user data.
-	 * See description of GetUserData() for more details.
-	 * @param data - pointer to the user data to associate with this waitable.
-	 */
-	void setUserData(void* data)noexcept{
-		this->userData = data;
 	}
 
 #if M_OS == M_OS_WINDOWS

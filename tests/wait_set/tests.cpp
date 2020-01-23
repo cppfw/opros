@@ -1,8 +1,9 @@
 #include <vector>
+#include <thread>
 
 #include <utki/debug.hpp>
 #include "../../src/opros/wait_set.hpp"
-//#include "../../src/ting/mt/MsgThread.hpp"
+#include "../helpers/queue.hpp"
 
 #include "tests.hpp"
 
@@ -10,36 +11,24 @@
 
 namespace test_message_queue_as_waitable{
 
-//class TestThread : public wait::mt::MsgThread{
-//public:
-//	//override
-//	void Run(){
-//		wt::WaitSet ws(1);
-//
-//		ws.Add(this->queue, wt::Waitable::READ);
-//
-//		unsigned res = ws.WaitWithTimeout(3000);
-//
-//		ASSERT_ALWAYS(res == 1)
-//
-//		ws.Remove(this->queue);
-//	}
-//};
-
 void Run(){
-	opros::WaitSet ws(1);
+	opros::wait_set ws(1);
 
-	ws.numWaitables();
+	helpers::queue queue;
 
-//	TestThread t;
-//
-//	t.Start();
-//
-//	wait::mt::Thread::Sleep(1000);
-//
-//	t.PushNopMessage();
-//
-//	t.Join();
+	std::thread thread([&queue](){
+		opros::wait_set ws(1);
+		ws.add(queue, opros::waitable::READ);
+		auto res = ws.waitWithTimeout(3000);
+		ASSERT_ALWAYS(res == 1)
+		ws.remove(queue);
+	});
+
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
+	queue.pushMessage([](){});
+
+	thread.join();
 }
 }
 
@@ -47,71 +36,69 @@ void Run(){
 
 namespace test_general{
 void Run(){
-//	wt::WaitSet ws(4);
-//
-//	wait::mt::Queue q1, q2;
-//
-//	ws.Add(q1, wt::Waitable::READ);
-//	ws.Add(q2, wt::Waitable::READ);
-//
-//	std::array<wt::Waitable*, 4> buf;
-//
-//
-//
-//	//test Wait() with zero timeout, no objects should trigger, so, expecting return value of 0.
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(0) == 0)
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(0, buf) == 0)
-//
-//
-//
-//	//test Wait() with non-zero timeout, no objects should trigger, so, expecting return value of 0.
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100) == 0)
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100, buf) == 0)
-//
-//
-//
-//	//test Wait with 1 triggered object
-//	q1.PushMessage([](){});
-//	ASSERT_ALWAYS(ws.Wait() == 1)
-//	ASSERT_ALWAYS(ws.Wait(buf) == 1)
-//	ASSERT_ALWAYS(buf[0] == &q1)
-//
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100) == 1)
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100, buf) == 1)
-//	ASSERT_ALWAYS(buf[0] == &q1)
-//	ASSERT_ALWAYS(!q2.CanRead())
-//
-//	//check that no objects trigger after reading from queue
-//	q1.PeekMsg();//should not block since one message was pushed before
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100) == 0)
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100, buf) == 0)
-//
-//
-//
-//	//test Wait with 2 triggered objects
-//	q1.PushMessage([](){});
-//	q2.PushMessage([](){});
-//	ASSERT_ALWAYS(ws.Wait() == 2)
-//	ASSERT_ALWAYS(ws.Wait(buf) == 2)
-//	ASSERT_ALWAYS((buf[0] == &q1 && buf[1] == &q2) || (buf[0] == &q2 && buf[1] == &q1))
-//
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100) == 2)
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100, buf) == 2)
-//	ASSERT_ALWAYS((buf[0] == &q1 && buf[1] == &q2) || (buf[0] == &q2 && buf[1] == &q1))
-//
-//	//check that no objects trigger after reading from queue
-//	q1.PeekMsg();//should not block since one message was pushed before
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100) == 1)
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100, buf) == 1)
-//	ASSERT_ALWAYS(buf[0] == &q2)
-//
-//	q2.PeekMsg();//should not block since one message was pushed before
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100) == 0)
-//	ASSERT_ALWAYS(ws.WaitWithTimeout(100, buf) == 0)
-//
-//
-//
-//	ws.Remove(q1);
-//	ws.Remove(q2);
+	opros::wait_set ws(4);
+
+	helpers::queue q1, q2;
+
+	ws.add(q1, opros::waitable::READ);
+	ws.add(q2, opros::waitable::READ);
+
+	std::array<opros::waitable*, 4> buf;
+
+
+
+	// test wait() with zero timeout, no objects should trigger, so, expecting return value of 0.
+	ASSERT_ALWAYS(ws.waitWithTimeout(0) == 0)
+	ASSERT_ALWAYS(ws.waitWithTimeout(0, utki::make_span(buf)) == 0)
+
+
+
+	// test wait() with non-zero timeout, no objects should trigger, so, expecting return value of 0.
+	ASSERT_ALWAYS(ws.waitWithTimeout(100) == 0)
+	ASSERT_ALWAYS(ws.waitWithTimeout(100, utki::make_span(buf)) == 0)
+
+
+
+	// test Wait with 1 triggered object
+	q1.pushMessage([](){});
+	ASSERT_ALWAYS(ws.wait() == 1)
+	ASSERT_ALWAYS(ws.wait(utki::make_span(buf)) == 1)
+	ASSERT_ALWAYS(buf[0] == &q1)
+
+	ASSERT_ALWAYS(ws.waitWithTimeout(100) == 1)
+	ASSERT_ALWAYS(ws.waitWithTimeout(100, utki::make_span(buf)) == 1)
+	ASSERT_ALWAYS(buf[0] == &q1)
+	ASSERT_ALWAYS(!q2.canRead())
+
+	// check that no objects trigger after reading from queue
+	q1.peekMsg(); // should not block since one message was pushed before
+	ASSERT_ALWAYS(ws.waitWithTimeout(100) == 0)
+	ASSERT_ALWAYS(ws.waitWithTimeout(100, utki::make_span(buf)) == 0)
+
+
+
+	// test Wait with 2 triggered objects
+	q1.pushMessage([](){});
+	q2.pushMessage([](){});
+	ASSERT_ALWAYS(ws.wait() == 2)
+	ASSERT_ALWAYS(ws.wait(utki::make_span(buf)) == 2)
+	ASSERT_ALWAYS((buf[0] == &q1 && buf[1] == &q2) || (buf[0] == &q2 && buf[1] == &q1))
+
+	ASSERT_ALWAYS(ws.waitWithTimeout(100) == 2)
+	ASSERT_ALWAYS(ws.waitWithTimeout(100, utki::make_span(buf)) == 2)
+	ASSERT_ALWAYS((buf[0] == &q1 && buf[1] == &q2) || (buf[0] == &q2 && buf[1] == &q1))
+
+	// check that no objects trigger after reading from queue
+	q1.peekMsg(); // should not block since one message was pushed before
+	ASSERT_ALWAYS(ws.waitWithTimeout(100) == 1)
+	ASSERT_ALWAYS(ws.waitWithTimeout(100, utki::make_span(buf)) == 1)
+	ASSERT_ALWAYS(buf[0] == &q2)
+
+	q2.peekMsg(); // should not block since one message was pushed before
+	ASSERT_ALWAYS(ws.waitWithTimeout(100) == 0)
+	ASSERT_ALWAYS(ws.waitWithTimeout(100, utki::make_span(buf)) == 0)
+
+	ws.remove(q1);
+	ws.remove(q2);
 }
 }
