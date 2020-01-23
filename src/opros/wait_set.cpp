@@ -19,7 +19,7 @@ using namespace opros;
 void wait_set::add_filter(waitable& w, int16_t filter){
 	struct kevent e;
 
-	EV_SET(&e, w.getHandle(), filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
+	EV_SET(&e, w.get_handle(), filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
 
 	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing NULL will cause to wait indefinitely.
 
@@ -30,8 +30,8 @@ void wait_set::add_filter(waitable& w, int16_t filter){
 	
 	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
 	if(e.data != 0){ // data should be 0 if added successfully
-		TRACE(<< "wait_set::Add(): e.data = " << e.data << std::endl)
-		throw std::runtime_error("wait_set::Add(): AddFilter(): kevent() failed to add filter");
+		TRACE(<< "wait_set::add(): e.data = " << e.data << std::endl)
+		throw std::runtime_error("wait_set::add(): AddFilter(): kevent() failed to add filter");
 	}
 }
 
@@ -40,17 +40,17 @@ void wait_set::add_filter(waitable& w, int16_t filter){
 void wait_set::remove_filter(waitable& w, int16_t filter){
 	struct kevent e;
 
-	EV_SET(&e, w.getHandle(), filter, EV_DELETE | EV_RECEIPT, 0, 0, 0);
+	EV_SET(&e, w.get_handle(), filter, EV_DELETE | EV_RECEIPT, 0, 0, 0);
 
-	const timespec timeout = {0, 0}; //0 to make effect of polling, because passing NULL will cause to wait indefinitely.
+	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing NULL will cause to wait indefinitely.
 
 	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
 	if(res < 0){
-		//ignore the failure
-		TRACE(<< "wait_set::Remove(): RemoveFilter(): kevent() failed" << std::endl);
+		// ignore the failure
+		TRACE(<< "wait_set::remove(): remove_filter(): kevent() failed" << std::endl);
 	}
 	
-	ASSERT((e.flags & EV_ERROR) != 0) //EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
+	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
 }
 
 #endif

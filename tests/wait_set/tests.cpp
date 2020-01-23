@@ -40,8 +40,8 @@ void Run(){
 
 	helpers::queue q1, q2;
 
-	ws.add(q1, utki::flags<opros::ready_to>().set(opros::ready_to::read));
-	ws.add(q2, utki::flags<opros::ready_to>().set(opros::ready_to::read));
+	ws.add(q1, utki::make_flags({opros::ready_to::read}));
+	ws.add(q2, utki::make_flags({opros::ready_to::read}));
 
 	std::array<opros::waitable*, 4> buf;
 

@@ -162,12 +162,12 @@ HANDLE queue::get_handle(){
 
 
 
-void queue::set_waiting_flags(utki::flags<utki::ready_to> wait_for){
+void queue::set_waiting_flags(utki::flags<opros::ready_to> wait_for){
 	// It is not allowed to wait on queue for write,
 	// because it is always possible to push new message to queue.
 	// Error condition is not possible for queue.
 	// Thus, only possible flag values are READ and 0 (NOT_READY)
-	if(wait_for.get(utki::ready_to::write)){
+	if(wait_for.get(opros::ready_to::write)){
 		ASSERT_INFO(false, "wait_for = " << wait_for)
 		throw std::invalid_argument("queue::set_waiting_flags(): wait_for should have only ready_to::read flag set or no flags set, other values are not allowed");
 	}
