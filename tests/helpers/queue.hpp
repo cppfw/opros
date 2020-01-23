@@ -35,7 +35,7 @@ private:
 	
 #if M_OS == M_OS_WINDOWS
 	//use Event to implement waitable on Windows
-	HANDLE eventForwaitable;
+	HANDLE eventForWaitable;
 #elif M_OS == M_OS_MACOSX
 	//use pipe to implement waitable in *nix systems
 	int pipeEnds[2];
