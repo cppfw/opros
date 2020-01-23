@@ -25,13 +25,13 @@ void wait_set::add_filter(waitable& w, int16_t filter){
 
 	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
 	if(res < 0){
-		throw std::system_error(errno, std::generic_category(), "wait_set::Add(): AddFilter(): kevent() failed");
+		throw std::system_error(errno, std::generic_category(), "wait_set::add(): add_filter(): kevent() failed");
 	}
 	
 	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
 	if(e.data != 0){ // data should be 0 if added successfully
 		TRACE(<< "wait_set::add(): e.data = " << e.data << std::endl)
-		throw std::runtime_error("wait_set::add(): AddFilter(): kevent() failed to add filter");
+		throw std::runtime_error("wait_set::add(): add_filter(): kevent() failed to add filter");
 	}
 }
 
@@ -208,8 +208,8 @@ void wait_set::remove(waitable& w)noexcept{
 		ASSERT_INFO(false, "wait_set::Remove(): epoll_ctl failed, probably the waitable was not added to the wait set")
 	}
 #elif M_OS == M_OS_MACOSX	
-	this->RemoveFilter(w, EVFILT_READ);
-	this->RemoveFilter(w, EVFILT_WRITE);
+	this->remove_fFilter(w, EVFILT_READ);
+	this->remove_filter(w, EVFILT_WRITE);
 #else
 #	error "Unsupported OS"
 #endif
