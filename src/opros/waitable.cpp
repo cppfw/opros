@@ -1,5 +1,4 @@
 #include "waitable.hpp"
-#include "wait_set.hpp"
 
 #include <utki/exception.hpp>
 
