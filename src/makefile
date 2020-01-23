@@ -1,7 +1,7 @@
 include prorab.mk
 
 
-this_name := pogodi
+this_name := opros
 
 this_soname := $(shell cat $(prorab_this_dir)soname.txt)
 
