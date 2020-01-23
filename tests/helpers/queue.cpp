@@ -27,15 +27,15 @@ using namespace helpers;
 
 
 queue::queue(){
-	//can write will always be set because it is always possible to post a message to the queue
-	this->setCanWriteFlag();
+	// can write will always be set because it is always possible to post a message to the queue
+	this->readiness_flags.set(opros::ready_to::write);
 
 #if M_OS == M_OS_WINDOWS
 	this->eventForWaitable = CreateEvent(
-			NULL, //security attributes
-			TRUE, //manual-reset
-			FALSE, //not signalled initially
-			NULL //no name
+			NULL, // security attributes
+			TRUE, // manual-reset
+			FALSE, // not signalled initially
+			NULL // no name
 		);
 	if(this->eventForWaitable == NULL){
 		throw std::system_error(GetLastError(), std::generic_category(), "could not create event (Win32) for implementing Waitable");
@@ -76,14 +76,14 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 	this->messages.push_back(std::move(msg));
 	
 	if(this->messages.size() == 1){//if it is a first message
-		//Set CanRead flag.
-		//NOTE: in linux implementation with epoll(), the CanRead
-		//flag will also be set in WaitSet::Wait() method.
-		//NOTE: set CanRead flag before event notification/pipe write, because
-		//if do it after then some other thread which was waiting on the WaitSet
-		//may read the CanRead flag while it was not set yet.
-		ASSERT(!this->canRead())
-		this->setCanReadFlag();
+		// Set CanRead flag.
+		// NOTE: in linux implementation with epoll(), the CanRead
+		// flag will also be set in WaitSet::Wait() method.
+		// NOTE: set CanRead flag before event notification/pipe write, because
+		// if do it after then some other thread which was waiting on the WaitSet
+		// may read the CanRead flag while it was not set yet.
+		ASSERT(!this->readiness_flags.get(opros::ready_to::read))
+		this->readiness_flags.set(opros::ready_to::read);
 
 #if M_OS == M_OS_WINDOWS
 		if(SetEvent(this->eventForWaitable) == 0){
@@ -105,7 +105,7 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 #endif
 	}
 
-	ASSERT(this->canRead())
+	ASSERT(this->readiness_flags.get(opros::ready_to::read))
 }
 
 
@@ -113,35 +113,35 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 queue::T_Message queue::peekMsg(){
 	std::lock_guard<decltype(this->mut)> mutexGuard(this->mut);
 	if(this->messages.size() != 0){
-		ASSERT(this->canRead())
+		ASSERT(this->readiness_flags.get(opros::ready_to::read))
 
-		if(this->messages.size() == 1){//if we are taking away the last message from the queue
+		if(this->messages.size() == 1){ // if we are taking away the last message from the queue
 #if M_OS == M_OS_WINDOWS
 			if(ResetEvent(this->eventForWaitable) == 0){
 				ASSERT(false)
-				throw std::system_error(GetLastError(), std::generic_category(), "queue::Wait(): ResetEvent() failed");
+				throw std::system_error(GetLastError(), std::generic_category(), "queue::wait(): ResetEvent() failed");
 			}
 #elif M_OS == M_OS_MACOSX
 			{
 				std::uint8_t oneByteBuf[1];
 				if(read(this->pipeEnds[0], oneByteBuf, 1) != 1){
-					throw std::system_error(errno, std::generic_category(), "queue::Wait(): read() failed");
+					throw std::system_error(errno, std::generic_category(), "queue::wait(): read() failed");
 				}
 			}
 #elif M_OS == M_OS_LINUX
 			{
 				eventfd_t value;
 				if(eventfd_read(this->eventFD, &value) < 0){
-					throw std::system_error(errno, std::generic_category(), "queue::Wait(): eventfd_read() failed");
+					throw std::system_error(errno, std::generic_category(), "queue::wait(): eventfd_read() failed");
 				}
 				ASSERT(value == 1)
 			}
 #else
 #	error "Unsupported OS"
 #endif
-			this->clearCanReadFlag();
+			this->readiness_flags.clear(opros::ready_to::read);
 		}else{
-			ASSERT(this->canRead())
+			ASSERT(this->readiness_flags.get(opros::ready_to::read))
 		}
 		
 		T_Message ret = std::move(this->messages.front());
@@ -156,33 +156,30 @@ queue::T_Message queue::peekMsg(){
 
 
 #if M_OS == M_OS_WINDOWS
-HANDLE queue::getHandle(){
-	//return event handle
+HANDLE queue::get_handle(){
 	return this->eventForWaitable;
 }
 
 
 
-void queue::setWaitingEvents(std::uint32_t flagsToWaitFor){
-	//It is not allowed to wait on queue for write,
-	//because it is always possible to push new message to queue.
-	//Error condition is not possible for queue.
-	//Thus, only possible flag values are READ and 0 (NOT_READY)
-	if(flagsToWaitFor != 0 && flagsToWaitFor != pogodi::Waitable::READ){
-		ASSERT_INFO(false, "flagsToWaitFor = " << flagsToWaitFor)
-		throw std::invalid_argument("queue::SetWaitingEvents(): flagsToWaitFor should be pogodi::Waitable::READ or 0, other values are not allowed");
+void queue::set_waiting_flags(utki::flags<utki::ready_to> wait_for){
+	// It is not allowed to wait on queue for write,
+	// because it is always possible to push new message to queue.
+	// Error condition is not possible for queue.
+	// Thus, only possible flag values are READ and 0 (NOT_READY)
+	if(wait_for.get(utki::ready_to::write)){
+		ASSERT_INFO(false, "wait_for = " << wait_for)
+		throw std::invalid_argument("queue::set_waiting_flags(): wait_for should have only ready_to::read flag set or no flags set, other values are not allowed");
 	}
 
-	this->flagsMask = flagsToWaitFor;
+	this->flagsMask = wait_for;
 }
 
+bool queue::check_signaled(){
+	// error condition is not possible for queue
+	ASSERT(!this->readiness_flags.get(opros::ready_to::report_error))
 
-
-//returns true if signaled
-bool queue::checkSignaled(){
-	//error condition is not possible for queue
-	ASSERT((this->readinessFlags & pogodi::Waitable::ERROR_CONDITION) == 0)
-
+// TODO: remove dead code
 /*
 #ifdef DEBUG
 	{
@@ -210,19 +207,17 @@ bool queue::checkSignaled(){
 #endif
 */
 
-	return (this->readinessFlags & this->flagsMask) != 0;
+	return !(this->readiness_flags & this->flagsMask).is_clear();
 }
 
 #elif M_OS == M_OS_MACOSX
-//override
-int queue::getHandle(){
-	//return read end of pipe
+int queue::get_handle(){
+	// return read end of pipe
 	return this->pipeEnds[0];
 }
 
 #elif M_OS == M_OS_LINUX
-//override
-int queue::getHandle(){
+int queue::get_handle(){
 	return this->eventFD;
 }
 

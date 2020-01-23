@@ -85,22 +85,21 @@ public:
 
 #if M_OS == M_OS_WINDOWS
 protected:
-	HANDLE getHandle()override;
+	HANDLE get_handle()override;
 
-	std::uint32_t flagsMask;//flags to wait for
+	utki::flags<opros::ready_to> flagsMask;
 
-	void setWaitingEvents(std::uint32_t flagsToWaitFor)override;
+	void set_waiting_flags(utki::flags<opros::ready_to> wait_for)override;
 
-	//returns true if signaled
-	bool checkSignaled()override;
+	bool check_signaled()override;
 
 #elif M_OS == M_OS_LINUX
 public:
-	int getHandle()override;
+	int get_handle()override;
 
 #elif M_OS == M_OS_MACOSX
 public:
-	int getHandle()override;
+	int get_handle()override;
 
 #else
 #	error "Unsupported OS"
@@ -109,4 +108,4 @@ public:
 
 
 
-}//~namespace
+}

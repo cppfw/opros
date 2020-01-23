@@ -8,38 +8,37 @@ using namespace opros;
 
 
 waitable::waitable(waitable&& w) :
-		isAdded_var(false),
-		user_data(w.user_data),
-		readinessFlags(NOT_READY) // Treat copied waitable as NOT_READY
+		is_added_to_waitset(false),
+		user_data(w.user_data)
 {
 	// cannot move from waitable which is added to WaitSet
-	if(w.isAdded_var){
+	if(w.is_added_to_waitset){
 		throw std::invalid_argument("waitable::waitable(move): cannot move waitable which is added to WaitSet");
 	}
 
-	const_cast<waitable&>(w).clearAllReadinessFlags();
-	const_cast<waitable&>(w).user_data = nullptr;
+	this->readiness_flags = std::move(w.readiness_flags);
+	w.readiness_flags.clear();
+	
+	w.user_data = nullptr;
 }
 
 
 
 waitable& waitable::operator=(waitable&& w){
-	if(this->isAdded_var){
+	if(this->is_added()){
 		throw utki::invalid_state("waitable::waitable(move): cannot move while this waitable is added to WaitSet");
 	}
 
-	if(w.isAdded_var){
+	if(w.is_added()){
 		throw std::invalid_argument("waitable::waitable(move): cannot move waitable which is added to WaitSet");
 	}
 
-	ASSERT(!this->isAdded_var)
+	ASSERT(!this->is_added())
 
-	//Clear readiness flags on moving.
-	//Will need to wait for readiness again, using the WaitSet.
-	this->clearAllReadinessFlags();
-	const_cast<waitable&>(w).clearAllReadinessFlags();
+	this->readiness_flags = std::move(w.readiness_flags);
+	w.readiness_flags.clear();
 
 	this->user_data = w.user_data;
-	const_cast<waitable&>(w).user_data = nullptr;
+	w.user_data = nullptr;
 	return *this;
 }
