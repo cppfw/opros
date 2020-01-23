@@ -9,14 +9,14 @@
 #	include <utki/windows.hpp>
 #endif
 
-namespace pogodi{
+namespace opros{
 
 /**
  * @brief Base class for objects which can be waited for.
  * Base class for objects which can be used in wait sets.
  */
-class Waitable{
-	friend class WaitSet;
+class waitable{
+	friend class wait_set;
 
 	bool isAdded_var = false;
 
@@ -34,25 +34,17 @@ public:
 protected:
 	std::uint32_t readinessFlags = NOT_READY;
 
-	Waitable() = default;
-
-
+	waitable() = default;
 
 	bool isAdded()const noexcept{
 		return this->isAdded_var;
 	}
 
-
-
-
-	Waitable(const Waitable& w) = delete;
+	waitable(const waitable& w) = delete;
+	waitable& operator=(const waitable& w) = delete;
 	
-	Waitable(Waitable&& w);
-
-
-	Waitable& operator=(Waitable&& w);
-
-
+	waitable(waitable&& w);
+	waitable& operator=(waitable&& w);
 
 	void setCanReadFlag()noexcept{
 		this->readinessFlags |= READ;
@@ -83,13 +75,13 @@ protected:
 	}
 
 public:
-	virtual ~Waitable()noexcept{
+	virtual ~waitable()noexcept{
 		ASSERT(!this->isAdded_var)
 	}
 
 	/**
 	 * @brief Check if "Can read" flag is set.
-	 * @return true if Waitable is ready for reading.
+	 * @return true if waitable is ready for reading.
 	 */
 	bool canRead()const noexcept{
 		return (this->readinessFlags & READ) != 0;
@@ -97,7 +89,7 @@ public:
 
 	/**
 	 * @brief Check if "Can write" flag is set.
-	 * @return true if Waitable is ready for writing.
+	 * @return true if waitable is ready for writing.
 	 */
 	bool canWrite()const noexcept{
 		return (this->readinessFlags & WRITE) != 0;
@@ -105,14 +97,14 @@ public:
 
 	/**
 	 * @brief Check if "error" flag is set.
-	 * @return true if Waitable is in error state.
+	 * @return true if waitable is in error state.
 	 */
 	bool errorCondition()const noexcept{
 		return (this->readinessFlags & ERROR_CONDITION) != 0;
 	}
 
 	/**
-	 * @brief Get user data associated with this Waitable.
+	 * @brief Get user data associated with this waitable.
 	 * Returns the pointer to the user data which was previously set by SetUserData() method.
 	 * @return pointer to the user data.
 	 * @return zero pointer if the user data was not set.
@@ -124,7 +116,7 @@ public:
 	/**
 	 * @brief Set user data.
 	 * See description of GetUserData() for more details.
-	 * @param data - pointer to the user data to associate with this Waitable.
+	 * @param data - pointer to the user data to associate with this waitable.
 	 */
 	void setUserData(void* data)noexcept{
 		this->userData = data;
@@ -146,7 +138,7 @@ public:
 	/**
 	 * @brief Get Unix file descriptor.
 	 * This method is specific to Unix-based operating systems, like Linux, MAC OS X, Unix.
-	 * This method is made public in order to ease embedding Waitables to existing epoll() sets.
+	 * This method is made public in order to ease embedding waitables to existing epoll() sets.
 	 * Use this method only if you know what you are doing!
 	 */
 	virtual int getHandle() = 0;
@@ -157,4 +149,10 @@ public:
 
 };
 
+// TODO: deprecated, remove.
+typedef waitable Waitable;
+
 }
+
+// TODO: deprecated, remove.
+namespace pogodi = opros;

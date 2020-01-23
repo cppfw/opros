@@ -1,4 +1,4 @@
-#include "WaitSet.hpp"
+#include "wait_set.hpp"
 
 #include <cstring>
 
@@ -10,13 +10,13 @@
 
 
 
-using namespace pogodi;
+using namespace opros;
 
 
 
 #if M_OS == M_OS_MACOSX
 
-void WaitSet::AddFilter(Waitable& w, int16_t filter){
+void wait_set::AddFilter(Waitable& w, int16_t filter){
 	struct kevent e;
 
 	EV_SET(&e, w.getHandle(), filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
@@ -25,19 +25,19 @@ void WaitSet::AddFilter(Waitable& w, int16_t filter){
 
 	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
 	if(res < 0){
-		throw std::system_error(errno, std::generic_category(), "WaitSet::Add(): AddFilter(): kevent() failed");
+		throw std::system_error(errno, std::generic_category(), "wait_set::Add(): AddFilter(): kevent() failed");
 	}
 	
 	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
 	if(e.data != 0){ // data should be 0 if added successfully
-		TRACE(<< "WaitSet::Add(): e.data = " << e.data << std::endl)
-		throw std::runtime_error("WaitSet::Add(): AddFilter(): kevent() failed to add filter");
+		TRACE(<< "wait_set::Add(): e.data = " << e.data << std::endl)
+		throw std::runtime_error("wait_set::Add(): AddFilter(): kevent() failed to add filter");
 	}
 }
 
 
 
-void WaitSet::RemoveFilter(Waitable& w, int16_t filter){
+void wait_set::RemoveFilter(Waitable& w, int16_t filter){
 	struct kevent e;
 
 	EV_SET(&e, w.getHandle(), filter, EV_DELETE | EV_RECEIPT, 0, 0, 0);
@@ -47,7 +47,7 @@ void WaitSet::RemoveFilter(Waitable& w, int16_t filter){
 	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
 	if(res < 0){
 		//ignore the failure
-		TRACE(<< "WaitSet::Remove(): RemoveFilter(): kevent() failed" << std::endl);
+		TRACE(<< "wait_set::Remove(): RemoveFilter(): kevent() failed" << std::endl);
 	}
 	
 	ASSERT((e.flags & EV_ERROR) != 0) //EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
@@ -57,14 +57,14 @@ void WaitSet::RemoveFilter(Waitable& w, int16_t filter){
 
 
 
-void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
-//		TRACE(<< "WaitSet::Add(): enter" << std::endl)
+void wait_set::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
+//		TRACE(<< "wait_set::Add(): enter" << std::endl)
 	ASSERT(!w.isAdded())
 
 #if M_OS == M_OS_WINDOWS
 	ASSERT(this->numWaitables_var <= this->handles.size())
 	if(this->numWaitables_var == this->handles.size()){
-		throw utki::invalid_state("WaitSet::Add(): wait set is full");
+		throw utki::invalid_state("wait_set::Add(): wait set is full");
 	}
 
 	//NOTE: Setting wait flags may throw an exception, so do that before
@@ -89,8 +89,8 @@ void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 			&e
 		);
 	if(res < 0){
-		TRACE(<< "WaitSet::Add(): epoll_ctl() failed. If you are adding socket, please check that is is opened before adding to WaitSet." << std::endl)
-		throw std::system_error(errno, std::generic_category(), "WaitSet::Add(): epoll_ctl() failed");
+		TRACE(<< "wait_set::Add(): epoll_ctl() failed. If you are adding socket, please check that is is opened before adding to wait_set." << std::endl)
+		throw std::system_error(errno, std::generic_category(), "wait_set::Add(): epoll_ctl() failed");
 	}
 #elif M_OS == M_OS_MACOSX
 	ASSERT(this->numWaitables() <= revents.size() / 2)
@@ -108,12 +108,12 @@ void WaitSet::add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 	++this->numWaitables_var;
 
 	w.isAdded_var = true;
-//		TRACE(<< "WaitSet::Add(): exit" << std::endl)
+//		TRACE(<< "wait_set::Add(): exit" << std::endl)
 }
 
 
 
-void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
+void wait_set::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 	ASSERT(w.isAdded())
 
 #if M_OS == M_OS_WINDOWS
@@ -127,7 +127,7 @@ void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 		}
 		ASSERT(i <= this->numWaitables_var)
 		if(i == this->numWaitables_var){
-			throw utki::invalid_state("WaitSet::Change(): the Waitable is not added to this wait set");
+			throw utki::invalid_state("wait_set::Change(): the Waitable is not added to this wait set");
 		}
 	}
 
@@ -149,7 +149,7 @@ void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 			&e
 		);
 	if(res < 0){
-		throw std::system_error(errno, std::generic_category(), "WaitSet::Change(): epoll_ctl() failed");
+		throw std::system_error(errno, std::generic_category(), "wait_set::Change(): epoll_ctl() failed");
 	}
 #elif M_OS == M_OS_MACOSX
 	if((std::uint32_t(flagsToWaitFor) & Waitable::READ) != 0){
@@ -169,7 +169,7 @@ void WaitSet::change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor){
 
 
 
-void WaitSet::remove(Waitable& w)noexcept{
+void wait_set::remove(Waitable& w)noexcept{
 	ASSERT(w.isAdded())
 	
 	ASSERT(this->numWaitables() != 0)
@@ -184,7 +184,7 @@ void WaitSet::remove(Waitable& w)noexcept{
 			}
 		}
 		ASSERT(i <= this->numWaitables_var)
-		ASSERT_INFO(i != this->numWaitables_var, "WaitSet::Remove(): Waitable is not added to wait set")
+		ASSERT_INFO(i != this->numWaitables_var, "wait_set::Remove(): Waitable is not added to wait set")
 
 		unsigned numObjects = this->numWaitables_var - 1;//decrease number of objects before shifting the object handles in the array
 		//shift object handles in the array
@@ -205,7 +205,7 @@ void WaitSet::remove(Waitable& w)noexcept{
 			0
 		);
 	if(res < 0){
-		ASSERT_INFO(false, "WaitSet::Remove(): epoll_ctl failed, probably the Waitable was not added to the wait set")
+		ASSERT_INFO(false, "wait_set::Remove(): epoll_ctl failed, probably the Waitable was not added to the wait set")
 	}
 #elif M_OS == M_OS_MACOSX	
 	this->RemoveFilter(w, EVFILT_READ);
@@ -217,19 +217,19 @@ void WaitSet::remove(Waitable& w)noexcept{
 	--this->numWaitables_var;
 
 	w.isAdded_var = false;
-//		TRACE(<< "WaitSet::Remove(): completed successfuly" << std::endl)
+//		TRACE(<< "wait_set::Remove(): completed successfuly" << std::endl)
 }
 
 
 
-unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::span<Waitable*>* out_events){
+unsigned wait_set::wait(bool waitInfinitly, std::uint32_t timeout, utki::span<Waitable*>* out_events){
 	if(this->numWaitables_var == 0){
-		throw utki::invalid_state("WaitSet::Wait(): no Waitable objects were added to the WaitSet, can't perform Wait()");
+		throw utki::invalid_state("wait_set::Wait(): no Waitable objects were added to the wait_set, can't perform Wait()");
 	}
 
 	if(out_events){
 		if(out_events->size() < this->numWaitables_var){
-			throw std::invalid_argument("WaitSet::Wait(): passed out_events buffer is not large enough to hold all possible triggered objects");
+			throw std::invalid_argument("wait_set::Wait(): passed out_events buffer is not large enough to hold all possible triggered objects");
 		}
 	}
 
@@ -250,7 +250,7 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::span<Wai
 	ASSERT(res < WAIT_ABANDONED_0 || (WAIT_ABANDONED_0 + this->numWaitables_var) <= res)
 
 	if(res == WAIT_FAILED){
-		throw std::system_error(GetLastError(), std::generic_category(), "WaitSet::Wait(): WaitForMultipleObjectsEx() failed");
+		throw std::system_error(GetLastError(), std::generic_category(), "wait_set::Wait(): WaitForMultipleObjectsEx() failed");
 	}
 
 	if(res == WAIT_TIMEOUT){
@@ -304,7 +304,7 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::span<Wai
 			if(errno == EINTR){
 				continue;
 			}
-			throw std::system_error(errno, std::generic_category(), "WaitSet::wait(): epoll_wait() failed");
+			throw std::system_error(errno, std::generic_category(), "wait_set::wait(): epoll_wait() failed");
 		}
 		break;
 	};
@@ -360,7 +360,7 @@ unsigned WaitSet::wait(bool waitInfinitly, std::uint32_t timeout, utki::span<Wai
 			if(errno == EINTR){
 				continue;
 			}
-			throw std::system_error(errno, std::generic_category(), "WaitSet::wait(): kevent() failed");
+			throw std::system_error(errno, std::generic_category(), "wait_set::wait(): kevent() failed");
 		}else if(res == 0){
 			return 0; // timeout
 		}else if(res > 0){

@@ -27,7 +27,7 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "test_deebug",
+			"label": "test_debug",
 			"type": "shell",
 			"command": "make test debug=true",
 			"dependsOn": "build_debug",

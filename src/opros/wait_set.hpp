@@ -28,15 +28,15 @@
 #endif
 
 
-#include "Waitable.hpp"
+#include "waitable.hpp"
 
 
-namespace pogodi{
+namespace opros{
 
 /**
  * @brief Set of Waitable objects to wait for.
  */
-class WaitSet{
+class wait_set{
 	const unsigned size_var;
 	unsigned numWaitables_var = 0;//number of Waitables added
 
@@ -61,7 +61,7 @@ public:
 	 * @brief Constructor.
 	 * @param maxSize - maximum number of Waitable objects can be added to this wait set.
 	 */
-	WaitSet(unsigned maxSize) :
+	wait_set(unsigned maxSize) :
 			size_var(maxSize)
 #if M_OS == M_OS_WINDOWS
 			,waitables(maxSize)
@@ -69,7 +69,7 @@ public:
 	{
 		ASSERT_INFO(maxSize <= MAXIMUM_WAIT_OBJECTS, "maxSize should be less than " << MAXIMUM_WAIT_OBJECTS)
 		if(maxSize > MAXIMUM_WAIT_OBJECTS){
-			throw std::invalid_argument("WaitSet::WaitSet(): requested WaitSet size is too big");
+			throw std::invalid_argument("wait_set::wait_set(): requested wait_set size is too big");
 		}
 	}
 
@@ -79,7 +79,7 @@ public:
 		ASSERT(int(maxSize) > 0)
 		this->epollSet = epoll_create(int(maxSize));
 		if(this->epollSet < 0){
-			throw std::system_error(errno, std::generic_category(), "WaitSet::WaitSet(): epoll_create() failed");
+			throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): epoll_create() failed");
 		}
 	}
 #elif M_OS == M_OS_MACOSX
@@ -87,7 +87,7 @@ public:
 	{
 		this->queue = kqueue();
 		if(this->queue == -1){
-			throw std::system_error(errno, std::generic_category(), "WaitSet::WaitSet(): kqueue creation failed");
+			throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): kqueue creation failed");
 		}
 	}
 #else
@@ -103,9 +103,9 @@ public:
 	 * It is user's responsibility to remove any waitable objects from the waitset
 	 * before the wait set object is destroyed.
 	 */
-	~WaitSet()noexcept{
+	~wait_set()noexcept{
 		//assert the wait set is empty
-		ASSERT_INFO(this->numWaitables_var == 0, "attempt to destroy WaitSet containig Waitables")
+		ASSERT_INFO(this->numWaitables_var == 0, "attempt to destroy wait_set containig Waitables")
 #if M_OS == M_OS_WINDOWS
 		//do nothing
 #elif M_OS == M_OS_LINUX
@@ -121,56 +121,44 @@ public:
 
 	/**
 	 * @brief Get maximum size of the wait set.
-	 * @return maximum number of Waitables this WaitSet can hold.
+	 * @return maximum number of Waitables this wait_set can hold.
 	 */
 	unsigned size()const noexcept{
 		return this->size_var;
 	}
 
 	/**
-	 * @brief Get number of Waitables already added to this WaitSet.
-	 * @return number of Waitables added to this WaitSet.
+	 * @brief Get number of Waitables already added to this wait_set.
+	 * @return number of Waitables added to this wait_set.
 	 */
 	unsigned numWaitables()const noexcept{
 		return this->numWaitables_var;
 	}
 
-	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief Add Waitable object to the wait set.
-	 * @param w - Waitable object to add to the WaitSet.
+	 * @param w - Waitable object to add to the wait_set.
 	 * @param flagsToWaitFor - determine events waiting for which we are interested.
-	 * @throw ting::WaitSet::Exc - in case the wait set is full or other error occurs.
 	 */
 	void add(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor);
 
-
-	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief Change wait flags for a given Waitable.
-	 * Changes wait flags for a given waitable, which is in this WaitSet.
+	 * Changes wait flags for a given waitable, which is in this wait_set.
 	 * @param w - Waitable for which the changing of wait flags is needed.
 	 * @param flagsToWaitFor - new wait flags to be set for the given Waitable.
-	 * @throw ting::WaitSet::Exc - in case the given Waitable object is not added to this wait set or
-	 *                    other error occurs.
 	 */
 	void change(Waitable& w, Waitable::EReadinessFlags flagsToWaitFor);
 
-
-	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief Remove Waitable from wait set.
-	 * @param w - Waitable object to be removed from the WaitSet.
-	 * @throw ting::WaitSet::Exc - in case the given Waitable is not added to this wait set or
-	 *                    other error occurs.
+	 * @param w - Waitable object to be removed from the wait_set.
 	 */
 	void remove(Waitable& w)noexcept;
 
-
-	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief wait for event.
-	 * This function blocks calling thread execution until one of the Waitable objects in the WaitSet
+	 * This function blocks calling thread execution until one of the Waitable objects in the wait_set
 	 * triggers. Upon return from the function, pointers to triggered objects are placed in the
 	 * 'out_events' buffer and the return value from the function indicates number of these objects
 	 * which have triggered.
@@ -178,11 +166,10 @@ public:
 	 * @param out_events - pointer to buffer where to put pointers to triggered Waitable objects.
 	 *                     The buffer will not be initialized to 0's by this function.
 	 *                     The buffer shall be large enough to hold maxmimum number of Waitables
-	 *                     this WaitSet can hold.
+	 *                     this wait_set can hold.
 	 *                     It is valid to pass 0 pointer, in that case this argument will not be used.
 	 * @return number of objects triggered.
 	 *         NOTE: for some reason, on Windows it can return 0 objects triggered.
-	 * @throw ting::WaitSet::Exc - in case of errors.
 	 */
 	unsigned wait(utki::span<Waitable*> out_events){
 		return this->wait(true, 0, &out_events);
@@ -197,8 +184,6 @@ public:
 		return this->wait(true, 0, 0);
 	}
 
-
-	//TODO: correct doxygen about 'throw'
 	/**
 	 * @brief wait for event with timeout.
 	 * The same as Wait() function, but takes wait timeout as parameter. Thus,
@@ -212,7 +197,6 @@ public:
 	 *                     currently added to the wait set.
 	 * @return number of objects triggered. If 0 then timeout was hit.
 	 *         NOTE: for some reason, on Windows it can return 0 before timeout was hit.
-	 * @throw ting::WaitSet::Exc - in case of errors.
 	 */
 	unsigned waitWithTimeout(std::uint32_t timeout, utki::span<Waitable*> out_events){
 		return this->wait(false, timeout, &out_events);
@@ -243,4 +227,10 @@ private:
 
 };
 
+// TODO: deprecated, remove.
+typedef wait_set WaitSet;
+
 }
+
+// TODO: deprecated, remove.
+namespace pogodi = opros;

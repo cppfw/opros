@@ -1,7 +1,7 @@
 #include <vector>
 
 #include <utki/debug.hpp>
-#include "../../src/pogodi/WaitSet.hpp"
+#include "../../src/opros/wait_set.hpp"
 //#include "../../src/ting/mt/MsgThread.hpp"
 
 #include "tests.hpp"
