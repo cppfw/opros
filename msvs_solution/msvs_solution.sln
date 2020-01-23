@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.28307.168
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libpogodi", "libpogodi\libpogodi.vcxproj", "{1AA66D02-60E2-47CA-90CF-3CF566D6641C}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libopros", "libopros\libopros.vcxproj", "{1AA66D02-60E2-47CA-90CF-3CF566D6641C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_WaitSet", "test_WaitSet\test_WaitSet.vcxproj", "{D655A284-4321-43D5-AC4B-3B89D41AC44B}"
 	ProjectSection(ProjectDependencies) = postProject

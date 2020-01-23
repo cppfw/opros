@@ -276,7 +276,7 @@
     <ClCompile Include="..\..\tests\WaitSet\tests.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\libpogodi\libpogodi.vcxproj">
+    <ProjectReference Include="..\libopros\libopros.vcxproj">
       <Project>{1aa66d02-60e2-47ca-90cf-3cf566d6641c}</Project>
     </ProjectReference>
   </ItemGroup>
