@@ -24,17 +24,17 @@ else
     this_ldlibs += -lpthread
 endif
 
-this_ldflags += -L$(d)../../src/
+this_ldflags += -L$(d)../../src/build
 
 this_no_install := true
 
 $(eval $(prorab-build-app))
 
 #add dependency on libpogodi.so
-$(prorab_this_name): $(abspath $(d)../../src/libpogodi$(soext))
+$(prorab_this_name): $(abspath $(d)../../src/build/libpogodi$(soext))
 
 include $(d)../test_target.mk
 
 
 #include makefile for building pogodi
-$(eval $(call prorab-try-include,$(d)../../src/makefile))
+$(eval $(call prorab-include, ../../src/makefile))

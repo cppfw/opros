@@ -1,23 +1,17 @@
 include prorab.mk
 
 
-debug := false
-
-
 this_name := pogodi
 
 this_soname := $(shell cat $(prorab_this_dir)soname.txt)
 
-
-#Sources
-this_srcs :=
-this_srcs += pogodi/WaitSet.cpp
-this_srcs += pogodi/Waitable.cpp
-
+this_srcs := $(call prorab-src-dir,.)
 
 
 ifeq ($(debug),true)
     this_cxxflags += -DDEBUG
+else
+    this_cxxflags += -O3
 endif
 
 
@@ -33,19 +27,17 @@ this_cxxflags += -Wfatal-errors # stop on first error encountered
 this_cxxflags += -fstrict-aliasing #strict aliasing (in order to comply with the c++ standard more strictly)
 this_cxxflags += -std=c++11
 this_cxxflags += -g #include debugging symbols
-this_cxxflags += -O3
                 #-P -E #-Wreorder
 
 this_ldlibs += -lstdc++
 
-ifeq ($(prorab_os),linux)
+ifeq ($(os),linux)
     this_cxxflags += -fPIC # Since we are building shared library, we need Position-Independend Code
-else ifeq ($(prorab_os),windows)
-else ifeq ($(prorab_os),macosx)
+else ifeq ($(os),windows)
+else ifeq ($(os),macosx)
     this_cxxflags += -stdlib=libc++ #this is needed to be able to use c++11 std lib
 endif
 
-
+this_out_dir := build
 
 $(eval $(prorab-build-lib))
-

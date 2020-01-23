@@ -41,7 +41,7 @@ void Run(){
 //
 //	t.Join();
 }
-}//~namespace
+}
 
 
 
@@ -114,4 +114,4 @@ void Run(){
 //	ws.Remove(q1);
 //	ws.Remove(q2);
 }
-}//~namespace
+}
