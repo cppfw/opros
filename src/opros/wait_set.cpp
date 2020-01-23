@@ -208,7 +208,7 @@ void wait_set::remove(waitable& w)noexcept{
 		ASSERT_INFO(false, "wait_set::Remove(): epoll_ctl failed, probably the waitable was not added to the wait set")
 	}
 #elif M_OS == M_OS_MACOSX	
-	this->remove_fFilter(w, EVFILT_READ);
+	this->remove_filter(w, EVFILT_READ);
 	this->remove_filter(w, EVFILT_WRITE);
 #else
 #	error "Unsupported OS"
