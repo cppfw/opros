@@ -84,10 +84,4 @@ public:
 
 };
 
-// TODO: deprecated, remove.
-typedef waitable Waitable;
-
 }
-
-// TODO: deprecated, remove.
-namespace pogodi = opros;

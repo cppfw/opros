@@ -179,34 +179,6 @@ bool queue::check_signaled(){
 	// error condition is not possible for queue
 	ASSERT(!this->readiness_flags.get(opros::ready::error))
 
-// TODO: remove dead code
-/*
-#ifdef DEBUG
-	{
-		atomic::SpinLock::GuardYield mutexGuard(this->mut);
-		if(this->first){
-			ASSERT_ALWAYS(this->CanRead())
-
-			//event should be in signalled state
-			ASSERT_ALWAYS(WaitForSingleObject(this->eventForWaitable, 0) == WAIT_OBJECT_0)
-		}
-
-		if(this->CanRead()){
-			ASSERT_ALWAYS(this->first)
-
-			//event should be in signalled state
-			ASSERT_ALWAYS(WaitForSingleObject(this->eventForWaitable, 0) == WAIT_OBJECT_0)
-		}
-
-		//if event is in signalled state
-		if(WaitForSingleObject(this->eventForWaitable, 0) == WAIT_OBJECT_0){
-			ASSERT_ALWAYS(this->CanRead())
-			ASSERT_ALWAYS(this->first)
-		}
-	}
-#endif
-*/
-
 	return !(this->readiness_flags & this->flagsMask).is_clear();
 }
 

@@ -76,8 +76,10 @@ public:
 #elif M_OS == M_OS_LINUX
 			,revents(max_size)
 	{
+		if(max_size > std::numeric_limits<int>::max()){
+			throw std::invalid_argument("wait_set(): given max_size is too big, should be <= INT_MAX");
+		}
 		ASSERT(int(max_size) > 0)
-		// TODO: check that unsigned fits to int and throw exception if not
 		this->epollSet = epoll_create(int(max_size));
 		if(this->epollSet < 0){
 			throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): epoll_create() failed");
@@ -85,7 +87,9 @@ public:
 	}
 #elif M_OS == M_OS_MACOSX
 	{
-		//TODO: chack that max_size * 2 fits to size type of revents
+		if(max_size > std::numeric_limits<decltype(this->revents)::size_type>::max() / 2){
+			throw std::invalid_argument("wait_set(): given max_size is too big, should be less than max(size_t) / 2");
+		}
 		this->revents.resize(max_size * 2);
 		this->queue = kqueue();
 		if(this->queue == -1){
@@ -192,11 +196,6 @@ public:
 		return this->wait_internal(false, timeout, out_events);
 	}
 
-	//TODO: deprecated, remove.
-	unsigned waitWithTimeout(uint32_t timeout, utki::span<waitable*> out_events){
-		return this->wait_internal(false, timeout, out_events);
-	}
-
 private:
 	unsigned wait_internal(bool waitInfinitly, std::uint32_t timeout, utki::span<waitable*> out_events);
 	
@@ -208,10 +207,4 @@ private:
 
 };
 
-// TODO: deprecated, remove.
-typedef wait_set WaitSet;
-
 }
-
-// TODO: deprecated, remove.
-namespace pogodi = opros;
