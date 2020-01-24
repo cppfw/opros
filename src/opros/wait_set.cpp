@@ -41,6 +41,7 @@ wait_set::wait_set(unsigned max_size) :
 #elif M_OS == M_OS_MACOSX
 {
 	if(std::numeric_limits<decltype(max_size)>::max() >= std::numeric_limits<decltype(this->revents)::size_type>::max() / 2){
+		// the first 'if' is to prevent compiler warning that comparison of max_size with too big constant number is always true
 		if(max_size > std::numeric_limits<decltype(this->revents)::size_type>::max() / 2){
 			throw std::invalid_argument("wait_set(): given max_size is too big, should be less than max(size_t) / 2");
 		}
