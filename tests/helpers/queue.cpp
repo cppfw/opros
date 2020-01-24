@@ -28,7 +28,7 @@ using namespace helpers;
 
 queue::queue(){
 	// can write will always be set because it is always possible to post a message to the queue
-	this->readiness_flags.set(opros::ready_to::write);
+	this->readiness_flags.set(opros::ready::write);
 
 #if M_OS == M_OS_WINDOWS
 	this->eventForWaitable = CreateEvent(
@@ -82,8 +82,8 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 		// NOTE: set CanRead flag before event notification/pipe write, because
 		// if do it after then some other thread which was waiting on the WaitSet
 		// may read the CanRead flag while it was not set yet.
-		ASSERT(!this->readiness_flags.get(opros::ready_to::read))
-		this->readiness_flags.set(opros::ready_to::read);
+		ASSERT(!this->readiness_flags.get(opros::ready::read))
+		this->readiness_flags.set(opros::ready::read);
 
 #if M_OS == M_OS_WINDOWS
 		if(SetEvent(this->eventForWaitable) == 0){
@@ -105,7 +105,7 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 #endif
 	}
 
-	ASSERT(this->readiness_flags.get(opros::ready_to::read))
+	ASSERT(this->readiness_flags.get(opros::ready::read))
 }
 
 
@@ -113,7 +113,7 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 queue::T_Message queue::peekMsg(){
 	std::lock_guard<decltype(this->mut)> mutexGuard(this->mut);
 	if(this->messages.size() != 0){
-		ASSERT(this->readiness_flags.get(opros::ready_to::read))
+		ASSERT(this->readiness_flags.get(opros::ready::read))
 
 		if(this->messages.size() == 1){ // if we are taking away the last message from the queue
 #if M_OS == M_OS_WINDOWS
@@ -139,9 +139,9 @@ queue::T_Message queue::peekMsg(){
 #else
 #	error "Unsupported OS"
 #endif
-			this->readiness_flags.clear(opros::ready_to::read);
+			this->readiness_flags.clear(opros::ready::read);
 		}else{
-			ASSERT(this->readiness_flags.get(opros::ready_to::read))
+			ASSERT(this->readiness_flags.get(opros::ready::read))
 		}
 		
 		T_Message ret = std::move(this->messages.front());
@@ -162,14 +162,14 @@ HANDLE queue::get_handle(){
 
 
 
-void queue::set_waiting_flags(utki::flags<opros::ready_to> wait_for){
+void queue::set_waiting_flags(utki::flags<opros::ready> wait_for){
 	// It is not allowed to wait on queue for write,
 	// because it is always possible to push new message to queue.
 	// Error condition is not possible for queue.
 	// Thus, only possible flag values are READ and 0 (NOT_READY)
-	if(wait_for.get(opros::ready_to::write)){
+	if(wait_for.get(opros::ready::write)){
 		ASSERT_INFO(false, "wait_for = " << wait_for)
-		throw std::invalid_argument("queue::set_waiting_flags(): wait_for should have only ready_to::read flag set or no flags set, other values are not allowed");
+		throw std::invalid_argument("queue::set_waiting_flags(): wait_for should have only ready::read flag set or no flags set, other values are not allowed");
 	}
 
 	this->flagsMask = wait_for;
@@ -177,7 +177,7 @@ void queue::set_waiting_flags(utki::flags<opros::ready_to> wait_for){
 
 bool queue::check_signaled(){
 	// error condition is not possible for queue
-	ASSERT(!this->readiness_flags.get(opros::ready_to::report_error))
+	ASSERT(!this->readiness_flags.get(opros::ready::error))
 
 // TODO: remove dead code
 /*

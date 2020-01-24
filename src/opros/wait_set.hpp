@@ -141,7 +141,7 @@ public:
 	 * @param w - waitable object to add to the wait_set.
 	 * @param wait_for - determine events waiting for which we are interested.
 	 */
-	void add(waitable& w, utki::flags<ready_to> wait_for);
+	void add(waitable& w, utki::flags<ready> wait_for);
 
 	/**
 	 * @brief Change wait flags for a given waitable.
@@ -149,7 +149,7 @@ public:
 	 * @param w - waitable for which the changing of wait flags is needed.
 	 * @param wait_for - new wait flags to be set for the given waitable.
 	 */
-	void change(waitable& w, utki::flags<ready_to> wait_for);
+	void change(waitable& w, utki::flags<ready> wait_for);
 
 	/**
 	 * @brief Remove waitable from wait set.

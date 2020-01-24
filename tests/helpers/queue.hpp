@@ -87,9 +87,9 @@ public:
 protected:
 	HANDLE get_handle()override;
 
-	utki::flags<opros::ready_to> flagsMask;
+	utki::flags<opros::ready> flagsMask;
 
-	void set_waiting_flags(utki::flags<opros::ready_to> wait_for)override;
+	void set_waiting_flags(utki::flags<opros::ready> wait_for)override;
 
 	bool check_signaled()override;
 

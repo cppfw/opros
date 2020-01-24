@@ -12,10 +12,10 @@
 
 namespace opros{
 
-enum class ready_to{
+enum class ready{
 	read,
 	write,
-	report_error,
+	error,
 
 	ENUM_SIZE // this must always be the last element of the enum
 };
@@ -36,7 +36,7 @@ public:
 	void* user_data = nullptr;
 
 protected:
-	utki::flags<ready_to> readiness_flags;
+	utki::flags<ready> readiness_flags;
 
 	waitable() = default;
 
@@ -63,7 +63,7 @@ public:
 protected:
 	virtual HANDLE get_handle() = 0;
 
-	virtual void set_waiting_flags(utki::flags<ready_to>){}
+	virtual void set_waiting_flags(utki::flags<ready>){}
 
 	virtual bool check_signaled(){
 		return !this->readiness_flags.is_clear();

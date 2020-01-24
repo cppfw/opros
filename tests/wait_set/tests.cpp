@@ -18,7 +18,7 @@ void Run(){
 
 	std::thread thread([&queue](){
 		opros::wait_set ws(1);
-		ws.add(queue, utki::flags<opros::ready_to>().set(opros::ready_to::read));
+		ws.add(queue, utki::flags<opros::ready>().set(opros::ready::read));
 		auto res = ws.wait(3000);
 		ASSERT_ALWAYS(res == 1)
 		ws.remove(queue);
@@ -40,8 +40,8 @@ void Run(){
 
 	helpers::queue q1, q2;
 
-	ws.add(q1, utki::make_flags({opros::ready_to::read}));
-	ws.add(q2, utki::make_flags({opros::ready_to::read}));
+	ws.add(q1, utki::make_flags({opros::ready::read}));
+	ws.add(q2, utki::make_flags({opros::ready::read}));
 
 	std::array<opros::waitable*, 4> buf;
 
@@ -68,7 +68,7 @@ void Run(){
 	ASSERT_ALWAYS(ws.wait(100) == 1)
 	ASSERT_ALWAYS(ws.wait(100, utki::make_span(buf)) == 1)
 	ASSERT_ALWAYS(buf[0] == &q1)
-	ASSERT_ALWAYS(!q2.flags().get(opros::ready_to::read))
+	ASSERT_ALWAYS(!q2.flags().get(opros::ready::read))
 
 	// check that no objects trigger after reading from queue
 	q1.peekMsg(); // should not block since one message was pushed before

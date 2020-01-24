@@ -57,7 +57,7 @@ void wait_set::remove_filter(waitable& w, int16_t filter){
 
 
 
-void wait_set::add(waitable& w, utki::flags<ready_to> wait_for){
+void wait_set::add(waitable& w, utki::flags<ready> wait_for){
 //		TRACE(<< "wait_set::add(): enter" << std::endl)
 	ASSERT(!w.is_added())
 
@@ -79,8 +79,8 @@ void wait_set::add(waitable& w, utki::flags<ready_to> wait_for){
 	e.data.fd = w.get_handle();
 	e.data.ptr = &w;
 	e.events =
-			(wait_for.get(ready_to::read) ? (EPOLLIN | EPOLLPRI) : 0)
-			| (wait_for.get(ready_to::write) ? EPOLLOUT : 0)
+			(wait_for.get(ready::read) ? (EPOLLIN | EPOLLPRI) : 0)
+			| (wait_for.get(ready::write) ? EPOLLOUT : 0)
 			| (EPOLLERR);
 	int res = epoll_ctl(
 			this->epollSet,
@@ -95,10 +95,10 @@ void wait_set::add(waitable& w, utki::flags<ready_to> wait_for){
 #elif M_OS == M_OS_MACOSX
 	ASSERT(this->size() <= this->revents.size() / 2)
 	
-	if(wait_for.get(ready_to::read)){
+	if(wait_for.get(ready::read)){
 		this->add_filter(w, EVFILT_READ);
 	}
-	if(wait_for.get(ready_to::write)){
+	if(wait_for.get(ready::write)){
 		this->add_filter(w, EVFILT_WRITE);
 	}
 #else
@@ -113,7 +113,7 @@ void wait_set::add(waitable& w, utki::flags<ready_to> wait_for){
 
 
 
-void wait_set::change(waitable& w, utki::flags<ready_to> wait_for){
+void wait_set::change(waitable& w, utki::flags<ready> wait_for){
 	ASSERT(w.is_added())
 
 #if M_OS == M_OS_WINDOWS
@@ -139,8 +139,8 @@ void wait_set::change(waitable& w, utki::flags<ready_to> wait_for){
 	e.data.fd = w.get_handle();
 	e.data.ptr = &w;
 	e.events =
-			(wait_for.get(ready_to::read) ? (EPOLLIN | EPOLLPRI) : 0)
-			| (wait_for.get(ready_to::write) ? EPOLLOUT : 0)
+			(wait_for.get(ready::read) ? (EPOLLIN | EPOLLPRI) : 0)
+			| (wait_for.get(ready::write) ? EPOLLOUT : 0)
 			| (EPOLLERR);
 	int res = epoll_ctl(
 			this->epollSet,
@@ -152,12 +152,12 @@ void wait_set::change(waitable& w, utki::flags<ready_to> wait_for){
 		throw std::system_error(errno, std::generic_category(), "wait_set::change(): epoll_ctl() failed");
 	}
 #elif M_OS == M_OS_MACOSX
-	if(wait_for.get(ready_to::read)){
+	if(wait_for.get(ready::read)){
 		this->add_filter(w, EVFILT_READ);
 	}else{
 		this->remove_filter(w, EVFILT_READ);
 	}
-	if(wait_for.get(ready_to::write)){
+	if(wait_for.get(ready::write)){
 		this->add_filter(w, EVFILT_WRITE);
 	}else{
 		this->remove_filter(w, EVFILT_WRITE);
@@ -314,13 +314,13 @@ unsigned wait_set::wait_internal(bool waitInfinitly, std::uint32_t timeout, utki
 		waitable* w = static_cast<waitable*>(e->data.ptr);
 		ASSERT(w)
 		if((e->events & EPOLLERR) != 0){
-			w->readiness_flags.set(ready_to::report_error);
+			w->readiness_flags.set(ready::error);
 		}
 		if((e->events & (EPOLLIN | EPOLLPRI)) != 0){
-			w->readiness_flags.set(ready_to::read);
+			w->readiness_flags.set(ready::read);
 		}
 		if((e->events & EPOLLOUT) != 0){
-			w->readiness_flags.set(ready_to::write);
+			w->readiness_flags.set(ready::write);
 		}
 		ASSERT(!w->readiness_flags.is_clear())
 		if(numEvents < out_events.size()){
@@ -360,13 +360,13 @@ unsigned wait_set::wait_internal(bool waitInfinitly, std::uint32_t timeout, utki
 				struct kevent &e = this->revents[i];
 				waitable *w = reinterpret_cast<waitable*>(e.udata);
 				if(e.filter == EVFILT_WRITE){
-					w->readiness_flags.set(ready_to::write);
+					w->readiness_flags.set(ready::write);
 				}else if(e.filter == EVFILT_READ){
-					w->readiness_flags.set(ready_to::read);
+					w->readiness_flags.set(ready::read);
 				}
 				
 				if((e.flags & EV_ERROR) != 0){
-					w->readiness_flags.set(ready_to::report_error);
+					w->readiness_flags.set(ready::error);
 				}
 				
 				if(out_i < out_events.size()){
