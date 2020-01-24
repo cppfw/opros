@@ -14,6 +14,48 @@ using namespace opros;
 
 
 
+wait_set::wait_set(unsigned max_size) :
+		max_size_of_wait_set(max_size)
+#if M_OS == M_OS_WINDOWS
+		,waitables(max_size)
+		,handles(max_size)
+{
+	ASSERT_INFO(max_size <= MAXIMUM_WAIT_OBJECTS, "max_size should be less than " << MAXIMUM_WAIT_OBJECTS)
+	if(max_size > MAXIMUM_WAIT_OBJECTS){
+		throw std::invalid_argument("wait_set::wait_set(): requested wait_set maximum size is too big");
+	}
+}
+
+#elif M_OS == M_OS_LINUX
+		,revents(max_size)
+{
+	if(max_size > std::numeric_limits<int>::max()){
+		throw std::invalid_argument("wait_set(): given max_size is too big, should be <= INT_MAX");
+	}
+	ASSERT(int(max_size) > 0)
+	this->epollSet = epoll_create(int(max_size));
+	if(this->epollSet < 0){
+		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): epoll_create() failed");
+	}
+}
+#elif M_OS == M_OS_MACOSX
+{
+	if(std::numeric_limits<decltype(max_size)>::max() >= std::numeric_limits<decltype(this->revents)::size_type>::max() / 2){
+		if(max_size > std::numeric_limits<decltype(this->revents)::size_type>::max() / 2){
+			throw std::invalid_argument("wait_set(): given max_size is too big, should be less than max(size_t) / 2");
+		}
+	}
+	this->revents.resize(max_size * 2);
+	this->queue = kqueue();
+	if(this->queue == -1){
+		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): kqueue creation failed");
+	}
+}
+#else
+#	error "Unsupported OS"
+#endif
+
+
 #if M_OS == M_OS_MACOSX
 
 void wait_set::add_filter(waitable& w, int16_t filter){
