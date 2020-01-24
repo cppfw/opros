@@ -1,3 +1,9 @@
+libopros (1.0.34) unstable; urgency=medium
+
+  * ready_to renamed to ready
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 24 Jan 2020 11:45:38 +0200
+
 libopros (1.0.33) unstable; urgency=medium
 
   * refactoring
