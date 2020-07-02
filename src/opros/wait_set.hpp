@@ -134,7 +134,7 @@ public:
 	 * @return number of objects triggered.
 	 *         NOTE: for some reason, on Windows it can return 0 objects triggered.
 	 */
-	unsigned wait(utki::span<waitable*> out_events = utki::span<waitable*>(nullptr, 0)){
+	unsigned wait(utki::span<waitable*> out_events = nullptr){
 		return this->wait_internal(true, 0, out_events);
 	}
 
@@ -151,12 +151,12 @@ public:
 	 * @return number of objects triggered. If 0 then timeout was hit.
 	 *         NOTE: for some reason, on Windows it can return 0 before timeout was hit.
 	 */
-	unsigned wait(uint32_t timeout, utki::span<waitable*> out_events = utki::span<waitable*>(nullptr, 0)){
+	unsigned wait(uint32_t timeout, utki::span<waitable*> out_events = nullptr){
 		return this->wait_internal(false, timeout, out_events);
 	}
 
 private:
-	unsigned wait_internal(bool waitInfinitly, std::uint32_t timeout, utki::span<waitable*> out_events);
+	unsigned wait_internal(bool waitInfinitly, uint32_t timeout, utki::span<waitable*> out_events);
 	
 #if M_OS == M_OS_MACOSX
 	void add_filter(waitable& w, int16_t filter);

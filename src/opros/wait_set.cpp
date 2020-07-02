@@ -265,13 +265,23 @@ void wait_set::remove(waitable& w)noexcept{
 
 
 
-unsigned wait_set::wait_internal(bool waitInfinitly, std::uint32_t timeout, utki::span<waitable*> out_events){
+unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::span<waitable*> out_events){
 	if(this->size_of_wait_set == 0){
 		throw utki::invalid_state("wait_set::Wait(): no waitable objects were added to the wait_set, can't perform Wait()");
 	}
 
 #if M_OS == M_OS_WINDOWS
-	DWORD waitTimeout = waitInfinitly ? (INFINITE) : DWORD(timeout);
+	DWORD waitTimeout;
+	if(waitInfinitly){
+		waitTimeout = INFINITE;
+	}else{
+		static_assert(INFINITE == 0xffffffff, "check that INFINITE macro is max uint32_T failed");
+		if(timeout == 0xffffffff){
+			waitTimeout = 0xffffffff - 1;
+		}else{
+			waitTimeout = DWORD(timeout);
+		}
+	}
 
 	DWORD res = WaitForMultipleObjectsEx(
 			this->size_of_wait_set,
@@ -336,7 +346,7 @@ unsigned wait_set::wait_internal(bool waitInfinitly, std::uint32_t timeout, utki
 //			TRACE(<< "epoll_wait() returned " << res << std::endl)
 
 		if(res < 0){
-			//if interrupted by signal, try waiting again.
+			// if interrupted by signal, try waiting again.
 			if(errno == EINTR){
 				continue;
 			}

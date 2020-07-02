@@ -100,5 +100,21 @@ void Run(){
 
 	ws.remove(q1);
 	ws.remove(q2);
+
+	// test waiting with timeout equal to uint32_t(-1)
+	{
+		opros::wait_set ws(4);
+
+		helpers::queue q1, q2;
+
+		ws.add(q1, utki::make_flags({opros::ready::read}));
+		ws.add(q2, utki::make_flags({opros::ready::read}));
+
+		std::array<opros::waitable*, 4> buf;
+
+
+
+		ASSERT_ALWAYS(ws.wait(uint32_t(-1), utki::make_span(buf)) == 0)
+	}
 }
 }
