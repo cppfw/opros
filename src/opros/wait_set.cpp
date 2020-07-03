@@ -248,6 +248,8 @@ void wait_set::remove(waitable& w)noexcept{
 //		TRACE(<< "wait_set::remove(): completed successfuly" << std::endl)
 }
 
+#if M_OS == M_OS_LINUX
+
 unsigned wait_set::wait_internal_linux(int timeout, utki::span<waitable*> out_events){
 	// TRACE(<< "going to epoll_wait() with timeout = " << timeout << std::endl)
 
@@ -304,6 +306,8 @@ unsigned wait_set::wait_internal_linux(int timeout, utki::span<waitable*> out_ev
 	ASSERT(res >= 0) // NOTE: 'res' can be zero, if no events happened in the specified timeout
 	return unsigned(res);
 }
+
+#endif
 
 unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::span<waitable*> out_events){
 	if(this->size_of_wait_set == 0){
