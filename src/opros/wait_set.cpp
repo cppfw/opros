@@ -96,7 +96,7 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for){
 #if M_OS == M_OS_WINDOWS
 	ASSERT(this->size() <= this->handles.size())
 	if(this->size() == this->handles.size()){
-		throw utki::invalid_state("wait_set::add(): wait set is full");
+		throw std::logic_error("wait_set::add(): wait set is full");
 	}
 
 	// NOTE: Setting wait flags may throw an exception, so do that before
@@ -157,7 +157,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for){
 		}
 		ASSERT(i <= this->size())
 		if(i == this->size()){
-			throw utki::invalid_state("wait_set::change(): the waitable is not added to this wait set");
+			throw std::logic_error("wait_set::change(): the waitable is not added to this wait set");
 		}
 	}
 
