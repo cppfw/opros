@@ -4,9 +4,14 @@ this_name := tests
 
 this_cxxflags += -std=c++11
 this_cxxflags += -Wall
-this_cxxflags += -DDEBUG
 this_cxxflags += -fstrict-aliasing
-this_cxxflags += -O3
+this_cxxflags += -g
+
+ifeq ($(debug),true)
+    this_cxxflags += -DDEBUG
+else
+    this_cxxflags += -O3
+endif
 
 this_srcs += main.cpp tests.cpp ../helpers/queue.cpp
 

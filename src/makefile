@@ -1,21 +1,16 @@
 include prorab.mk
 
-
 this_name := opros
 
 this_soname := $(shell cat $(prorab_this_dir)soname.txt)
 
 this_srcs := $(call prorab-src-dir,.)
 
-
 ifeq ($(debug),true)
     this_cxxflags += -DDEBUG
 else
     this_cxxflags += -O3
 endif
-
-
-
 
 this_cxxflags += -Wall #enable all warnings
 this_cxxflags += -Wno-comment #no warnings on nested comments

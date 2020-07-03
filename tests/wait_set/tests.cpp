@@ -101,7 +101,7 @@ void Run(){
 	ws.remove(q1);
 	ws.remove(q2);
 
-	// test waiting with timeout equal to uint32_t(-1)
+	// test waiting with timeout equal to max value of uint32_t
 	{
 		opros::wait_set ws(4);
 
@@ -110,11 +110,25 @@ void Run(){
 		ws.add(q1, utki::make_flags({opros::ready::read}));
 		ws.add(q2, utki::make_flags({opros::ready::read}));
 
+		ASSERT_ALWAYS(ws.size() == 2)
+
 		std::array<opros::waitable*, 4> buf;
 
+		std::thread thr([&q1](){
+			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+			// TRACE(<< "pushing message" << std::endl)
+			q1.pushMessage([](){});
+		});
 
+		// TRACE(<< "waiting" << std::endl)
+		ASSERT_ALWAYS(ws.wait(std::numeric_limits<uint32_t>::max(), utki::make_span(buf)) == 1)
+		ASSERT_ALWAYS(q1.peekMsg())
+		ASSERT_ALWAYS(!q1.peekMsg())
 
-		ASSERT_ALWAYS(ws.wait(uint32_t(-1), utki::make_span(buf)) == 0)
+		thr.join();
+
+		ws.remove(q1);
+		ws.remove(q2);
 	}
 }
 }

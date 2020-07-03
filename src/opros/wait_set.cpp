@@ -2,17 +2,11 @@
 
 #include <cstring>
 
-#include <utki/exception.hpp>
-
 #if M_OS == M_OS_MACOSX
 #	include <sys/time.h>
 #endif
 
-
-
 using namespace opros;
-
-
 
 wait_set::wait_set(unsigned max_size) :
 		max_size_of_wait_set(max_size)
@@ -56,7 +50,6 @@ wait_set::wait_set(unsigned max_size) :
 #	error "Unsupported OS"
 #endif
 
-
 #if M_OS == M_OS_MACOSX
 
 void wait_set::add_filter(waitable& w, int16_t filter){
@@ -78,8 +71,6 @@ void wait_set::add_filter(waitable& w, int16_t filter){
 	}
 }
 
-
-
 void wait_set::remove_filter(waitable& w, int16_t filter){
 	struct kevent e;
 
@@ -97,8 +88,6 @@ void wait_set::remove_filter(waitable& w, int16_t filter){
 }
 
 #endif
-
-
 
 void wait_set::add(waitable& w, utki::flags<ready> wait_for){
 //		TRACE(<< "wait_set::add(): enter" << std::endl)
@@ -154,8 +143,6 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for){
 //		TRACE(<< "wait_set::add(): exit" << std::endl)
 }
 
-
-
 void wait_set::change(waitable& w, utki::flags<ready> wait_for){
 	ASSERT(w.is_added())
 
@@ -210,8 +197,6 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for){
 #endif
 }
 
-
-
 void wait_set::remove(waitable& w)noexcept{
 	ASSERT(w.is_added())
 	
@@ -263,11 +248,66 @@ void wait_set::remove(waitable& w)noexcept{
 //		TRACE(<< "wait_set::remove(): completed successfuly" << std::endl)
 }
 
+unsigned wait_set::wait_internal_linux(int timeout, utki::span<waitable*> out_events){
+	// TRACE(<< "going to epoll_wait() with timeout = " << timeout << std::endl)
 
+	int res;
+
+	while(true){
+		res = epoll_wait(
+				this->epollSet,
+				this->revents.data(),
+				this->revents.size(),
+				timeout
+			);
+
+		// TRACE(<< "epoll_wait() returned " << res << std::endl)
+
+		if(res < 0){
+			// if interrupted by signal, try waiting again.
+			if(errno == EINTR){
+				continue;
+			}
+			throw std::system_error(errno, std::generic_category(), "wait_set::wait(): epoll_wait() failed");
+		}
+		break;
+	};
+
+	ASSERT(res >= 0)
+	ASSERT(unsigned(res) <= this->revents.size())
+
+	unsigned numEvents = 0;
+	for(
+			epoll_event *e = this->revents.data();
+			e < this->revents.data() + res;
+			++e
+		)
+	{
+		waitable* w = static_cast<waitable*>(e->data.ptr);
+		ASSERT(w)
+		if((e->events & EPOLLERR) != 0){
+			w->readiness_flags.set(ready::error);
+		}
+		if((e->events & (EPOLLIN | EPOLLPRI)) != 0){
+			w->readiness_flags.set(ready::read);
+		}
+		if((e->events & EPOLLOUT) != 0){
+			w->readiness_flags.set(ready::write);
+		}
+		ASSERT(!w->readiness_flags.is_clear())
+		if(numEvents < out_events.size()){
+			out_events[numEvents] = w;
+			++numEvents;
+		}
+	}
+
+	ASSERT(res >= 0) // NOTE: 'res' can be zero, if no events happened in the specified timeout
+	return unsigned(res);
+}
 
 unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::span<waitable*> out_events){
 	if(this->size_of_wait_set == 0){
-		throw utki::invalid_state("wait_set::Wait(): no waitable objects were added to the wait_set, can't perform Wait()");
+		throw std::logic_error("wait_set::wait(): no waitable objects were added to the wait_set, can't perform wait()");
 	}
 
 #if M_OS == M_OS_WINDOWS
@@ -328,62 +368,29 @@ unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::spa
 	return numEvents;
 
 #elif M_OS == M_OS_LINUX
-	ASSERT(int(timeout) >= 0)
-	int epollTimeout = waitInfinitly ? (-1) : int(timeout);
+	if(waitInfinitly){
+		return this->wait_internal_linux(-1, out_events);
+	}
 
-//		TRACE(<< "going to epoll_wait() with timeout = " << epollTimeout << std::endl)
+	// in linux, epoll_wait() gets timeout as int argument, while we have timeout as uint32_t,
+	// so the requested timeout can be bigger than int can hold (negative values of the int are not used)
 
-	int res;
+	uint32_t max_time_step = uint32_t(std::numeric_limits<int>::max());
 
-	while(true){
-		res = epoll_wait(
-				this->epollSet,
-				this->revents.data(),
-				this->revents.size(),
-				epollTimeout
-			);
-
-//			TRACE(<< "epoll_wait() returned " << res << std::endl)
-
-		if(res < 0){
-			// if interrupted by signal, try waiting again.
-			if(errno == EINTR){
-				continue;
-			}
-			throw std::system_error(errno, std::generic_category(), "wait_set::wait(): epoll_wait() failed");
+	while(timeout >= max_time_step){
+		ASSERT_INFO(int(max_time_step) >= 0, "timeout = 0x" << std::hex << timeout)
+		auto res = this->wait_internal_linux(max_time_step, out_events);
+		if(res != 0){
+			return res;
 		}
-		break;
-	};
-
-	ASSERT(unsigned(res) <= this->revents.size())
-
-	unsigned numEvents = 0;
-	for(
-			epoll_event *e = this->revents.data();
-			e < this->revents.data() + res;
-			++e
-		)
-	{
-		waitable* w = static_cast<waitable*>(e->data.ptr);
-		ASSERT(w)
-		if((e->events & EPOLLERR) != 0){
-			w->readiness_flags.set(ready::error);
-		}
-		if((e->events & (EPOLLIN | EPOLLPRI)) != 0){
-			w->readiness_flags.set(ready::read);
-		}
-		if((e->events & EPOLLOUT) != 0){
-			w->readiness_flags.set(ready::write);
-		}
-		ASSERT(!w->readiness_flags.is_clear())
-		if(numEvents < out_events.size()){
-			out_events[numEvents] = w;
-			++numEvents;
+		timeout -= max_time_step;
+		if(timeout == 0){
+			return 0;
 		}
 	}
 
-	ASSERT(res >= 0) // NOTE: 'res' can be zero, if no events happened in the specified timeout
-	return unsigned(res);
+	return this->wait_internal_linux(timeout, out_events);
+	
 #elif M_OS == M_OS_MACOSX
 	struct timespec ts = {
 		decltype(timespec::tv_sec)(timeout / 1000), // seconds

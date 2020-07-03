@@ -156,7 +156,11 @@ public:
 	}
 
 private:
-	unsigned wait_internal(bool waitInfinitly, uint32_t timeout, utki::span<waitable*> out_events);
+	unsigned wait_internal(bool infinite, uint32_t timeout, utki::span<waitable*> out_events);
+
+#if M_OS == M_OS_LINUX
+	unsigned wait_internal_linux(int timeout, utki::span<waitable*> out_events);
+#endif
 	
 #if M_OS == M_OS_MACOSX
 	void add_filter(waitable& w, int16_t filter);
