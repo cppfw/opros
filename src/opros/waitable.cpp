@@ -1,10 +1,6 @@
 #include "waitable.hpp"
 
-#include <utki/exception.hpp>
-
 using namespace opros;
-
-
 
 waitable::waitable(waitable&& w) :
 		is_added_to_waitset(false),
@@ -12,7 +8,7 @@ waitable::waitable(waitable&& w) :
 {
 	// cannot move from waitable which is added to WaitSet
 	if(w.is_added_to_waitset){
-		throw std::invalid_argument("waitable::waitable(move): cannot move waitable which is added to WaitSet");
+		throw std::invalid_argument("waitable::waitable(move): cannot move waitable which is added to wait_set");
 	}
 
 	this->readiness_flags = std::move(w.readiness_flags);
@@ -21,15 +17,13 @@ waitable::waitable(waitable&& w) :
 	w.user_data = nullptr;
 }
 
-
-
 waitable& waitable::operator=(waitable&& w){
 	if(this->is_added()){
-		throw utki::invalid_state("waitable::waitable(move): cannot move while this waitable is added to WaitSet");
+		throw std::logic_error("waitable::waitable(move): cannot move while this waitable is added to wait_set");
 	}
 
 	if(w.is_added()){
-		throw std::invalid_argument("waitable::waitable(move): cannot move waitable which is added to WaitSet");
+		throw std::invalid_argument("waitable::waitable(move): cannot move waitable which is added to wait_set");
 	}
 
 	ASSERT(!this->is_added())
