@@ -1,12 +1,7 @@
-branches:
-  only:
-    - master
-
-os: Visual Studio 2017
+os: Visual Studio 2019
 version: "{branch}-{build}"
 
 clone_folder: c:\build
-
 
 install:
   - ps: (new-object net.webclient).DownloadFile('http://coapp.org/files/CoApp.Tools.Powershell.msi', 'C:\CoApp.Tools.Powershell.msi')
