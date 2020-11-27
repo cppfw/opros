@@ -78,8 +78,6 @@ nuget{
 
 		// ======== v142 =========
 
-			//==== v142 tools ====
-
 		[x86,v142,release,MultiThreaded] {
 			lib: ..\msvs_solution\v142_Release_MT\libopros.lib;
 		}
