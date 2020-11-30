@@ -18,9 +18,9 @@ nuget{
 		title: C++ event waiting library;
 		authors: {Ivan Gagis};
 		owners: {Ivan Gagis};
-		licenseUrl: "https://raw.githubusercontent.com/igagis/opros/master/LICENSE";
-		projectUrl: "https://github.com/igagis/opros";
-		iconUrl: "https://github.com/igagis/opros/blob/master/logo.svg";
+		licenseUrl: "https://raw.githubusercontent.com/cppfw/opros/master/LICENSE";
+		projectUrl: "https://github.com/cppfw/opros";
+		iconUrl: "https://github.com/cppfw/opros/blob/master/logo.svg";
 		requireLicenseAcceptance:false;
 		summary: C++ event waiting library;
 

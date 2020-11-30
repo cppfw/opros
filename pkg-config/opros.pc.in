@@ -1,7 +1,7 @@
 Name: opros   # human-readable name
 Description: C++ waiting library # human-readable description
 Version: $(version)
-URL: https://github.com/igagis/opros
+URL: https://github.com/cppfw/opros
 Requires:
 Conflicts:
 Libs: -lopros
