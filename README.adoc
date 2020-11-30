@@ -6,6 +6,6 @@
 | link:https://github.com/cppfw/{name}/releases[image:https://img.shields.io/github/tag/cppfw/{name}.svg[releases]] | link:https://github.com/cppfw/{name}/actions[image:https://github.com/cppfw/{name}/workflows/ci/badge.svg[ci status]]
 |====
 
-C++ event waiting library.
+Event waiting library in C++.
 
 link:wiki/Main.adoc[WiKi]
