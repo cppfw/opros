@@ -1,3 +1,9 @@
+libopros (1.0.42) unstable; urgency=medium
+
+  * build for ubuntu focal
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 11 Dec 2020 16:02:01 +0200
+
 libopros (1.0.41) unstable; urgency=medium
 
   * github actions
