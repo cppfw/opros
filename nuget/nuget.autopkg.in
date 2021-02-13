@@ -31,7 +31,7 @@ nuget{
 	}
 	dependencies {
 		packages : {
-			libutki/1.1.68;
+			libutki/1.1.112;
 		};
 	}
 	files {

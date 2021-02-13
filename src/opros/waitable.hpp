@@ -17,7 +17,7 @@ enum class ready{
 	write,
 	error,
 
-	ENUM_SIZE // this must always be the last element of the enum
+	enum_size // this must always be the last element of the enum
 };
 
 /**
