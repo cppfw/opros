@@ -1,3 +1,9 @@
+libopros (1.0.44) unstable; urgency=medium
+
+  * update to altest utki
+
+ -- Ivan Gagis <igagis@gmail.com>  Sat, 13 Feb 2021 21:10:33 +0200
+
 libopros (1.0.43) unstable; urgency=medium
 
   * github actions build for raspbian
