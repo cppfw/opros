@@ -539,11 +539,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\tests\wait_set\*.hpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="..\..\tests\wait_set\*.cpp" />
     <ClCompile Include="..\..\tests\helpers\queue.cpp" />
+    <ClCompile Include="..\..\tests\wait_set\main.cpp" />
+    <ClCompile Include="..\..\tests\wait_set\tests.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\libopros\libopros.vcxproj">
@@ -552,6 +550,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\..\tests\wait_set\main.hpp" />
+    <ClInclude Include="..\..\tests\wait_set\tests.hpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
