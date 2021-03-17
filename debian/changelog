@@ -1,3 +1,9 @@
+libopros (1.0.45) unstable; urgency=medium
+
+  * msvs: disable whole program optimization
+
+ -- Ivan Gagis <igagis@gmail.com>  Wed, 17 Mar 2021 14:10:07 +0200
+
 libopros (1.0.44) unstable; urgency=medium
 
   * update to altest utki
