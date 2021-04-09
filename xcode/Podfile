@@ -5,5 +5,5 @@ project 'opros/opros.xcodeproj'
 platform :ios, '8.0'
 
 target "opros" do
-	pod 'utki', '>= 1.1.112'
+	pod 'utki', '>= 1.1.123'
 end
