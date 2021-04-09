@@ -10,7 +10,6 @@
 #include <utki/debug.hpp>
 #include <utki/span.hpp>
 
-
 #if M_OS == M_OS_WINDOWS
 #	include <utki/windows.hpp>
 
@@ -27,9 +26,7 @@
 #	error "Unsupported OS"
 #endif
 
-
 #include "waitable.hpp"
-
 
 namespace opros{
 
@@ -71,7 +68,7 @@ public:
 	 * before the wait set object is destroyed.
 	 */
 	~wait_set()noexcept{
-		ASSERT_INFO(this->size_of_wait_set == 0, "attempt to destroy wait_set containig waitables")
+		utki::assert(this->size_of_wait_set == 0, [](auto&o){o << "attempt to destroy wait_set containig waitables";}, SL);
 #if M_OS == M_OS_WINDOWS
 		// do nothing
 #elif M_OS == M_OS_LINUX
