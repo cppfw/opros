@@ -14,7 +14,7 @@
 		{
 			"label": "build_debug",
 			"type": "shell",
-			"command": "make autojobs=true debug=true",
+			"command": "make autojobs=true config=dbg",
 			"problemMatcher": [
 				"$gcc"
 			]
@@ -34,9 +34,9 @@
 			"problemMatcher": []
 		},
 		{
-			"label": "clean",
+			"label": "clean-all",
 			"type": "shell",
-			"command": "make clean",
+			"command": "make clean-all",
 			"problemMatcher": []
 		}
 	]
