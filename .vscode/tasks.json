@@ -22,14 +22,14 @@
 		{
 			"label": "test",
 			"type": "shell",
-			"command": "make test",
+			"command": "make test autojobs=true",
 			"dependsOn": "build",
 			"problemMatcher": []
 		},
 		{
 			"label": "test_debug",
 			"type": "shell",
-			"command": "make test debug=true",
+			"command": "make test config=dbg autojobs=true",
 			"dependsOn": "build_debug",
 			"problemMatcher": []
 		},
