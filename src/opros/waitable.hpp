@@ -52,7 +52,7 @@ protected:
 
 public:
 	virtual ~waitable()noexcept{
-		ASSERT_INFO(!this->is_added(), "~waitable(): the waitable is currently added to some wait_set()")
+		ASSERT(!this->is_added(), [](auto&o){o << "~waitable(): the waitable is currently added to some wait_set()";})
 	}
 
 	const decltype(readiness_flags)& flags()const noexcept{
