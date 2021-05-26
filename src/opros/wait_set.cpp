@@ -111,7 +111,7 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for){
 	e.data.fd = w.get_handle();
 	e.data.ptr = &w;
 	e.events =
-			(wait_for.get(ready::read) ? (EPOLLIN | EPOLLPRI) : 0)
+			(wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
 			| (wait_for.get(ready::write) ? EPOLLOUT : 0)
 			| (EPOLLERR);
 	int res = epoll_ctl(
@@ -169,7 +169,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for){
 	e.data.fd = w.get_handle();
 	e.data.ptr = &w;
 	e.events =
-			(wait_for.get(ready::read) ? (EPOLLIN | EPOLLPRI) : 0)
+			(wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
 			| (wait_for.get(ready::write) ? EPOLLOUT : 0)
 			| (EPOLLERR);
 	int res = epoll_ctl(
@@ -290,7 +290,7 @@ unsigned wait_set::wait_internal_linux(int timeout, utki::span<waitable*> out_ev
 		if((e->events & EPOLLERR) != 0){
 			w->readiness_flags.set(ready::error);
 		}
-		if((e->events & (EPOLLIN | EPOLLPRI)) != 0){
+		if((e->events & (unsigned(EPOLLIN) | unsigned(EPOLLPRI))) != 0){
 			w->readiness_flags.set(ready::read);
 		}
 		if((e->events & EPOLLOUT) != 0){
