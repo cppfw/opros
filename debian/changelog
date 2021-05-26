@@ -1,3 +1,9 @@
+libopros (1.0.52) unstable; urgency=medium
+
+  * relink to new utki
+
+ -- Ivan Gagis <igagis@gmail.com>  Wed, 26 May 2021 21:47:01 +0300
+
 libopros (1.0.51) unstable; urgency=medium
 
   * relink to latest utki
