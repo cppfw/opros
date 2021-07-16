@@ -178,6 +178,8 @@ jobs:
         url: http://gagis.hopto.org/repo/cppfw/msys2/${{ matrix.repo }}
         shell: 'msys2 {0}'
         key-server: http://gagis.hopto.org/repo/cppfw/pubkey.gpg
+    - name: git clone
+      uses: myci-actions/checkout@master
     - name: prepare pacman package
       run: myci-apply-version.sh -v $(myci-deb-version.sh debian/changelog) msys2/PKGBUILD.in
     - name: build
