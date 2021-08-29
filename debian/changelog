@@ -1,3 +1,9 @@
+libopros (1.0.58) unstable; urgency=medium
+
+  * build for debian bullseye
+
+ -- Ivan Gagis <igagis@gmail.com>  Sun, 29 Aug 2021 21:58:33 +0300
+
 libopros (1.0.57) unstable; urgency=medium
 
   * msvs: build for v141 tools
