@@ -1,3 +1,9 @@
+libopros (1.0.59) unstable; urgency=medium
+
+  * build for debian bullseye
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 29 Oct 2021 19:33:47 +0300
+
 libopros (1.0.58) unstable; urgency=medium
 
   * build for debian bullseye
