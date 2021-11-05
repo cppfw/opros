@@ -1,3 +1,9 @@
+libopros (1.0.61) unstable; urgency=medium
+
+  * xcode: static xcframework
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 05 Nov 2021 17:09:09 +0200
+
 libopros (1.0.60) unstable; urgency=medium
 
   * build for debian buillseye
