@@ -9,35 +9,40 @@
 			"command": "make",
 			"problemMatcher": [
 				"$gcc"
-			]
+			],
+			"group": "build"
 		},
 		{
-			"label": "build_debug",
+			"label": "build_dbg",
 			"type": "shell",
 			"command": "make config=dbg",
 			"problemMatcher": [
 				"$gcc"
-			]
+			],
+			"group": "build"
 		},
 		{
-			"label": "test",
+			"label": "test_",
 			"type": "shell",
 			"command": "make test",
 			"dependsOn": "build",
-			"problemMatcher": []
+			"problemMatcher": [],
+			"group": "build"
 		},
 		{
-			"label": "test_debug",
+			"label": "test_dbg",
 			"type": "shell",
 			"command": "make test config=dbg",
 			"dependsOn": "build_debug",
-			"problemMatcher": []
+			"problemMatcher": [],
+			"group": "build"
 		},
 		{
 			"label": "clean-all",
 			"type": "shell",
 			"command": "make clean-all",
-			"problemMatcher": []
+			"problemMatcher": [],
+			"group": "build"
 		}
 	]
 }
