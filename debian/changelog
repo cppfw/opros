@@ -1,3 +1,9 @@
+libopros (1.0.63) unstable; urgency=medium
+
+  * rebuild conan package
+
+ -- Ivan Gagis <igagis@gmail.com>  Sun, 12 Dec 2021 17:57:52 +0200
+
 libopros (1.0.62) unstable; urgency=medium
 
   * build for raspbian bullseye
