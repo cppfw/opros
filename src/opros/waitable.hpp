@@ -69,7 +69,12 @@ protected:
 	waitable(const waitable& w) = delete;
 	waitable& operator=(const waitable& w) = delete;
 	
+	// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
+	// NOLINTNEXTLINE(bugprone-exception-escape)
 	waitable(waitable&& w)noexcept(false);
+
+	// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
+	// NOLINTNEXTLINE(bugprone-exception-escape)
 	waitable& operator=(waitable&& w)noexcept(false);
 
 	bool is_added()const noexcept{
