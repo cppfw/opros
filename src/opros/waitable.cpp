@@ -28,7 +28,7 @@ SOFTWARE.
 
 using namespace opros;
 
-waitable::waitable(waitable&& w) :
+waitable::waitable(waitable&& w)noexcept(false) :
 		is_added_to_waitset(false),
 		user_data(w.user_data)
 {
@@ -43,7 +43,7 @@ waitable::waitable(waitable&& w) :
 	w.user_data = nullptr;
 }
 
-waitable& waitable::operator=(waitable&& w){
+waitable& waitable::operator=(waitable&& w)noexcept(false){
 	if(this->is_added()){
 		throw std::logic_error("waitable::waitable(move): cannot move while this waitable is added to wait_set");
 	}

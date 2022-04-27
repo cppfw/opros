@@ -69,8 +69,8 @@ protected:
 	waitable(const waitable& w) = delete;
 	waitable& operator=(const waitable& w) = delete;
 	
-	waitable(waitable&& w);
-	waitable& operator=(waitable&& w);
+	waitable(waitable&& w)noexcept(false);
+	waitable& operator=(waitable&& w)noexcept(false);
 
 	bool is_added()const noexcept{
 		return this->is_added_to_waitset;
