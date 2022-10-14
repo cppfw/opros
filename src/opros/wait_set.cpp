@@ -40,7 +40,10 @@ wait_set::wait_set(unsigned max_size) :
 		,waitables(max_size)
 		,handles(max_size)
 {
-	ASSERT_INFO(max_size <= MAXIMUM_WAIT_OBJECTS, "max_size should be less than " << MAXIMUM_WAIT_OBJECTS)
+	ASSERT(
+		max_size <= MAXIMUM_WAIT_OBJECTS,
+		[&](auto&o){o << "max_size should be less than " << MAXIMUM_WAIT_OBJECTS;}
+	)
 	if(max_size > MAXIMUM_WAIT_OBJECTS){
 		throw std::invalid_argument("wait_set::wait_set(): requested wait_set maximum size is too big");
 	}
@@ -238,7 +241,10 @@ void wait_set::remove(waitable& w)noexcept{
 			}
 		}
 		ASSERT(i <= this->size_of_wait_set)
-		ASSERT_INFO(i != this->size_of_wait_set, "wait_set::remove(): waitable is not added to wait set")
+		ASSERT(
+			i != this->size_of_wait_set,
+			[&](auto&o){o << "wait_set::remove(): waitable is not added to wait set";}
+		)
 
 		unsigned numObjects = this->size_of_wait_set - 1; // decrease number of objects before shifting the object handles in the array
 		// shift object handles in the array
@@ -259,7 +265,10 @@ void wait_set::remove(waitable& w)noexcept{
 			0
 		);
 	if(res < 0){
-		ASSERT_INFO(false, "wait_set::Remove(): epoll_ctl failed, probably the waitable was not added to the wait set")
+		ASSERT(
+			false,
+			[&](auto&o){o << "wait_set::Remove(): epoll_ctl failed, probably the waitable was not added to the wait set";}
+		)
 	}
 #elif M_OS == M_OS_MACOSX	
 	this->remove_filter(w, EVFILT_READ);
@@ -408,7 +417,10 @@ unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::spa
 	uint32_t max_time_step = uint32_t(std::numeric_limits<int>::max());
 
 	while(timeout >= max_time_step){
-		ASSERT_INFO(int(max_time_step) >= 0, "timeout = 0x" << std::hex << timeout)
+		ASSERT(
+			int(max_time_step) >= 0,
+			[&](auto&o){o << "timeout = 0x" << std::hex << timeout;}
+		)
 		auto res = this->wait_internal_linux(max_time_step, out_events);
 		if(res != 0){
 			return res;
