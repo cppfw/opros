@@ -10,5 +10,5 @@ inline void TestTingWaitSet(){
 	test_general::Run();
 	test_message_queue_as_waitable::Run();
 
-	TRACE_ALWAYS(<< "[PASSED]: WaitSet test" << std::endl)
+	utki::log([&](auto&o){o << "[PASSED]: WaitSet test" << std::endl;});
 }
