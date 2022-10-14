@@ -1,7 +1,7 @@
 /*
 The MIT License (MIT)
 
-Copyright (c) 2015-2021 Ivan Gagis <igagis@gmail.com>
+Copyright (c) 2015-2022 Ivan Gagis <igagis@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -95,7 +95,7 @@ void wait_set::add_filter(waitable& w, int16_t filter){
 	
 	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
 	if(e.data != 0){ // data should be 0 if added successfully
-		TRACE(<< "wait_set::add(): e.data = " << e.data << std::endl)
+		LOG([&](auto&o){o << "wait_set::add(): e.data = " << e.data << std::endl;})
 		throw std::runtime_error("wait_set::add(): add_filter(): kevent() failed to add filter");
 	}
 }
@@ -110,7 +110,7 @@ void wait_set::remove_filter(waitable& w, int16_t filter){
 	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
 	if(res < 0){
 		// ignore the failure
-		TRACE(<< "wait_set::remove(): remove_filter(): kevent() failed" << std::endl);
+		LOG([&](auto&o){o << "wait_set::remove(): remove_filter(): kevent() failed" << std::endl;})
 	}
 	
 	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
@@ -150,7 +150,9 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for){
 			&e
 		);
 	if(res < 0){
-		TRACE(<< "wait_set::add(): epoll_ctl() failed. If you are adding socket, please check that is is opened before adding to wait_set." << std::endl)
+		LOG([&](auto&o){
+			o << "wait_set::add(): epoll_ctl() failed. If you are adding socket, please check that is is opened before adding to wait_set." << std::endl;
+		})
 		throw std::system_error(errno, std::generic_category(), "wait_set::Add(): epoll_ctl() failed");
 	}
 #elif M_OS == M_OS_MACOSX

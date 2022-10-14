@@ -12,16 +12,6 @@
 #endif
 
 
-//#define M_ENABLE_QUEUE_TRACE
-#ifdef M_ENABLE_QUEUE_TRACE
-#	define M_QUEUE_TRACE(x) TRACE(<< "[QUEUE] ") TRACE(x)
-#else
-#	define M_QUEUE_TRACE(x)
-#endif
-
-
-
-
 using namespace helpers;
 
 
