@@ -54,6 +54,10 @@ SOFTWARE.
 
 #include "waitable.hpp"
 
+#ifdef assert
+#	undef assert
+#endif
+
 namespace opros{
 
 /**
