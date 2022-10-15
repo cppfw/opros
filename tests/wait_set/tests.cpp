@@ -7,7 +7,9 @@
 
 #include "tests.hpp"
 
-
+#ifdef assert
+#	undef assert
+#endif
 
 namespace test_message_queue_as_waitable{
 
