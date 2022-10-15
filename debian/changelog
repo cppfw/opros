@@ -1,3 +1,9 @@
+libopros (1.0.67) unstable; urgency=medium
+
+  * build conan macos-12 package
+
+ -- Ivan Gagis <igagis@gmail.com>  Sat, 15 Oct 2022 15:41:36 +0300
+
 libopros (1.0.66) unstable; urgency=medium
 
   * fix lint issues
