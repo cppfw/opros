@@ -1,3 +1,9 @@
+libopros (1.0.68) unstable; urgency=medium
+
+  * build for ubuntu jammy
+
+ -- Ivan Gagis <igagis@gmail.com>  Mon, 24 Oct 2022 19:28:04 +0300
+
 libopros (1.0.67) unstable; urgency=medium
 
   * build conan macos-12 package
