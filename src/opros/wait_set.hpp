@@ -26,11 +26,11 @@ SOFTWARE.
 
 #pragma once
 
-#include <vector>
-#include <sstream>
 #include <cerrno>
 #include <cstdint>
+#include <sstream>
 #include <stdexcept>
+#include <vector>
 
 #include <utki/config.hpp>
 #include <utki/debug.hpp>
@@ -58,12 +58,13 @@ SOFTWARE.
 #	undef assert
 #endif
 
-namespace opros{
+namespace opros {
 
 /**
  * @brief Set of waitable objects to wait for.
  */
-class wait_set{
+class wait_set
+{
 	const unsigned max_size_of_wait_set;
 	unsigned size_of_wait_set = 0;
 
@@ -77,7 +78,7 @@ class wait_set{
 	std::vector<epoll_event> revents; // used for getting the result from epoll_wait()
 #elif M_OS == M_OS_MACOSX
 	int queue; // kqueue
-	
+
 	std::vector<struct kevent> revents; // used for getting the result
 #else
 #	error "Unsupported OS"
@@ -97,8 +98,15 @@ public:
 	 * It is user's responsibility to remove any waitable objects from the waitset
 	 * before the wait set object is destroyed.
 	 */
-	~wait_set()noexcept{
-		utki::assert(this->size_of_wait_set == 0, [](auto&o){o << "attempt to destroy wait_set containig waitables";}, SL);
+	~wait_set() noexcept
+	{
+		utki::assert(
+			this->size_of_wait_set == 0,
+			[](auto& o) {
+				o << "attempt to destroy wait_set containig waitables";
+			},
+			SL
+		);
 #if M_OS == M_OS_WINDOWS
 		// do nothing
 #elif M_OS == M_OS_LINUX
@@ -114,7 +122,8 @@ public:
 	 * @brief Get maximum size of the wait set.
 	 * @return maximum number of waitables this wait_set can hold.
 	 */
-	unsigned max_size()const noexcept{
+	unsigned max_size() const noexcept
+	{
 		return this->max_size_of_wait_set;
 	}
 
@@ -122,7 +131,8 @@ public:
 	 * @brief Get number of waitables already added to the wait_set.
 	 * @return number of waitables added to th wait_set.
 	 */
-	unsigned size()const noexcept{
+	unsigned size() const noexcept
+	{
 		return this->size_of_wait_set;
 	}
 
@@ -145,7 +155,7 @@ public:
 	 * @brief Remove waitable from wait set.
 	 * @param w - waitable object to be removed from the wait_set.
 	 */
-	void remove(waitable& w)noexcept;
+	void remove(waitable& w) noexcept;
 
 	/**
 	 * @brief wait for event.
@@ -161,7 +171,8 @@ public:
 	 * @return number of objects triggered.
 	 *         NOTE: for some reason, on Windows it can return 0 objects triggered.
 	 */
-	unsigned wait(utki::span<waitable*> out_events = nullptr){
+	unsigned wait(utki::span<waitable*> out_events = nullptr)
+	{
 		return this->wait_internal(true, 0, out_events);
 	}
 
@@ -178,7 +189,8 @@ public:
 	 * @return number of objects triggered. If 0 then timeout was hit.
 	 *         NOTE: for some reason, on Windows it can return 0 before timeout was hit.
 	 */
-	unsigned wait(uint32_t timeout, utki::span<waitable*> out_events = nullptr){
+	unsigned wait(uint32_t timeout, utki::span<waitable*> out_events = nullptr)
+	{
 		return this->wait_internal(false, timeout, out_events);
 	}
 
@@ -188,12 +200,11 @@ private:
 #if M_OS == M_OS_LINUX
 	unsigned wait_internal_linux(int timeout, utki::span<waitable*> out_events);
 #endif
-	
+
 #if M_OS == M_OS_MACOSX
 	void add_filter(waitable& w, int16_t filter);
 	void remove_filter(waitable& w, int16_t filter);
 #endif
-
 };
 
-}
+} // namespace opros

@@ -36,9 +36,9 @@ SOFTWARE.
 #	include <utki/windows.hpp>
 #endif
 
-namespace opros{
+namespace opros {
 
-enum class ready{
+enum class ready {
 	read,
 	write,
 	error,
@@ -50,7 +50,8 @@ enum class ready{
  * @brief Base class for objects which can be waited for.
  * Base class for objects which can be used in wait sets.
  */
-class waitable{
+class waitable
+{
 	friend class wait_set;
 
 	bool is_added_to_waitset = false;
@@ -68,39 +69,47 @@ protected:
 
 	waitable(const waitable& w) = delete;
 	waitable& operator=(const waitable& w) = delete;
-	
-	// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
-	// NOLINTNEXTLINE(bugprone-exception-escape)
-	waitable(waitable&& w)noexcept(false);
 
 	// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
 	// NOLINTNEXTLINE(bugprone-exception-escape)
-	waitable& operator=(waitable&& w)noexcept(false);
+	waitable(waitable&& w) noexcept(false);
 
-	bool is_added()const noexcept{
+	// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
+	// NOLINTNEXTLINE(bugprone-exception-escape)
+	waitable& operator=(waitable&& w) noexcept(false);
+
+	bool is_added() const noexcept
+	{
 		return this->is_added_to_waitset;
 	}
 
 public:
-	virtual ~waitable()noexcept{
-		ASSERT(!this->is_added(), [](auto&o){o << "~waitable(): the waitable is currently added to some wait_set()";})
+	virtual ~waitable() noexcept
+	{
+		ASSERT(!this->is_added(), [](auto& o) {
+			o << "~waitable(): the waitable is currently added to some wait_set()";
+		})
 	}
 
-	const decltype(readiness_flags)& flags()const noexcept{
+	const decltype(readiness_flags)& flags() const noexcept
+	{
 		return this->readiness_flags;
 	}
 
 #if M_OS == M_OS_WINDOWS
+
 protected:
 	virtual HANDLE get_handle() = 0;
 
-	virtual void set_waiting_flags(utki::flags<ready>){}
+	virtual void set_waiting_flags(utki::flags<ready>) {}
 
-	virtual bool check_signaled(){
+	virtual bool check_signaled()
+	{
 		return !this->readiness_flags.is_clear();
 	}
 
 #elif M_OS == M_OS_LINUX || M_OS == M_OS_MACOSX || M_OS == M_OS_UNIX
+
 public:
 	/**
 	 * @brief Get Unix file descriptor.
@@ -112,7 +121,6 @@ public:
 #else
 #	error "Unsupported OS"
 #endif
-
 };
 
-}
+} // namespace opros

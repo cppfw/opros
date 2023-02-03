@@ -13,9 +13,18 @@
 			"group": "build"
 		},
 		{
-			"label": "build_dbg",
+			"label": "build-dbg",
 			"type": "shell",
 			"command": "make config=dbg",
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build-asan",
+			"type": "shell",
+			"command": "make config=asan",
 			"problemMatcher": [
 				"$gcc"
 			],
@@ -41,6 +50,13 @@
 			"label": "clean-all",
 			"type": "shell",
 			"command": "make clean-all",
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "format",
+			"type": "shell",
+			"command": "make apply-format",
 			"problemMatcher": [],
 			"group": "build"
 		}
