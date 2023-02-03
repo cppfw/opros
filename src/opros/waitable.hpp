@@ -83,14 +83,17 @@ protected:
 		return this->is_added_to_waitset;
 	}
 
-public:
-	virtual ~waitable() noexcept
+	// Destructr is protected because this class is supposed to be used as a base class,
+	// but is not supposed to be destroyed via base pointer.
+	// TODO: is it possible to check it with static_assert? if so, add test and move this note there
+	~waitable() noexcept
 	{
 		ASSERT(!this->is_added(), [](auto& o) {
 			o << "~waitable(): the waitable is currently added to some wait_set()";
 		})
 	}
 
+public:
 	const decltype(readiness_flags)& flags() const noexcept
 	{
 		return this->readiness_flags;
