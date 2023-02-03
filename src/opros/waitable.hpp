@@ -83,7 +83,7 @@ protected:
 		return this->is_added_to_waitset;
 	}
 
-	// Destructr is protected because this class is supposed to be used as a base class,
+	// Destructor is protected because this class is supposed to be used as a base class,
 	// but is not supposed to be destroyed via base pointer.
 	// TODO: is it possible to check it with static_assert? if so, add test and move this note there
 	~waitable() noexcept
