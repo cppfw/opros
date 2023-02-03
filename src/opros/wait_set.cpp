@@ -153,7 +153,7 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for){
 		LOG([&](auto&o){
 			o << "wait_set::add(): epoll_ctl() failed. If you are adding socket, please check that is is opened before adding to wait_set." << std::endl;
 		})
-		throw std::system_error(errno, std::generic_category(), "wait_set::Add(): epoll_ctl() failed");
+		throw std::system_error(errno, std::generic_category(), "wait_set::add(): epoll_ctl() failed");
 	}
 #elif M_OS == M_OS_MACOSX
 	ASSERT(this->size() <= this->revents.size() / 2)
