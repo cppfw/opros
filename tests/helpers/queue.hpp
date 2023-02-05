@@ -33,15 +33,15 @@ private:
 
 	std::list<message_type> messages;
 	
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 	//use Event to implement waitable on Windows
 	HANDLE eventForWaitable;
-#elif M_OS == M_OS_MACOSX
-	//use pipe to implement waitable in *nix systems
-	int pipeEnds[2];
-#elif M_OS == M_OS_LINUX
-	//use eventfd()
-	// int eventFD;
+#elif CFG_OS == CFG_OS_MACOSX
+	// use pipe to implement waitable in *nix systems
+	// one end will be saved in waitable::handle
+	// and the other one in this member variable
+	int pipe_end;
+#elif CFG_OS == CFG_OS_LINUX
 #else
 #	error "Unsupported OS"
 #endif
@@ -51,12 +51,10 @@ public:
 	queue(const queue&) = delete;
 	queue& operator=(const queue&) = delete;
 
-
 	/**
 	 * @brief Constructor, creates empty message queue.
 	 */
 	queue();
-
 	
 	/**
 	 * @brief Destructor.
@@ -64,15 +62,11 @@ public:
 	 */
 	~queue()noexcept;
 
-
-
 	/**
 	 * @brief Pushes a new message to the queue.
 	 * @param msg - the message to push into the queue.
 	 */
 	void push_message(message_type&& msg)noexcept;
-
-
 
 	/**
 	 * @brief Get message from queue, does not block if no messages queued.
@@ -83,8 +77,7 @@ public:
 	 */
 	message_type peek_msg();
 
-
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 protected:
 	HANDLE get_handle()override;
 
@@ -94,18 +87,11 @@ protected:
 
 	bool check_signaled()override;
 
-#elif M_OS == M_OS_LINUX
-public:
-
-#elif M_OS == M_OS_MACOSX
-public:
-	int get_handle()override;
-
+#elif CFG_OS == CFG_OS_LINUX
+#elif CFG_OS == CFG_OS_MACOSX
 #else
 #	error "Unsupported OS"
 #endif
 };
-
-
 
 }

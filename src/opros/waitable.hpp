@@ -38,14 +38,6 @@ SOFTWARE.
 
 namespace opros {
 
-enum class ready {
-	read,
-	write,
-	error,
-
-	enum_size // this must always be the last element of the enum
-};
-
 /**
  * @brief Base class for objects which can be waited for.
  * Base class for objects which can be used in wait sets.
