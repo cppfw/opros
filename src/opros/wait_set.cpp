@@ -28,7 +28,7 @@ SOFTWARE.
 
 #include <cstring>
 
-#if M_OS == M_OS_MACOSX
+#if CFG_OS == CFG_OS_MACOSX
 #	include <sys/time.h>
 #endif
 
@@ -36,7 +36,7 @@ using namespace opros;
 
 wait_set::wait_set(unsigned max_size) :
 	max_size_of_wait_set(max_size)
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 	,
 	waitables(max_size),
 	handles(max_size)
@@ -49,7 +49,7 @@ wait_set::wait_set(unsigned max_size) :
 	}
 }
 
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 	,
 	revents(max_size)
 {
@@ -62,7 +62,7 @@ wait_set::wait_set(unsigned max_size) :
 		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): epoll_create() failed");
 	}
 }
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 {
 	if (std::numeric_limits<decltype(max_size)>::max()
 		>= std::numeric_limits<decltype(this->revents)::size_type>::max() / 2)
@@ -86,7 +86,7 @@ wait_set::wait_set(unsigned max_size) :
 #	error "Unsupported OS"
 #endif
 
-#if M_OS == M_OS_MACOSX
+#if CFG_OS == CFG_OS_MACOSX
 
 void wait_set::add_filter(waitable& w, int16_t filter)
 {
@@ -140,7 +140,7 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 	//		TRACE(<< "wait_set::add(): enter" << std::endl)
 	ASSERT(!w.is_added())
 
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 	ASSERT(this->size() <= this->handles.size())
 	if (this->size() == this->handles.size()) {
 		throw std::logic_error("wait_set::add(): wait set is full");
@@ -148,12 +148,12 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 
 	// NOTE: Setting wait flags may throw an exception, so do that before
 	// adding object to the array and incrementing number of added objects.
-	w.set_waiting_flags(wait_for);
+	w.waiting_object.set_waiting_flags(wait_for);
 
-	this->handles[this->size_of_wait_set] = w.handle;
+	this->handles[this->size_of_wait_set] = w.waiting_object.handle;
 	this->waitables[this->size_of_wait_set] = &w;
 
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 	epoll_event e;
 	e.data.fd = w.handle;
 	e.data.ptr = &w;
@@ -168,7 +168,7 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 		})
 		throw std::system_error(errno, std::generic_category(), "wait_set::add(): epoll_ctl() failed");
 	}
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 	ASSERT(this->size() <= this->revents.size() / 2)
 
 	if (wait_for.get(ready::read)) {
@@ -191,7 +191,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 {
 	ASSERT(w.is_added())
 
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 	// check if the waitable object is added to this wait set
 	{
 		unsigned i;
@@ -207,9 +207,9 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 	}
 
 	// set new wait flags
-	w.set_waiting_flags(wait_for);
+	w.waiting_object.set_waiting_flags(wait_for);
 
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 	epoll_event e;
 	e.data.fd = w.handle;
 	e.data.ptr = &w;
@@ -219,7 +219,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 	if (res < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::change(): epoll_ctl() failed");
 	}
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 	if (wait_for.get(ready::read)) {
 		this->add_filter(w, EVFILT_READ);
 	} else {
@@ -241,7 +241,7 @@ void wait_set::remove(waitable& w) noexcept
 
 	ASSERT(this->size() != 0)
 
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 	// remove object from array
 	{
 		unsigned i;
@@ -255,19 +255,19 @@ void wait_set::remove(waitable& w) noexcept
 			o << "wait_set::remove(): waitable is not added to wait set";
 		})
 
-		unsigned numObjects = this->size_of_wait_set - 1; // decrease number of objects before
+		unsigned num_object = this->size_of_wait_set - 1; // decrease number of objects before
 														  // shifting the object handles in the array
 		// shift object handles in the array
-		for (; i < numObjects; ++i) {
+		for (; i < num_object; ++i) {
 			this->handles[i] = this->handles[i + 1];
 			this->waitables[i] = this->waitables[i + 1];
 		}
 	}
 
-	// clear wait flags (deassociate socket and Windows event)
-	w.set_waiting_flags(false);
+	// clear wait flags
+	w.waiting_object.set_waiting_flags(false);
 
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 	int res = epoll_ctl(this->epollSet, EPOLL_CTL_DEL, w.handle, nullptr);
 	if (res < 0) {
 		ASSERT(false, [&](auto& o) {
@@ -275,7 +275,7 @@ void wait_set::remove(waitable& w) noexcept
 				 "not added to the wait set";
 		})
 	}
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 	this->remove_filter(w, EVFILT_READ);
 	this->remove_filter(w, EVFILT_WRITE);
 #else
@@ -289,7 +289,7 @@ void wait_set::remove(waitable& w) noexcept
 	// std::endl)
 }
 
-#if M_OS == M_OS_LINUX
+#if CFG_OS == CFG_OS_LINUX
 
 unsigned wait_set::wait_internal_linux(int timeout, utki::span<event_info> out_events)
 {
@@ -358,16 +358,16 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 		);
 	}
 
-#if M_OS == M_OS_WINDOWS
-	DWORD waitTimeout;
+#if CFG_OS == CFG_OS_WINDOWS
+	DWORD wait_timeout;
 	if (wait_infinitly) {
-		waitTimeout = INFINITE;
+		wait_timeout = INFINITE;
 	} else {
 		static_assert(INFINITE == 0xffffffff, "check that INFINITE macro is max uint32_T failed");
 		if (timeout == 0xffffffff) {
-			waitTimeout = 0xffffffff - 1;
+			wait_timeout = 0xffffffff - 1;
 		} else {
-			waitTimeout = DWORD(timeout);
+			wait_timeout = DWORD(timeout);
 		}
 	}
 
@@ -375,12 +375,13 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 		this->size_of_wait_set,
 		this->handles.data(),
 		FALSE, // do not wait for all objects, wait for at least one
-		waitTimeout,
-		FALSE
+		wait_timeout,
+		FALSE // do not stop waiting on IO completion
 	);
 
-	ASSERT(res != WAIT_IO_COMPLETION) // it is impossible because we supplied FALSE as
-									  // last parameter to WaitForMultipleObjectsEx()
+	// Return value cannot be WAIT_IO_COMPLETION because we supplied FALSE as
+	// last parameter to WaitForMultipleObjectsEx().
+	ASSERT(res != WAIT_IO_COMPLETION)
 
 	// we are not expecting abandoned mutexes
 	ASSERT(res < WAIT_ABANDONED_0 || (WAIT_ABANDONED_0 + this->size_of_wait_set) <= res)
@@ -400,13 +401,18 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 	ASSERT(WAIT_OBJECT_0 <= res && res < (WAIT_OBJECT_0 + this->size_of_wait_set))
 
 	// check for activities
-	unsigned numEvents = 0;
+	unsigned num_events = 0;
 	for (unsigned i = 0; i < this->size_of_wait_set; ++i) {
-		if (this->waitables[i]->check_signaled()) {
-			if (numEvents < out_events.size()) {
-				out_events[numEvents] = this->waitables[i];
+		// NOTE: Need to call get_readiness_flags() even if 'num_events < out_events.size()',
+		// because it resets the readiness state of the HANDLE.
+		auto flags = this->waitables[i]->waiting_object.get_readiness_flags();
+
+		if (!flags.is_clear()) {
+			if (num_events < out_events.size()) {
+				out_events[num_events].w = this->waitables[i];
+				out_events[num_events].flags = flags;
+				++num_events;
 			}
-			++numEvents;
 		} else {
 			// NOTE: sometimes the event is reported as signaled, but no read/write
 			// events indicated.
@@ -420,11 +426,11 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 	// NOTE: Sometimes the event is reported as signaled, but no actual activity
 	// is there.
 	//       Don't know why.
-	//		ASSERT(numEvents > 0)
+	//		ASSERT(num_events > 0)
 
-	return numEvents;
+	return num_events;
 
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 	if (wait_infinitly) {
 		return this->wait_internal_linux(-1, out_events);
 	}
@@ -452,7 +458,7 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 	ASSERT(int(timeout) >= 0)
 	return this->wait_internal_linux(int(timeout), out_events);
 
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 	struct timespec ts = {
 		decltype(timespec::tv_sec)(timeout / 1000), // seconds
 		decltype(timespec::tv_nsec)((timeout % 1000) * 1000000) // nanoseconds

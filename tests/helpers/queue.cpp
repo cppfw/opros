@@ -16,20 +16,21 @@ using namespace helpers;
 queue::queue():
 	opros::waitable(
 		[
-#if CFG_OS == CFG_OS_MACOSX
+#if CFG_OS == CFG_OS_MACOSX || CFG_OS == CFG_OS_WINDOWS
 			this
 #endif
 		](){
 #if CFG_OS == CFG_OS_WINDOWS
-	this->eventForWaitable = CreateEvent(
+	this->handle = CreateEvent(
 			NULL, // security attributes
 			TRUE, // manual-reset
 			FALSE, // not signalled initially
 			NULL // no name
 		);
-	if(this->eventForWaitable == NULL){
+	if(this->handle == NULL){
 		throw std::system_error(GetLastError(), std::generic_category(), "could not create event (Win32) for implementing Waitable");
 	}
+	return *this;
 #elif CFG_OS == CFG_OS_MACOSX
 	int ends[2];
 	if(::pipe(&ends[0]) < 0){
@@ -52,7 +53,7 @@ queue::queue():
 
 queue::~queue()noexcept{
 #if CFG_OS == CFG_OS_WINDOWS
-	CloseHandle(this->eventForWaitable);
+	CloseHandle(this->handle);
 #elif CFG_OS == CFG_OS_MACOSX
 	close(this->handle);
 	close(this->pipe_end);
@@ -69,7 +70,7 @@ void queue::push_message(std::function<void()>&& msg)noexcept{
 	
 	if(this->messages.size() == 1){ // if it is a first message
 #if CFG_OS == CFG_OS_WINDOWS
-		if(SetEvent(this->eventForWaitable) == 0){
+		if(SetEvent(this->handle) == 0){
 			ASSERT(false)
 		}
 #elif CFG_OS == CFG_OS_MACOSX
@@ -94,7 +95,7 @@ queue::message_type queue::peek_msg(){
 	if(this->messages.size() != 0){
 		if(this->messages.size() == 1){ // if we are taking away the last message from the queue
 #if CFG_OS == CFG_OS_WINDOWS
-			if(ResetEvent(this->eventForWaitable) == 0){
+			if(ResetEvent(this->handle) == 0){
 				ASSERT(false)
 				throw std::system_error(GetLastError(), std::generic_category(), "queue::wait(): ResetEvent() failed");
 			}
@@ -128,27 +129,22 @@ queue::message_type queue::peek_msg(){
 }
 
 #if CFG_OS == CFG_OS_WINDOWS
-HANDLE queue::get_handle(){
-	return this->eventForWaitable;
-}
-
 void queue::set_waiting_flags(utki::flags<opros::ready> wait_for){
 	// It is not allowed to wait on queue for write,
 	// because it is always possible to push new message to queue.
 	// Error condition is not possible for queue.
-	// Thus, only possible flag values are READ and 0 (NOT_READY)
-	if(wait_for.get(opros::ready::write)){
+	// Thus, only possible flag values are READ and 0 (NOT_READY).
+	// It make no sense to wait on queue for anything else than READ,
+	// so we restrict setting waiting flags to READ flag only.
+	if(!wait_for.get(opros::ready::read) && !wait_for.clear(opros::ready::read).is_clear()){
 		ASSERT(false, [&](auto&o){o << "wait_for = " << wait_for;})
-		throw std::invalid_argument("queue::set_waiting_flags(): wait_for should have only ready::read flag set or no flags set, other values are not allowed");
+		throw std::invalid_argument("queue::set_waiting_flags(): wait_for should have only ready::read flag set, other values are not allowed");
 	}
-
-	this->flagsMask = wait_for;
 }
 
-bool queue::check_signaled(){
-	// error condition is not possible for queue
-	ASSERT(!this->readiness_flags.get(opros::ready::error))
-
-	return !(this->readiness_flags & this->flagsMask).is_clear();
+utki::flags<ready> queue::get_readiness_flags(){
+	// if event has triggered, then there is something to read from the queue,
+	// so always return ready::read
+	return utki::flags<ready>(false).set(opros::ready::read);
 }
 #endif

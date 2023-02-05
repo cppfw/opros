@@ -21,7 +21,12 @@ namespace helpers{
  * shall only be used to wait for READ. If you are trying to wait for WRITE the behavior will be
  * undefined.
  */
-class queue : public opros::waitable{
+class queue :
+	public opros::waitable
+#if CFG_OS == CFG_OS_WINDOWS
+	, private opros::waitable::windows_waiting_interface
+#endif
+{
 public:
 	using message_type = std::function<void()>;
 	
@@ -31,8 +36,7 @@ private:
 	std::list<message_type> messages;
 	
 #if CFG_OS == CFG_OS_WINDOWS
-	//use Event to implement waitable on Windows
-	HANDLE eventForWaitable;
+	// opros::waitable::windows_waiting_interface already provides variable for holding a HANDLE
 #elif CFG_OS == CFG_OS_MACOSX
 	// use pipe to implement waitable in *nix systems
 	// one end will be saved in waitable::handle
@@ -76,13 +80,8 @@ public:
 
 #if CFG_OS == CFG_OS_WINDOWS
 protected:
-	HANDLE get_handle()override;
-
-	utki::flags<opros::ready> flagsMask;
-
-	void set_waiting_flags(utki::flags<opros::ready> wait_for)override;
-
-	bool check_signaled()override;
+	virtual void set_waiting_flags(utki::flags<ready>) = 0;
+	virtual utki::flags<ready> get_readiness_flags() = 0;
 
 #elif CFG_OS == CFG_OS_LINUX
 #elif CFG_OS == CFG_OS_MACOSX

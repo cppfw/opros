@@ -38,6 +38,14 @@ SOFTWARE.
 
 namespace opros {
 
+enum class ready {
+	read,
+	write,
+	error,
+
+	enum_size // this must always be the last element of the enum
+};
+
 /**
  * @brief Base class for objects which can be waited for.
  * Base class for objects which can be used in wait sets.
@@ -46,7 +54,7 @@ class waitable
 {
 	friend class wait_set;
 
-	bool is_added_to_waitset = false;
+	bool is_added_to_waitset = false; // TODO: remove?
 
 public:
 	/**
@@ -58,9 +66,28 @@ public:
 	waitable& operator=(const waitable& w) = delete;
 
 protected:
+#if CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX
 	waitable(int handle) :
 		handle(handle)
 	{}
+#elif CFG_OS == CFG_OS_WINDOWS
+	class windows_waiting_interface
+	{
+	public:
+		HANDLE handle;
+
+		virtual ~windows_waiting_interface() = default;
+
+		virtual void set_waiting_flags(utki::flags<ready>) = 0;
+		virtual utki::flags<ready> get_readiness_flags() = 0;
+	};
+
+	waitable(windows_waiting_interface& waiting_object) :
+		waiting_object(waiting_object)
+	{}
+#else
+#	error "Unknown OS"
+#endif
 
 	// TODO: remove lint suppression when
 	// https://github.com/llvm/llvm-project/issues/55143 is fixed
@@ -89,18 +116,10 @@ protected:
 		})
 	}
 
-public:
 #if CFG_OS == CFG_OS_WINDOWS
 
 protected:
-	HANDLE handle;
-
-	virtual void set_waiting_flags(utki::flags<ready>) {}
-
-	virtual bool check_signaled()
-	{
-		return !this->readiness_flags.is_clear();
-	}
+	windows_waiting_interface& waiting_object;
 
 #elif CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX || CFG_OS == CFG_OS_UNIX
 

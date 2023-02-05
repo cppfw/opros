@@ -60,14 +60,6 @@ SOFTWARE.
 
 namespace opros {
 
-enum class ready {
-	read,
-	write,
-	error,
-
-	enum_size // this must always be the last element of the enum
-};
-
 struct event_info {
 	waitable* w;
 	utki::flags<ready> flags;
