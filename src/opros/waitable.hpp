@@ -33,78 +33,89 @@ SOFTWARE.
 #include <utki/flags.hpp>
 
 #if CFG_OS == CFG_OS_WINDOWS
-#include <utki/windows.hpp>
+#	include <utki/windows.hpp>
 #endif
 
 namespace opros {
 
 enum class ready {
-  read,
-  write,
-  error,
+	read,
+	write,
+	error,
 
-  enum_size // this must always be the last element of the enum
+	enum_size // this must always be the last element of the enum
 };
 
 /**
  * @brief Base class for objects which can be waited for.
  * Base class for objects which can be used in wait sets.
  */
-class waitable {
-  friend class wait_set;
+class waitable
+{
+	friend class wait_set;
 
-  bool is_added_to_waitset = false;
+	bool is_added_to_waitset = false;
 
 public:
-  /**
-   * @brief User data assotiated with the waitable.
-   */
-  void *user_data = nullptr;
+	/**
+	 * @brief User data assotiated with the waitable.
+	 */
+	void* user_data = nullptr;
 
 protected:
-  waitable(int handle) : handle(handle) {}
+	waitable(int handle) :
+		handle(handle)
+	{}
 
-  waitable(const waitable &w) = delete;
-  waitable &operator=(const waitable &w) = delete;
+	waitable(const waitable& w) = delete;
+	waitable& operator=(const waitable& w) = delete;
 
-  // TODO: remove lint suppression when
-  // https://github.com/llvm/llvm-project/issues/55143 is fixed
-  // NOLINTNEXTLINE(bugprone-exception-escape)
-  waitable(waitable &&w) noexcept(false);
+	// TODO: remove lint suppression when
+	// https://github.com/llvm/llvm-project/issues/55143 is fixed
+	// NOLINTNEXTLINE(bugprone-exception-escape)
+	waitable(waitable&& w) noexcept(false);
 
-  // TODO: remove lint suppression when
-  // https://github.com/llvm/llvm-project/issues/55143 is fixed
-  // NOLINTNEXTLINE(bugprone-exception-escape)
-  waitable &operator=(waitable &&w) noexcept(false);
+	// TODO: remove lint suppression when
+	// https://github.com/llvm/llvm-project/issues/55143 is fixed
+	// NOLINTNEXTLINE(bugprone-exception-escape)
+	waitable& operator=(waitable&& w) noexcept(false);
 
-  bool is_added() const noexcept { return this->is_added_to_waitset; }
+	bool is_added() const noexcept
+	{
+		return this->is_added_to_waitset;
+	}
 
-  // Destructor is protected because this class is supposed to be used as a base
-  // class, but is not supposed to be destroyed via base pointer.
-  // TODO: is it possible to check it with static_assert? if so, add test and
-  // move this note there
-  ~waitable() noexcept {
-    ASSERT(!this->is_added(), [](auto &o) {
-      o << "~waitable(): the waitable is currently added to some wait_set()";
-    })
-  }
+	// Destructor is protected because this class is supposed to be used as a base
+	// class, but is not supposed to be destroyed via base pointer.
+	// TODO: is it possible to check it with static_assert? if so, add test and
+	// move this note there
+	~waitable() noexcept
+	{
+		ASSERT(!this->is_added(), [](auto& o) {
+			o << "~waitable(): the waitable is currently added to some wait_set()";
+		})
+	}
 
 public:
 #if CFG_OS == CFG_OS_WINDOWS
 
 protected:
-  HANDLE handle;
+	HANDLE handle;
 
-  virtual void set_waiting_flags(utki::flags<ready>) {}
+	virtual void set_waiting_flags(utki::flags<ready>) {}
 
-  virtual bool check_signaled() { return !this->readiness_flags.is_clear(); }
+	virtual bool check_signaled()
+	{
+		return !this->readiness_flags.is_clear();
+	}
 
 #elif CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX || CFG_OS == CFG_OS_UNIX
+
 protected:
-  int handle;
+	int handle;
 
 #else
-#error "Unsupported OS"
+#	error "Unsupported OS"
 #endif
 };
 

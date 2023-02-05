@@ -45,7 +45,7 @@ void Run(){
 	ws.add(q1, utki::make_flags({opros::ready::read}));
 	ws.add(q2, utki::make_flags({opros::ready::read}));
 
-	std::array<opros::wait_set::event_info, 4> buf;
+	std::array<opros::event_info, 4> buf;
 
 
 
@@ -113,7 +113,7 @@ void Run(){
 
 		utki::assert(ws.size() == 2, SL);
 
-		std::array<opros::wait_set::event_info, 4> buf;
+		std::array<opros::event_info, 4> buf;
 
 		std::thread thr([&q1](){
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
