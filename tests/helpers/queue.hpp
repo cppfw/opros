@@ -9,10 +9,7 @@
 #include <list>
 #include <functional>
 
-
 namespace helpers{
-
-
 
 /**
  * @brief Message queue.

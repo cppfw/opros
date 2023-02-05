@@ -2,24 +2,21 @@
 
 #include <mutex>
 
-#if M_OS != M_OS_WINDOWS
+#if CFG_OS != CFG_OS_WINDOWS
 #	include <unistd.h>
 #endif
 
-#if M_OS == M_OS_LINUX
+#if CFG_OS == CFG_OS_LINUX
 #	include <sys/eventfd.h>
 #	include <cstring>
 #endif
 
-
 using namespace helpers;
-
-
 
 queue::queue():
 	opros::waitable(
-		[](){
-#if M_OS == M_OS_WINDOWS
+		[this](){
+#if CFG_OS == CFG_OS_WINDOWS
 	this->eventForWaitable = CreateEvent(
 			NULL, // security attributes
 			TRUE, // manual-reset
@@ -29,11 +26,14 @@ queue::queue():
 	if(this->eventForWaitable == NULL){
 		throw std::system_error(GetLastError(), std::generic_category(), "could not create event (Win32) for implementing Waitable");
 	}
-#elif M_OS == M_OS_MACOSX
-	if(::pipe(&this->pipeEnds[0]) < 0){
+#elif CFG_OS == CFG_OS_MACOSX
+	int ends[2];
+	if(::pipe(&ends[0]) < 0){
 		throw std::system_error(errno, std::generic_category(), "could not create pipe (*nix) for implementing Waitable");
 	}
-#elif M_OS == M_OS_LINUX
+	this->pipe_end = ends[1];
+	return ends[0];
+#elif CFG_OS == CFG_OS_LINUX
 	int event_fd = eventfd(0, EFD_NONBLOCK);
 	if(event_fd < 0){
 		throw std::system_error(errno, std::generic_category(), "could not create eventfd (linux) for implementing Waitable");
@@ -44,61 +44,38 @@ queue::queue():
 #endif
 		}()
 	)
-{
-#if M_OS == M_OS_WINDOWS
-	this->eventForWaitable = CreateEvent(
-			NULL, // security attributes
-			TRUE, // manual-reset
-			FALSE, // not signalled initially
-			NULL // no name
-		);
-	if(this->eventForWaitable == NULL){
-		throw std::system_error(GetLastError(), std::generic_category(), "could not create event (Win32) for implementing Waitable");
-	}
-#elif M_OS == M_OS_MACOSX
-	if(::pipe(&this->pipeEnds[0]) < 0){
-		throw std::system_error(errno, std::generic_category(), "could not create pipe (*nix) for implementing Waitable");
-	}
-#elif M_OS == M_OS_LINUX
-#else
-#	error "Unsupported OS"
-#endif
-}
-
-
+{}
 
 queue::~queue()noexcept{
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 	CloseHandle(this->eventForWaitable);
-#elif M_OS == M_OS_MACOSX
-	close(this->pipeEnds[0]);
-	close(this->pipeEnds[1]);
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_MACOSX
+	close(this->handle);
+	close(this->pipe_end);
+#elif CFG_OS == CFG_OS_LINUX
 	close(this->handle);
 #else
 #	error "Unsupported OS"
 #endif
 }
 
-
-
 void queue::push_message(std::function<void()>&& msg)noexcept{
 	std::lock_guard<decltype(this->mut)> mutex_guard(this->mut);
 	this->messages.push_back(std::move(msg));
 	
 	if(this->messages.size() == 1){ // if it is a first message
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 		if(SetEvent(this->eventForWaitable) == 0){
 			ASSERT(false)
 		}
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 		{
-			std::uint8_t oneByteBuf[1];
-			if(write(this->pipeEnds[1], oneByteBuf, 1) != 1){
+			std::uint8_t one_byte_buf[1];
+			if(write(this->pipe_end, one_byte_buf, 1) != 1){
 				ASSERT(false)
 			}
 		}
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 		if(eventfd_write(this->handle, 1) < 0){
 			ASSERT(false)
 		}
@@ -108,25 +85,23 @@ void queue::push_message(std::function<void()>&& msg)noexcept{
 	}
 }
 
-
-
 queue::message_type queue::peek_msg(){
 	std::lock_guard<decltype(this->mut)> mutex_guard(this->mut);
 	if(this->messages.size() != 0){
 		if(this->messages.size() == 1){ // if we are taking away the last message from the queue
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 			if(ResetEvent(this->eventForWaitable) == 0){
 				ASSERT(false)
 				throw std::system_error(GetLastError(), std::generic_category(), "queue::wait(): ResetEvent() failed");
 			}
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 			{
-				std::uint8_t oneByteBuf[1];
-				if(read(this->pipeEnds[0], oneByteBuf, 1) != 1){
+				std::uint8_t one_byte_buf[1];
+				if(read(this->handle, one_byte_buf, 1) != 1){
 					throw std::system_error(errno, std::generic_category(), "queue::wait(): read() failed");
 				}
 			}
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 			{
 				eventfd_t value;
 				if(eventfd_read(this->handle, &value) < 0){
@@ -148,14 +123,10 @@ queue::message_type queue::peek_msg(){
 	return nullptr;
 }
 
-
-
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 HANDLE queue::get_handle(){
 	return this->eventForWaitable;
 }
-
-
 
 void queue::set_waiting_flags(utki::flags<opros::ready> wait_for){
 	// It is not allowed to wait on queue for write,

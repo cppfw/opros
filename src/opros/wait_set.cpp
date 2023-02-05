@@ -92,7 +92,7 @@ void wait_set::add_filter(waitable& w, int16_t filter)
 {
 	struct kevent e;
 
-	EV_SET(&e, w.get_handle(), filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
+	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
 
 	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing
 									 // NULL will cause to wait indefinitely.
@@ -116,7 +116,7 @@ void wait_set::remove_filter(waitable& w, int16_t filter)
 {
 	struct kevent e;
 
-	EV_SET(&e, w.get_handle(), filter, EV_DELETE | EV_RECEIPT, 0, 0, 0);
+	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, 0);
 
 	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing
 									 // NULL will cause to wait indefinitely.
@@ -150,7 +150,7 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 	// adding object to the array and incrementing number of added objects.
 	w.set_waiting_flags(wait_for);
 
-	this->handles[this->size_of_wait_set] = w.get_handle();
+	this->handles[this->size_of_wait_set] = w.handle;
 	this->waitables[this->size_of_wait_set] = &w;
 
 #elif M_OS == M_OS_LINUX
@@ -472,28 +472,32 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 		} else if (res > 0) {
 			unsigned out_i = 0; // index into out_events
 			for (unsigned i = 0; i != unsigned(res); ++i) {
-				struct kevent& e = this->revents[i];
-				waitable* w = reinterpret_cast<waitable*>(e.udata);
-				if (e.filter == EVFILT_WRITE) {
-					w->readiness_flags.set(ready::write);
-				} else if (e.filter == EVFILT_READ) {
-					w->readiness_flags.set(ready::read);
-				}
-
-				if ((e.flags & EV_ERROR) != 0) {
-					w->readiness_flags.set(ready::error);
-				}
-
 				if (out_i < out_events.size()) {
+					const auto& e = this->revents[i];
+					auto w = reinterpret_cast<waitable*>(e.udata);
+
+					auto& oe = out_events[out_i];
+					oe.flags.clear();
+
+					if (e.filter == EVFILT_WRITE) {
+						oe.flags.set(ready::write);
+					} else if (e.filter == EVFILT_READ) {
+						oe.flags.set(ready::read);
+					}
+
+					if ((e.flags & EV_ERROR) != 0) {
+						oe.flags.set(ready::error);
+					}
+
 					// check if waitable is already added
 					unsigned k = 0;
 					for (; k != out_i; ++k) {
-						if (out_events[k] == w) {
+						if (out_events[k].w == w) {
 							break;
 						}
 					}
 					if (k == out_i) {
-						out_events[out_i] = w;
+						oe.w = w;
 						++out_i;
 					}
 				}
