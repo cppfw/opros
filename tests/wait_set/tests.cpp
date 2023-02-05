@@ -45,7 +45,7 @@ void Run(){
 	ws.add(q1, utki::make_flags({opros::ready::read}));
 	ws.add(q2, utki::make_flags({opros::ready::read}));
 
-	std::array<opros::waitable*, 4> buf;
+	std::array<opros::wait_set::event_info, 4> buf;
 
 
 
@@ -65,12 +65,11 @@ void Run(){
 	q1.pushMessage([](){});
 	utki::assert(ws.wait() == 1, SL);
 	utki::assert(ws.wait(utki::make_span(buf)) == 1, SL);
-	utki::assert(buf[0] == &q1, SL);
+	utki::assert(buf[0].w == &q1, SL);
 
 	utki::assert(ws.wait(100) == 1, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 1, SL);
-	utki::assert(buf[0] == &q1, SL);
-	utki::assert(!q2.flags().get(opros::ready::read), SL);
+	utki::assert(buf[0].w == &q1, SL);
 
 	// check that no objects trigger after reading from queue
 	q1.peekMsg(); // should not block since one message was pushed before
@@ -84,17 +83,17 @@ void Run(){
 	q2.pushMessage([](){});
 	utki::assert(ws.wait() == 2, SL);
 	utki::assert(ws.wait(utki::make_span(buf)) == 2, SL);
-	utki::assert((buf[0] == &q1 && buf[1] == &q2) || (buf[0] == &q2 && buf[1] == &q1), SL);
+	utki::assert((buf[0].w == &q1 && buf[1].w == &q2) || (buf[0].w == &q2 && buf[1].w == &q1), SL);
 
 	utki::assert(ws.wait(100) == 2, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 2, SL);
-	utki::assert((buf[0] == &q1 && buf[1] == &q2) || (buf[0] == &q2 && buf[1] == &q1), SL);
+	utki::assert((buf[0].w == &q1 && buf[1].w == &q2) || (buf[0].w == &q2 && buf[1].w == &q1), SL);
 
 	// check that no objects trigger after reading from queue
 	q1.peekMsg(); // should not block since one message was pushed before
 	utki::assert(ws.wait(100) == 1, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 1, SL);
-	utki::assert(buf[0] == &q2, SL);
+	utki::assert(buf[0].w == &q2, SL);
 
 	q2.peekMsg(); // should not block since one message was pushed before
 	utki::assert(ws.wait(100) == 0, SL);
@@ -114,7 +113,7 @@ void Run(){
 
 		utki::assert(ws.size() == 2, SL);
 
-		std::array<opros::waitable*, 4> buf;
+		std::array<opros::wait_set::event_info, 4> buf;
 
 		std::thread thr([&q1](){
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));

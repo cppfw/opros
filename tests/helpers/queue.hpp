@@ -41,7 +41,7 @@ private:
 	int pipeEnds[2];
 #elif M_OS == M_OS_LINUX
 	//use eventfd()
-	int eventFD;
+	// int eventFD;
 #else
 #	error "Unsupported OS"
 #endif
@@ -95,7 +95,6 @@ protected:
 
 #elif M_OS == M_OS_LINUX
 public:
-	int get_handle()override;
 
 #elif M_OS == M_OS_MACOSX
 public:

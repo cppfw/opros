@@ -16,10 +16,9 @@ using namespace helpers;
 
 
 
-queue::queue(){
-	// can write will always be set because it is always possible to post a message to the queue
-	this->readiness_flags.set(opros::ready::write);
-
+queue::queue():
+	opros::waitable(
+		[](){
 #if M_OS == M_OS_WINDOWS
 	this->eventForWaitable = CreateEvent(
 			NULL, // security attributes
@@ -35,10 +34,32 @@ queue::queue(){
 		throw std::system_error(errno, std::generic_category(), "could not create pipe (*nix) for implementing Waitable");
 	}
 #elif M_OS == M_OS_LINUX
-	this->eventFD = eventfd(0, EFD_NONBLOCK);
-	if(this->eventFD < 0){
+	int event_fd = eventfd(0, EFD_NONBLOCK);
+	if(event_fd < 0){
 		throw std::system_error(errno, std::generic_category(), "could not create eventfd (linux) for implementing Waitable");
 	}
+	return event_fd;
+#else
+#	error "Unsupported OS"
+#endif
+		}()
+	)
+{
+#if M_OS == M_OS_WINDOWS
+	this->eventForWaitable = CreateEvent(
+			NULL, // security attributes
+			TRUE, // manual-reset
+			FALSE, // not signalled initially
+			NULL // no name
+		);
+	if(this->eventForWaitable == NULL){
+		throw std::system_error(GetLastError(), std::generic_category(), "could not create event (Win32) for implementing Waitable");
+	}
+#elif M_OS == M_OS_MACOSX
+	if(::pipe(&this->pipeEnds[0]) < 0){
+		throw std::system_error(errno, std::generic_category(), "could not create pipe (*nix) for implementing Waitable");
+	}
+#elif M_OS == M_OS_LINUX
 #else
 #	error "Unsupported OS"
 #endif
@@ -53,7 +74,7 @@ queue::~queue()noexcept{
 	close(this->pipeEnds[0]);
 	close(this->pipeEnds[1]);
 #elif M_OS == M_OS_LINUX
-	close(this->eventFD);
+	close(this->handle);
 #else
 #	error "Unsupported OS"
 #endif
@@ -65,16 +86,7 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 	std::lock_guard<decltype(this->mut)> mutexGuard(this->mut);
 	this->messages.push_back(std::move(msg));
 	
-	if(this->messages.size() == 1){//if it is a first message
-		// Set CanRead flag.
-		// NOTE: in linux implementation with epoll(), the CanRead
-		// flag will also be set in WaitSet::Wait() method.
-		// NOTE: set CanRead flag before event notification/pipe write, because
-		// if do it after then some other thread which was waiting on the WaitSet
-		// may read the CanRead flag while it was not set yet.
-		ASSERT(!this->readiness_flags.get(opros::ready::read))
-		this->readiness_flags.set(opros::ready::read);
-
+	if(this->messages.size() == 1){ // if it is a first message
 #if M_OS == M_OS_WINDOWS
 		if(SetEvent(this->eventForWaitable) == 0){
 			ASSERT(false)
@@ -87,15 +99,13 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 			}
 		}
 #elif M_OS == M_OS_LINUX
-		if(eventfd_write(this->eventFD, 1) < 0){
+		if(eventfd_write(this->handle, 1) < 0){
 			ASSERT(false)
 		}
 #else
 #	error "Unsupported OS"
 #endif
 	}
-
-	ASSERT(this->readiness_flags.get(opros::ready::read))
 }
 
 
@@ -103,8 +113,6 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 queue::T_Message queue::peekMsg(){
 	std::lock_guard<decltype(this->mut)> mutexGuard(this->mut);
 	if(this->messages.size() != 0){
-		ASSERT(this->readiness_flags.get(opros::ready::read))
-
 		if(this->messages.size() == 1){ // if we are taking away the last message from the queue
 #if M_OS == M_OS_WINDOWS
 			if(ResetEvent(this->eventForWaitable) == 0){
@@ -121,7 +129,7 @@ queue::T_Message queue::peekMsg(){
 #elif M_OS == M_OS_LINUX
 			{
 				eventfd_t value;
-				if(eventfd_read(this->eventFD, &value) < 0){
+				if(eventfd_read(this->handle, &value) < 0){
 					throw std::system_error(errno, std::generic_category(), "queue::wait(): eventfd_read() failed");
 				}
 				ASSERT(value == 1)
@@ -129,9 +137,6 @@ queue::T_Message queue::peekMsg(){
 #else
 #	error "Unsupported OS"
 #endif
-			this->readiness_flags.clear(opros::ready::read);
-		}else{
-			ASSERT(this->readiness_flags.get(opros::ready::read))
 		}
 		
 		T_Message ret = std::move(this->messages.front());
@@ -171,18 +176,4 @@ bool queue::check_signaled(){
 
 	return !(this->readiness_flags & this->flagsMask).is_clear();
 }
-
-#elif M_OS == M_OS_MACOSX
-int queue::get_handle(){
-	// return read end of pipe
-	return this->pipeEnds[0];
-}
-
-#elif M_OS == M_OS_LINUX
-int queue::get_handle(){
-	return this->eventFD;
-}
-
-#else
-#	error "Unsupported OS"
 #endif

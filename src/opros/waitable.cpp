@@ -28,41 +28,56 @@ SOFTWARE.
 
 using namespace opros;
 
-// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
+// TODO: remove lint suppression when
+// https://github.com/llvm/llvm-project/issues/55143 is fixed
 // NOLINTNEXTLINE(bugprone-exception-escape)
-waitable::waitable(waitable&& w) noexcept(false) :
-	is_added_to_waitset(false),
-	user_data(w.user_data)
-{
-	// cannot move from waitable which is added to WaitSet
-	if (w.is_added_to_waitset) {
-		throw std::invalid_argument("waitable::waitable(move): cannot move waitable which is added to wait_set");
-	}
+waitable::waitable(waitable &&w) noexcept(false)
+    : is_added_to_waitset(false), user_data(w.user_data), handle(w.handle) {
+  // cannot move from waitable which is added to WaitSet
+  if (w.is_added_to_waitset) {
+    throw std::invalid_argument("waitable::waitable(move): cannot move "
+                                "waitable which is added to wait_set");
+  }
 
-	this->readiness_flags = std::move(w.readiness_flags);
-	w.readiness_flags.clear();
+  w.user_data = nullptr;
 
-	w.user_data = nullptr;
+#if CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX
+  w.handle = -1;
+#elif CFG_OS == CFG_OS_WINDOWS
+  w.handle = INVALID_HANDLE_VALUE;
+#else
+#error "Unknown OS"
+#endif
 }
 
-// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
+// TODO: remove lint suppression when
+// https://github.com/llvm/llvm-project/issues/55143 is fixed
 // NOLINTNEXTLINE(bugprone-exception-escape)
-waitable& waitable::operator=(waitable&& w) noexcept(false)
-{
-	if (this->is_added()) {
-		throw std::logic_error("waitable::waitable(move): cannot move while this waitable is added to wait_set");
-	}
+waitable &waitable::operator=(waitable &&w) noexcept(false) {
+  if (this->is_added()) {
+    throw std::logic_error("waitable::waitable(move): cannot move while this "
+                           "waitable is added to wait_set");
+  }
 
-	if (w.is_added()) {
-		throw std::invalid_argument("waitable::waitable(move): cannot move waitable which is added to wait_set");
-	}
+  if (w.is_added()) {
+    throw std::invalid_argument("waitable::waitable(move): cannot move "
+                                "waitable which is added to wait_set");
+  }
 
-	ASSERT(!this->is_added())
+  ASSERT(!this->is_added())
 
-	this->readiness_flags = std::move(w.readiness_flags);
-	w.readiness_flags.clear();
+  this->user_data = w.user_data;
+  w.user_data = nullptr;
 
-	this->user_data = w.user_data;
-	w.user_data = nullptr;
-	return *this;
+  this->handle = w.handle;
+
+#if CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX
+  w.handle = -1;
+#elif CFG_OS == CFG_OS_WINDOWS
+  w.handle = INVALID_HANDLE_VALUE;
+#else
+#error "Unknown OS"
+#endif
+
+  return *this;
 }
