@@ -62,13 +62,13 @@ public:
 	 */
 	void* user_data = nullptr;
 
+	waitable(const waitable& w) = delete;
+	waitable& operator=(const waitable& w) = delete;
+
 protected:
 	waitable(int handle) :
 		handle(handle)
 	{}
-
-	waitable(const waitable& w) = delete;
-	waitable& operator=(const waitable& w) = delete;
 
 	// TODO: remove lint suppression when
 	// https://github.com/llvm/llvm-project/issues/55143 is fixed
@@ -89,6 +89,7 @@ protected:
 	// class, but is not supposed to be destroyed via base pointer.
 	// TODO: is it possible to check it with static_assert? if so, add test and
 	// move this note there
+	// NOLINTNEXTLINE(modernize-use-equals-default)
 	~waitable() noexcept
 	{
 		ASSERT(!this->is_added(), [](auto& o) {

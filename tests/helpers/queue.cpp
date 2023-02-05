@@ -82,8 +82,8 @@ queue::~queue()noexcept{
 
 
 
-void queue::pushMessage(std::function<void()>&& msg)noexcept{
-	std::lock_guard<decltype(this->mut)> mutexGuard(this->mut);
+void queue::push_message(std::function<void()>&& msg)noexcept{
+	std::lock_guard<decltype(this->mut)> mutex_guard(this->mut);
 	this->messages.push_back(std::move(msg));
 	
 	if(this->messages.size() == 1){ // if it is a first message
@@ -110,8 +110,8 @@ void queue::pushMessage(std::function<void()>&& msg)noexcept{
 
 
 
-queue::T_Message queue::peekMsg(){
-	std::lock_guard<decltype(this->mut)> mutexGuard(this->mut);
+queue::message_type queue::peek_msg(){
+	std::lock_guard<decltype(this->mut)> mutex_guard(this->mut);
 	if(this->messages.size() != 0){
 		if(this->messages.size() == 1){ // if we are taking away the last message from the queue
 #if M_OS == M_OS_WINDOWS
@@ -139,7 +139,7 @@ queue::T_Message queue::peekMsg(){
 #endif
 		}
 		
-		T_Message ret = std::move(this->messages.front());
+		message_type ret = std::move(this->messages.front());
 		
 		this->messages.pop_front();
 		

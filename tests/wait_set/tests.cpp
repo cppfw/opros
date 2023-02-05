@@ -13,7 +13,7 @@
 
 namespace test_message_queue_as_waitable{
 
-void Run(){
+void run(){
 	opros::wait_set ws(1);
 
 	helpers::queue queue;
@@ -28,7 +28,7 @@ void Run(){
 
 	std::this_thread::sleep_for(std::chrono::seconds(1));
 
-	queue.pushMessage([](){});
+	queue.push_message([](){});
 
 	thread.join();
 }
@@ -37,7 +37,7 @@ void Run(){
 
 
 namespace test_general{
-void Run(){
+void run(){
 	opros::wait_set ws(4);
 
 	helpers::queue q1, q2;
@@ -62,7 +62,7 @@ void Run(){
 
 
 	// test Wait with 1 triggered object
-	q1.pushMessage([](){});
+	q1.push_message([](){});
 	utki::assert(ws.wait() == 1, SL);
 	utki::assert(ws.wait(utki::make_span(buf)) == 1, SL);
 	utki::assert(buf[0].w == &q1, SL);
@@ -72,15 +72,15 @@ void Run(){
 	utki::assert(buf[0].w == &q1, SL);
 
 	// check that no objects trigger after reading from queue
-	q1.peekMsg(); // should not block since one message was pushed before
+	q1.peek_msg(); // should not block since one message was pushed before
 	utki::assert(ws.wait(100) == 0, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 0, SL);
 
 
 
 	// test Wait with 2 triggered objects
-	q1.pushMessage([](){});
-	q2.pushMessage([](){});
+	q1.push_message([](){});
+	q2.push_message([](){});
 	utki::assert(ws.wait() == 2, SL);
 	utki::assert(ws.wait(utki::make_span(buf)) == 2, SL);
 	utki::assert((buf[0].w == &q1 && buf[1].w == &q2) || (buf[0].w == &q2 && buf[1].w == &q1), SL);
@@ -90,12 +90,12 @@ void Run(){
 	utki::assert((buf[0].w == &q1 && buf[1].w == &q2) || (buf[0].w == &q2 && buf[1].w == &q1), SL);
 
 	// check that no objects trigger after reading from queue
-	q1.peekMsg(); // should not block since one message was pushed before
+	q1.peek_msg(); // should not block since one message was pushed before
 	utki::assert(ws.wait(100) == 1, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 1, SL);
 	utki::assert(buf[0].w == &q2, SL);
 
-	q2.peekMsg(); // should not block since one message was pushed before
+	q2.peek_msg(); // should not block since one message was pushed before
 	utki::assert(ws.wait(100) == 0, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 0, SL);
 
@@ -118,13 +118,13 @@ void Run(){
 		std::thread thr([&q1](){
 			std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 			// TRACE(<< "pushing message" << std::endl)
-			q1.pushMessage([](){});
+			q1.push_message([](){});
 		});
 
 		// TRACE(<< "waiting" << std::endl)
 		utki::assert(ws.wait(std::numeric_limits<uint32_t>::max(), utki::make_span(buf)) == 1, SL);
-		utki::assert(q1.peekMsg(), SL);
-		utki::assert(!q1.peekMsg(), SL);
+		utki::assert(q1.peek_msg(), SL);
+		utki::assert(!q1.peek_msg(), SL);
 
 		thr.join();
 

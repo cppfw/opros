@@ -26,12 +26,12 @@ namespace helpers{
  */
 class queue : public opros::waitable{
 public:
-	typedef std::function<void()> T_Message;
+	using message_type = std::function<void()>;
 	
 private:
 	utki::spin_lock mut;
 
-	std::list<T_Message> messages;
+	std::list<message_type> messages;
 	
 #if M_OS == M_OS_WINDOWS
 	//use Event to implement waitable on Windows
@@ -46,11 +46,12 @@ private:
 #	error "Unsupported OS"
 #endif
 
-	//forbid copying
-	queue(const queue&);
-	queue& operator=(const queue&);
-
 public:
+
+	queue(const queue&) = delete;
+	queue& operator=(const queue&) = delete;
+
+
 	/**
 	 * @brief Constructor, creates empty message queue.
 	 */
@@ -69,7 +70,7 @@ public:
 	 * @brief Pushes a new message to the queue.
 	 * @param msg - the message to push into the queue.
 	 */
-	void pushMessage(T_Message&& msg)noexcept;
+	void push_message(message_type&& msg)noexcept;
 
 
 
@@ -80,7 +81,7 @@ public:
 	 * @return auto-pointer to Message instance.
 	 * @return invalid auto-pointer if there are no messages in the queue.
 	 */
-	T_Message peekMsg();
+	message_type peek_msg();
 
 
 #if M_OS == M_OS_WINDOWS

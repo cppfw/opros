@@ -268,7 +268,7 @@ void wait_set::remove(waitable& w) noexcept
 	w.set_waiting_flags(false);
 
 #elif M_OS == M_OS_LINUX
-	int res = epoll_ctl(this->epollSet, EPOLL_CTL_DEL, w.handle, 0);
+	int res = epoll_ctl(this->epollSet, EPOLL_CTL_DEL, w.handle, nullptr);
 	if (res < 0) {
 		ASSERT(false, [&](auto& o) {
 			o << "wait_set::Remove(): epoll_ctl failed, probably the waitable was "
@@ -298,7 +298,8 @@ unsigned wait_set::wait_internal_linux(int timeout, utki::span<event_info> out_e
 	int res;
 
 	while (true) {
-		res = epoll_wait(this->epollSet, this->revents.data(), this->revents.size(), timeout);
+		ASSERT(this->revents.size() <= std::numeric_limits<int>::max())
+		res = epoll_wait(this->epollSet, this->revents.data(), int(this->revents.size()), timeout);
 
 		// TRACE(<< "epoll_wait() returned " << res << std::endl)
 
@@ -317,7 +318,7 @@ unsigned wait_set::wait_internal_linux(int timeout, utki::span<event_info> out_e
 
 	unsigned num_events_stored = 0;
 	for (epoll_event* e = this->revents.data(); e < this->revents.data() + res; ++e) {
-		waitable* w = static_cast<waitable*>(e->data.ptr);
+		auto w = static_cast<waitable*>(e->data.ptr);
 		ASSERT(w)
 
 		if (num_events_stored < out_events.size()) {
@@ -348,7 +349,7 @@ unsigned wait_set::wait_internal_linux(int timeout, utki::span<event_info> out_e
 
 #endif
 
-unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::span<event_info> out_events)
+unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::span<event_info> out_events)
 {
 	if (this->size_of_wait_set == 0) {
 		throw std::logic_error(
@@ -359,7 +360,7 @@ unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::spa
 
 #if M_OS == M_OS_WINDOWS
 	DWORD waitTimeout;
-	if (waitInfinitly) {
+	if (wait_infinitly) {
 		waitTimeout = INFINITE;
 	} else {
 		static_assert(INFINITE == 0xffffffff, "check that INFINITE macro is max uint32_T failed");
@@ -424,7 +425,7 @@ unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::spa
 	return numEvents;
 
 #elif M_OS == M_OS_LINUX
-	if (waitInfinitly) {
+	if (wait_infinitly) {
 		return this->wait_internal_linux(-1, out_events);
 	}
 
@@ -432,13 +433,13 @@ unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::spa
 	// as uint32_t, so the requested timeout can be bigger than int can hold
 	// (negative values of the int are not used)
 
-	uint32_t max_time_step = uint32_t(std::numeric_limits<int>::max());
+	auto max_time_step = uint32_t(std::numeric_limits<int>::max());
 
 	while (timeout >= max_time_step) {
 		ASSERT(int(max_time_step) >= 0, [&](auto& o) {
 			o << "timeout = 0x" << std::hex << timeout;
 		})
-		auto res = this->wait_internal_linux(max_time_step, out_events);
+		auto res = this->wait_internal_linux(int(max_time_step), out_events);
 		if (res != 0) {
 			return res;
 		}
@@ -448,7 +449,8 @@ unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::spa
 		}
 	}
 
-	return this->wait_internal_linux(timeout, out_events);
+	ASSERT(int(timeout) >= 0)
+	return this->wait_internal_linux(int(timeout), out_events);
 
 #elif M_OS == M_OS_MACOSX
 	struct timespec ts = {
@@ -457,7 +459,8 @@ unsigned wait_set::wait_internal(bool waitInfinitly, uint32_t timeout, utki::spa
 	};
 
 	for (;;) {
-		int res = kevent(this->queue, 0, 0, this->revents.data(), int(this->revents.size()), (waitInfinitly) ? 0 : &ts);
+		int res =
+			kevent(this->queue, 0, 0, this->revents.data(), int(this->revents.size()), (wait_infinitly) ? 0 : &ts);
 
 		if (res < 0) {
 			if (errno == EINTR) {

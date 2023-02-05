@@ -32,7 +32,6 @@ using namespace opros;
 // https://github.com/llvm/llvm-project/issues/55143 is fixed
 // NOLINTNEXTLINE(bugprone-exception-escape)
 waitable::waitable(waitable&& w) noexcept(false) :
-	is_added_to_waitset(false),
 	user_data(w.user_data),
 	handle(w.handle)
 {
