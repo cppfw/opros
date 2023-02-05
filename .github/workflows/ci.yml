@@ -35,6 +35,12 @@ jobs:
           repo-name: cppfw
           keys-asc: http://gagis.hopto.org/repo/cppfw/pubkey.gpg
           install: myci git
+      - name: add llvm repo (for clang-format)
+        uses: myci-actions/add-deb-repo@master
+        with:
+          repo: deb http://apt.llvm.org/${{ env.linux_release }} llvm-toolchain-${{ env.linux_release }} main
+          repo-name: llvm
+          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
       - name: install ci tools
         run: |
           apt --quiet install --assume-yes devscripts equivs
@@ -76,6 +82,12 @@ jobs:
           repo-name: cppfw
           keys-asc: http://gagis.hopto.org/repo/cppfw/pubkey.gpg
           install: myci git
+      - name: add llvm repo (for clang-format)
+        uses: myci-actions/add-deb-repo@master
+        with:
+          repo: deb http://apt.llvm.org/${{ env.linux_release }} llvm-toolchain-${{ env.linux_release }} main
+          repo-name: llvm
+          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
       - name: install ci tools
         run: |
           # configure timezone to avoid 'tzdata' package to require user interaction during installation (needed for ubuntu:focal)
@@ -279,6 +291,12 @@ jobs:
     steps:
       - name: clean
         uses: myci-actions/clean@master
+      - name: add llvm repo (for clang-format)
+        uses: myci-actions/add-deb-repo@master
+        with:
+          repo: deb http://apt.llvm.org/${{ env.linux_release }} llvm-toolchain-${{ env.linux_release }} main
+          repo-name: llvm
+          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
       - name: add cppfw deb repo
         uses: myci-actions/add-deb-repo@master
         with:
