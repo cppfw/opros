@@ -15,7 +15,11 @@ using namespace helpers;
 
 queue::queue():
 	opros::waitable(
-		[this](){
+		[
+#if CFG_OS == CFG_OS_MACOSX
+			this
+#endif
+		](){
 #if CFG_OS == CFG_OS_WINDOWS
 	this->eventForWaitable = CreateEvent(
 			NULL, // security attributes
