@@ -406,17 +406,17 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 		auto& w = *this->waitables[i];
 
 		// Check if handle is in signalled state.
-		// In case we have auto-reset events (see https://learn.microsoft.com/en-us/windows/win32/sync/event-objects?redirectedfrom=MSDN)
-		// the signalled state of the event which made WaitForMultipleObjectsEx() to return
-		// will be reset, so we need to check if it is that event by comparing index to what was returned
-		// by WaitForMultipleObjectsEx(). Otherwise, we call WaitForSingleObjectEx() with zero timeout
-		// to check if the event was/is in signalled state.
-		if(res - WAIT_OBJECT_0 == i ||
-			WaitForSingleObjectEx(
-			w.handle,
-			0, // 0 ms timeout
-			FALSE // do not stop waiting on IO completion
-		) == WAIT_OBJECT_0)
+		// In case we have auto-reset events (see
+		// https://learn.microsoft.com/en-us/windows/win32/sync/event-objects?redirectedfrom=MSDN) the signalled state
+		// of the event which made WaitForMultipleObjectsEx() to return will be reset, so we need to check if it is that
+		// event by comparing index to what was returned by WaitForMultipleObjectsEx(). Otherwise, we call
+		// WaitForSingleObjectEx() with zero timeout to check if the event was/is in signalled state.
+		if (res - WAIT_OBJECT_0 == i
+			|| WaitForSingleObjectEx(
+				   w.handle,
+				   0, // 0 ms timeout
+				   FALSE // do not stop waiting on IO completion
+			   ) == WAIT_OBJECT_0)
 		{
 			// the object is in signalled state
 

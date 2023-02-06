@@ -100,8 +100,8 @@ protected:
 #if CFG_OS == CFG_OS_WINDOWS
 	virtual
 #endif
-	// NOLINTNEXTLINE(modernize-use-equals-default, "destructor is non-trivial in debug build configuration")
-	~waitable() noexcept
+		// NOLINTNEXTLINE(modernize-use-equals-default, "destructor is non-trivial in debug build configuration")
+		~waitable() noexcept
 	{
 		ASSERT(!this->is_added(), [](auto& o) {
 			o << "~waitable(): the waitable is currently added to some wait_set()";
