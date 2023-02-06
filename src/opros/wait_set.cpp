@@ -148,9 +148,9 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 
 	// NOTE: Setting wait flags may throw an exception, so do that before
 	// adding object to the array and incrementing number of added objects.
-	w.waiting_object.set_waiting_flags(wait_for);
+	w.set_waiting_flags(wait_for);
 
-	this->handles[this->size_of_wait_set] = w.waiting_object.handle;
+	this->handles[this->size_of_wait_set] = w.handle;
 	this->waitables[this->size_of_wait_set] = &w;
 
 #elif CFG_OS == CFG_OS_LINUX
@@ -207,7 +207,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 	}
 
 	// set new wait flags
-	w.waiting_object.set_waiting_flags(wait_for);
+	w.set_waiting_flags(wait_for);
 
 #elif CFG_OS == CFG_OS_LINUX
 	epoll_event e;
@@ -265,7 +265,7 @@ void wait_set::remove(waitable& w) noexcept
 	}
 
 	// clear wait flags
-	w.waiting_object.set_waiting_flags(false);
+	w.set_waiting_flags(false);
 
 #elif CFG_OS == CFG_OS_LINUX
 	int res = epoll_ctl(this->epollSet, EPOLL_CTL_DEL, w.handle, nullptr);
@@ -403,23 +403,32 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 	// check for activities
 	unsigned num_events = 0;
 	for (unsigned i = 0; i < this->size_of_wait_set; ++i) {
-		// NOTE: Need to call get_readiness_flags() even if 'num_events < out_events.size()',
-		// because it resets the readiness state of the HANDLE.
-		auto flags = this->waitables[i]->waiting_object.get_readiness_flags();
+		auto& w = *this->waitables[i];
 
-		if (!flags.is_clear()) {
+		// Check if handle is in signalled state.
+		// In case we have auto-reset events (see https://learn.microsoft.com/en-us/windows/win32/sync/event-objects?redirectedfrom=MSDN)
+		// the signalled state of the event which made WaitForMultipleObjectsEx() to return
+		// will be reset, so we need to check if it is that event by comparing index to what was returned
+		// by WaitForMultipleObjectsEx(). Otherwise, we call WaitForSingleObjectEx() with zero timeout
+		// to check if the event was/is in signalled state.
+		if(res - WAIT_OBJECT_0 == i ||
+			WaitForSingleObjectEx(
+			w.handle,
+			0, // 0 ms timeout
+			FALSE // do not stop waiting on IO completion
+		) == WAIT_OBJECT_0)
+		{
+			// the object is in signalled state
+
+			// NOTE: Need to call get_readiness_flags() even if 'num_events < out_events.size()',
+			// because it resets the readiness state of the HANDLE.
+			auto flags = w.get_readiness_flags();
+
 			if (num_events < out_events.size()) {
-				out_events[num_events].w = this->waitables[i];
+				out_events[num_events].w = &w;
 				out_events[num_events].flags = flags;
-				++num_events;
 			}
-		} else {
-			// NOTE: sometimes the event is reported as signaled, but no read/write
-			// events indicated.
-			//       Don't know why it happens.
-			//			ASSERT_INFO(i != (res - WAIT_OBJECT_0), "i = "
-			//<< i << " (res - WAIT_OBJECT_0) = " << (res - WAIT_OBJECT_0) << "
-			// wait_flags = " << this->waitables[i]->readiness_flags)
+			++num_events;
 		}
 	}
 

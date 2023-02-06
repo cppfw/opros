@@ -23,9 +23,6 @@ namespace helpers{
  */
 class queue :
 	public opros::waitable
-#if CFG_OS == CFG_OS_WINDOWS
-	, private opros::waitable::windows_waiting_interface
-#endif
 {
 public:
 	using message_type = std::function<void()>;
@@ -36,7 +33,6 @@ private:
 	std::list<message_type> messages;
 	
 #if CFG_OS == CFG_OS_WINDOWS
-	// opros::waitable::windows_waiting_interface already provides variable for holding a HANDLE
 #elif CFG_OS == CFG_OS_MACOSX
 	// use pipe to implement waitable in *nix systems
 	// one end will be saved in waitable::handle
@@ -80,8 +76,8 @@ public:
 
 #if CFG_OS == CFG_OS_WINDOWS
 protected:
-	virtual void set_waiting_flags(utki::flags<ready>) = 0;
-	virtual utki::flags<ready> get_readiness_flags() = 0;
+	void set_waiting_flags(utki::flags<opros::ready>)override;
+	utki::flags<opros::ready> get_readiness_flags()override;
 
 #elif CFG_OS == CFG_OS_LINUX
 #elif CFG_OS == CFG_OS_MACOSX

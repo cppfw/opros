@@ -16,21 +16,21 @@ using namespace helpers;
 queue::queue():
 	opros::waitable(
 		[
-#if CFG_OS == CFG_OS_MACOSX || CFG_OS == CFG_OS_WINDOWS
+#if CFG_OS == CFG_OS_MACOSX
 			this
 #endif
 		](){
 #if CFG_OS == CFG_OS_WINDOWS
-	this->handle = CreateEvent(
+	auto handle = CreateEvent(
 			NULL, // security attributes
 			TRUE, // manual-reset
 			FALSE, // not signalled initially
 			NULL // no name
 		);
-	if(this->handle == NULL){
+	if(handle == NULL){
 		throw std::system_error(GetLastError(), std::generic_category(), "could not create event (Win32) for implementing Waitable");
 	}
-	return *this;
+	return handle;
 #elif CFG_OS == CFG_OS_MACOSX
 	int ends[2];
 	if(::pipe(&ends[0]) < 0){
@@ -142,9 +142,9 @@ void queue::set_waiting_flags(utki::flags<opros::ready> wait_for){
 	}
 }
 
-utki::flags<ready> queue::get_readiness_flags(){
+utki::flags<opros::ready> queue::get_readiness_flags(){
 	// if event has triggered, then there is something to read from the queue,
 	// so always return ready::read
-	return utki::flags<ready>(false).set(opros::ready::read);
+	return utki::flags<opros::ready>(false).set(opros::ready::read);
 }
 #endif

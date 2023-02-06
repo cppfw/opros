@@ -48,7 +48,7 @@ waitable::waitable(waitable&& w) noexcept(false) :
 #if CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX
 	w.handle = -1;
 #elif CFG_OS == CFG_OS_WINDOWS
-	w.handle = INVALID_HANDLE_VALUE;
+	w.handle = NULL;
 #else
 #	error "Unknown OS"
 #endif
@@ -83,7 +83,7 @@ waitable& waitable::operator=(waitable&& w) noexcept(false)
 #if CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX
 	w.handle = -1;
 #elif CFG_OS == CFG_OS_WINDOWS
-	w.handle = INVALID_HANDLE_VALUE;
+	w.handle = NULL;
 #else
 #	error "Unknown OS"
 #endif

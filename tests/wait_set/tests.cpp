@@ -47,25 +47,22 @@ void run(){
 
 	std::array<opros::event_info, 4> buf;
 
-
-
 	// test wait() with zero timeout, no objects should trigger, so, expecting return value of 0.
 	utki::assert(ws.wait(0) == 0, SL);
 	utki::assert(ws.wait(0, utki::make_span(buf)) == 0, SL);
-
-
 
 	// test wait() with non-zero timeout, no objects should trigger, so, expecting return value of 0.
 	utki::assert(ws.wait(100) == 0, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 0, SL);
 
-
-
 	// test Wait with 1 triggered object
 	q1.push_message([](){});
-	utki::assert(ws.wait() == 1, SL);
-	utki::assert(ws.wait(utki::make_span(buf)) == 1, SL);
-	utki::assert(buf[0].w == &q1, SL);
+	{
+		auto num_triggered = ws.wait();
+		utki::assert(num_triggered == 1, [&](auto&o){o << "num_triggered = " << num_triggered;}, SL);
+		utki::assert(ws.wait(utki::make_span(buf)) == 1, SL);
+		utki::assert(buf[0].w == &q1, SL);
+	}
 
 	utki::assert(ws.wait(100) == 1, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 1, SL);

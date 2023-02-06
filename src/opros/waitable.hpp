@@ -71,19 +71,8 @@ protected:
 		handle(handle)
 	{}
 #elif CFG_OS == CFG_OS_WINDOWS
-	class windows_waiting_interface
-	{
-	public:
-		HANDLE handle;
-
-		virtual ~windows_waiting_interface() = default;
-
-		virtual void set_waiting_flags(utki::flags<ready>) = 0;
-		virtual utki::flags<ready> get_readiness_flags() = 0;
-	};
-
-	waitable(windows_waiting_interface& waiting_object) :
-		waiting_object(waiting_object)
+	waitable(HANDLE handle) :
+		handle(handle)
 	{}
 #else
 #	error "Unknown OS"
@@ -108,7 +97,10 @@ protected:
 	// class, but is not supposed to be destroyed via base pointer.
 	// TODO: is it possible to check it with static_assert? if so, add test and
 	// move this note there
-	// NOLINTNEXTLINE(modernize-use-equals-default)
+#if CFG_OS == CFG_OS_WINDOWS
+	virtual
+#endif
+	// NOLINTNEXTLINE(modernize-use-equals-default, "destructor is non-trivial in debug build configuration")
 	~waitable() noexcept
 	{
 		ASSERT(!this->is_added(), [](auto& o) {
@@ -119,7 +111,10 @@ protected:
 #if CFG_OS == CFG_OS_WINDOWS
 
 protected:
-	windows_waiting_interface& waiting_object;
+	HANDLE handle;
+
+	virtual void set_waiting_flags(utki::flags<ready>) = 0;
+	virtual utki::flags<ready> get_readiness_flags() = 0;
 
 #elif CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX || CFG_OS == CFG_OS_UNIX
 
