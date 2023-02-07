@@ -78,6 +78,7 @@ protected:
 #	error "Unknown OS"
 #endif
 
+	// TODO: remove move constructors
 	// TODO: remove lint suppression when
 	// https://github.com/llvm/llvm-project/issues/55143 is fixed
 	// NOLINTNEXTLINE(bugprone-exception-escape)
