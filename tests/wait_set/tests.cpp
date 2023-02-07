@@ -132,7 +132,7 @@ void run(){
 }
 
 namespace test_threads{
-class TestThread1{
+class test_thread1{
 public:
 	std::thread thr;
 
@@ -175,10 +175,10 @@ void run(){
 #endif
 	;
 
-	std::vector<std::unique_ptr<TestThread1>> thr;
+	std::vector<std::unique_ptr<test_thread1>> thr;
 
 	for(size_t i = 0; i != num_threads; ++i){
-		auto t = std::make_unique<TestThread1>();
+		auto t = std::make_unique<test_thread1>();
 
 		try{
 			t->start();
