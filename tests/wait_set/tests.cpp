@@ -130,3 +130,76 @@ void run(){
 	}
 }
 }
+
+namespace test_threads{
+class TestThread1{
+public:
+	std::thread thr;
+
+	void start(){
+		this->thr = std::thread([this](){this->run();});
+	}
+
+	void join(){
+		this->thr.join();
+	}
+
+	helpers::queue queue;
+	volatile bool quit_flag = false;
+
+	void run(){
+		opros::wait_set ws(1);
+		
+		ws.add(this->queue, {opros::ready::read});
+		
+		while(!this->quit_flag){
+			ws.wait();
+			while(auto m = this->queue.peek_msg()){
+				m();
+			}
+		}
+		
+		ws.remove(this->queue);
+	}
+};
+
+void run(){
+	std::cout << "running threads test" << std::endl;
+
+	//TODO: read ulimit
+	size_t num_threads =
+#if M_OS == M_OS_MACOSX
+			50
+#else
+			500
+#endif
+	;
+
+	std::vector<std::unique_ptr<TestThread1>> thr;
+
+	for(size_t i = 0; i != num_threads; ++i){
+		auto t = std::make_unique<TestThread1>();
+
+		try{
+			t->start();
+		}catch(std::system_error& e){
+			utki::log([&](auto& o){
+				o << "exception caught during thread creation: " << e.what() << ",\n";
+				o << "continuing to stopping already created threads" << '\n';
+			});
+			break;
+		}
+
+		thr.push_back(std::move(t));
+	}
+
+	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+	for(auto i = thr.begin(); i != thr.end(); ++i){
+		(*i)->quit_flag = true;
+		(*i)->queue.push_message([](){});
+		(*i)->join();
+	}
+}
+
+}

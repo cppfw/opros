@@ -7,3 +7,7 @@ void run();
 namespace test_general{
 void run();
 }//~namespace
+
+namespace test_threads{
+void run();
+}
