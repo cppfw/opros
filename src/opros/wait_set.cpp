@@ -137,9 +137,6 @@ void wait_set::remove_filter(waitable& w, int16_t filter)
 
 void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 {
-	//		TRACE(<< "wait_set::add(): enter" << std::endl)
-	ASSERT(!w.is_added())
-
 #if CFG_OS == CFG_OS_WINDOWS
 	ASSERT(this->size() <= this->handles.size())
 	if (this->size() == this->handles.size()) {
@@ -182,15 +179,10 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 #endif
 
 	++this->size_of_wait_set;
-
-	w.is_added_to_waitset = true;
-	//		TRACE(<< "wait_set::add(): exit" << std::endl)
 }
 
 void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 {
-	ASSERT(w.is_added())
-
 #if CFG_OS == CFG_OS_WINDOWS
 	// check if the waitable object is added to this wait set
 	{
@@ -237,8 +229,6 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 
 void wait_set::remove(waitable& w) noexcept
 {
-	ASSERT(w.is_added())
-
 	ASSERT(this->size() != 0)
 
 #if CFG_OS == CFG_OS_WINDOWS
@@ -283,10 +273,6 @@ void wait_set::remove(waitable& w) noexcept
 #endif
 
 	--this->size_of_wait_set;
-
-	w.is_added_to_waitset = false;
-	//		TRACE(<< "wait_set::remove(): completed successfuly" <<
-	// std::endl)
 }
 
 #if CFG_OS == CFG_OS_LINUX

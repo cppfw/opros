@@ -54,8 +54,6 @@ class waitable
 {
 	friend class wait_set;
 
-	bool is_added_to_waitset = false; // TODO: remove?
-
 public:
 	/**
 	 * @brief User data assotiated with the waitable.
@@ -78,22 +76,6 @@ protected:
 #	error "Unknown OS"
 #endif
 
-	// TODO: remove move constructors
-	// TODO: remove lint suppression when
-	// https://github.com/llvm/llvm-project/issues/55143 is fixed
-	// NOLINTNEXTLINE(bugprone-exception-escape)
-	waitable(waitable&& w) noexcept(false);
-
-	// TODO: remove lint suppression when
-	// https://github.com/llvm/llvm-project/issues/55143 is fixed
-	// NOLINTNEXTLINE(bugprone-exception-escape)
-	waitable& operator=(waitable&& w) noexcept(false);
-
-	bool is_added() const noexcept
-	{
-		return this->is_added_to_waitset;
-	}
-
 	// Destructor is protected because this class is supposed to be used as a base
 	// class, but is not supposed to be destroyed via base pointer.
 	// TODO: is it possible to check it with static_assert? if so, add test and
@@ -101,13 +83,7 @@ protected:
 #if CFG_OS == CFG_OS_WINDOWS
 	virtual
 #endif
-		// NOLINTNEXTLINE(modernize-use-equals-default, "destructor is non-trivial in debug build configuration")
-		~waitable() noexcept
-	{
-		ASSERT(!this->is_added(), [](auto& o) {
-			o << "~waitable(): the waitable is currently added to some wait_set()";
-		})
-	}
+		~waitable() = default;
 
 #if CFG_OS == CFG_OS_WINDOWS
 
