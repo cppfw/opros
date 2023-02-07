@@ -195,10 +195,10 @@ void run(){
 
 	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 
-	for(auto i = thr.begin(); i != thr.end(); ++i){
-		(*i)->quit_flag = true;
-		(*i)->queue.push_message([](){});
-		(*i)->join();
+	for(auto& t : thr){
+		t->quit_flag = true;
+		t->queue.push_message([](){});
+		t->join();
 	}
 }
 
