@@ -48,6 +48,9 @@ public:
 	queue(const queue&) = delete;
 	queue& operator=(const queue&) = delete;
 
+	queue(queue&&) = delete;
+	queue& operator=(queue&&) = delete;
+
 	/**
 	 * @brief Constructor, creates empty message queue.
 	 */
