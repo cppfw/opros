@@ -171,14 +171,13 @@ public:
 	 * triggered. Note, that it does not change the readiness state of
 	 * non-triggered objects.
 	 * @param out_events - pointer to buffer where to put pointers to triggered
-	 * waitable objects. The buffer size must be equal or greater than the number
-	 * of waitables currently added to the wait set, otherwise not all triggered
-	 * waitables will be reported to this buffer.
+	 * waitable objects. If the buffer size is not enough to hold all triggered
+	 * waitables, then some of them will not be reported as triggered.
 	 * @return number of objects triggered.
 	 *         NOTE: for some reason, on Windows it can return 0 objects
 	 * triggered.
 	 */
-	unsigned wait(utki::span<event_info> out_events = nullptr)
+	unsigned wait(utki::span<event_info> out_events)
 	{
 		return this->wait_internal(true, 0, out_events);
 	}
@@ -191,14 +190,13 @@ public:
 	 * milliseconds.
 	 * @param timeout - maximum time in milliseconds to wait.
 	 * @param out_events - buffer where to put pointers to triggered waitable
-	 * objects. The buffer size must be equal or greater than the number of
-	 * waitables currently added to the wait set, otherwise not all triggered
-	 * waitables will be reported to this buffer.
+	 * objects. If the buffer size is not enough to hold all triggered
+	 * waitables, then some of them will not be reported as triggered.
 	 * @return number of objects triggered. If 0 then timeout was hit.
 	 *         NOTE: for some reason, on Windows it can return 0 before timeout
 	 * was hit.
 	 */
-	unsigned wait(uint32_t timeout, utki::span<event_info> out_events = nullptr)
+	unsigned wait(uint32_t timeout, utki::span<event_info> out_events)
 	{
 		return this->wait_internal(false, timeout, out_events);
 	}

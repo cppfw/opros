@@ -21,7 +21,7 @@ void run(){
 	std::thread thread([&queue](){
 		opros::wait_set ws(1);
 		ws.add(queue, utki::flags<opros::ready>().set(opros::ready::read));
-		auto res = ws.wait(3000);
+		auto res = ws.wait(3000, nullptr);
 		utki::assert(res == 1, SL);
 		ws.remove(queue);
 	});
@@ -48,29 +48,29 @@ void run(){
 	std::array<opros::event_info, 4> buf;
 
 	// test wait() with zero timeout, no objects should trigger, so, expecting return value of 0.
-	utki::assert(ws.wait(0) == 0, SL);
+	utki::assert(ws.wait(0, nullptr) == 0, SL);
 	utki::assert(ws.wait(0, utki::make_span(buf)) == 0, SL);
 
 	// test wait() with non-zero timeout, no objects should trigger, so, expecting return value of 0.
-	utki::assert(ws.wait(100) == 0, SL);
+	utki::assert(ws.wait(100, nullptr) == 0, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 0, SL);
 
 	// test Wait with 1 triggered object
 	q1.push_message([](){});
 	{
-		auto num_triggered = ws.wait();
+		auto num_triggered = ws.wait(nullptr);
 		utki::assert(num_triggered == 1, [&](auto&o){o << "num_triggered = " << num_triggered;}, SL);
 		utki::assert(ws.wait(utki::make_span(buf)) == 1, SL);
 		utki::assert(buf[0].w == &q1, SL);
 	}
 
-	utki::assert(ws.wait(100) == 1, SL);
+	utki::assert(ws.wait(100, nullptr) == 1, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 1, SL);
 	utki::assert(buf[0].w == &q1, SL);
 
 	// check that no objects trigger after reading from queue
 	q1.peek_msg(); // should not block since one message was pushed before
-	utki::assert(ws.wait(100) == 0, SL);
+	utki::assert(ws.wait(100, nullptr) == 0, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 0, SL);
 
 
@@ -78,22 +78,22 @@ void run(){
 	// test Wait with 2 triggered objects
 	q1.push_message([](){});
 	q2.push_message([](){});
-	utki::assert(ws.wait() == 2, SL);
+	utki::assert(ws.wait(nullptr) == 2, SL);
 	utki::assert(ws.wait(utki::make_span(buf)) == 2, SL);
 	utki::assert((buf[0].w == &q1 && buf[1].w == &q2) || (buf[0].w == &q2 && buf[1].w == &q1), SL);
 
-	utki::assert(ws.wait(100) == 2, SL);
+	utki::assert(ws.wait(100, nullptr) == 2, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 2, SL);
 	utki::assert((buf[0].w == &q1 && buf[1].w == &q2) || (buf[0].w == &q2 && buf[1].w == &q1), SL);
 
 	// check that no objects trigger after reading from queue
 	q1.peek_msg(); // should not block since one message was pushed before
-	utki::assert(ws.wait(100) == 1, SL);
+	utki::assert(ws.wait(100, nullptr) == 1, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 1, SL);
 	utki::assert(buf[0].w == &q2, SL);
 
 	q2.peek_msg(); // should not block since one message was pushed before
-	utki::assert(ws.wait(100) == 0, SL);
+	utki::assert(ws.wait(100, nullptr) == 0, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 0, SL);
 
 	ws.remove(q1);
@@ -153,7 +153,7 @@ public:
 		ws.add(this->queue, {opros::ready::read});
 		
 		while(!this->quit_flag){
-			ws.wait();
+			ws.wait(nullptr);
 			while(auto m = this->queue.peek_msg()){
 				m();
 			}
