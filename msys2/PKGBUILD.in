@@ -31,7 +31,7 @@ groups=()
 
 depends=("${pkgPrefix}utki")
 
-makedepends=('myci' 'prorab' 'prorab-extra' 'doxygen')
+makedepends=('myci' 'prorab' 'prorab-extra' 'doxygen' "${pkgPrefix}clang-tools-extra")
 checkdepends=('myci')
 optdepends=()
 provides=()
@@ -54,6 +54,11 @@ prepare() {
 
 build() {
 	cd "$rootDir"
+
+	# run lint
+	make config=tidy
+
+	# make release build
 	make
 }
 
