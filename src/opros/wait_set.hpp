@@ -210,7 +210,7 @@ private:
 
 #if CFG_OS == CFG_OS_MACOSX
 	void add_filter(waitable& w, int16_t filter);
-	void remove_filter(waitable& w, int16_t filter);
+	void remove_filter(waitable& w, int16_t filter) noexcept;
 #endif
 };
 

@@ -113,7 +113,7 @@ void wait_set::add_filter(waitable& w, int16_t filter)
 	}
 }
 
-void wait_set::remove_filter(waitable& w, int16_t filter)
+void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 {
 	struct kevent e;
 
@@ -256,7 +256,11 @@ void wait_set::remove(waitable& w) noexcept
 	}
 
 	// clear wait flags
-	w.set_waiting_flags(false);
+	try {
+		w.set_waiting_flags(false);
+	} catch (...) {
+		// ignore error
+	}
 
 #elif CFG_OS == CFG_OS_LINUX
 	int res = epoll_ctl(this->epollSet, EPOLL_CTL_DEL, w.handle, nullptr);
