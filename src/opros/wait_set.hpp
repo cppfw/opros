@@ -44,8 +44,8 @@ SOFTWARE.
 #	include <unistd.h>
 
 #elif M_OS == M_OS_MACOSX
-#	include <sys/types.h>
 #	include <sys/event.h>
+#	include <sys/types.h>
 #	include <unistd.h>
 
 #else
@@ -60,12 +60,17 @@ SOFTWARE.
 
 namespace opros {
 
+struct event_info {
+	waitable* object;
+	utki::flags<ready> flags;
+};
+
 /**
  * @brief Set of waitable objects to wait for.
  */
 class wait_set
 {
-	const unsigned max_size_of_wait_set;
+	const unsigned wait_set_capacity;
 	unsigned size_of_wait_set = 0;
 
 #if M_OS == M_OS_WINDOWS
@@ -87,16 +92,16 @@ class wait_set
 public:
 	/**
 	 * @brief Constructor.
-	 * @param max_size - maximum number of waitable objects that can be added to the wait set.
+	 * @param max_size - maximum number of waitable objects that can be added to
+	 * the wait set.
 	 */
 	wait_set(unsigned max_size);
 
 	/**
 	 * @brief Destructor.
-	 * Note, that destructor will check if the wait set is empty. If it is not, then an assert
-	 * will be triggered.
-	 * It is user's responsibility to remove any waitable objects from the waitset
-	 * before the wait set object is destroyed.
+	 * Note, that destructor will check if the wait set is empty. If it is not,
+	 * then an assert will be triggered. It is user's responsibility to remove any
+	 * waitable objects from the waitset before the wait set object is destroyed.
 	 */
 	~wait_set() noexcept
 	{
@@ -122,14 +127,14 @@ public:
 	 * @brief Get maximum size of the wait set.
 	 * @return maximum number of waitables this wait_set can hold.
 	 */
-	unsigned max_size() const noexcept
+	unsigned capacity() const noexcept
 	{
-		return this->max_size_of_wait_set;
+		return this->wait_set_capacity;
 	}
 
 	/**
 	 * @brief Get number of waitables already added to the wait_set.
-	 * @return number of waitables added to th wait_set.
+	 * @return number of waitables added to the wait_set.
 	 */
 	unsigned size() const noexcept
 	{
@@ -159,19 +164,20 @@ public:
 
 	/**
 	 * @brief wait for event.
-	 * This function blocks calling thread execution until one of the waitable objects in the wait_set
-	 * triggers. Upon return from the function, pointers to triggered objects are placed in the
-	 * 'out_events' buffer and the return value from the function indicates number of these objects
-	 * which have triggered.
-	 * Note, that it does not change the readiness state of non-triggered objects.
-	 * @param out_events - pointer to buffer where to put pointers to triggered waitable objects.
-	 *                     The buffer size must be equal or greater than the number of waitables
-	 *                     currently added to the wait set, otherwise not all triggered waitables
-	 *                     will be reported to this buffer.
+	 * This function blocks calling thread execution until one of the waitable
+	 * objects in the wait_set triggers. Upon return from the function, pointers
+	 * to triggered objects are placed in the 'out_events' buffer and the return
+	 * value from the function indicates number of these objects which have
+	 * triggered. Note, that it does not change the readiness state of
+	 * non-triggered objects.
+	 * @param out_events - pointer to buffer where to put pointers to triggered
+	 * waitable objects. If the buffer size is not enough to hold all triggered
+	 * waitables, then some of them will not be reported as triggered.
 	 * @return number of objects triggered.
-	 *         NOTE: for some reason, on Windows it can return 0 objects triggered.
+	 *         NOTE: for some reason, on Windows it can return 0 objects
+	 * triggered.
 	 */
-	unsigned wait(utki::span<waitable*> out_events = nullptr)
+	unsigned wait(utki::span<event_info> out_events)
 	{
 		return this->wait_internal(true, 0, out_events);
 	}
@@ -179,26 +185,27 @@ public:
 	/**
 	 * @brief wait for event with timeout.
 	 * The same as wait() function, but takes wait timeout as parameter. Thus,
-	 * this function will wait for any event or until timeout is hit. Note, that it guarantees that
-	 * it will wait AT LEAST for specified number of milliseconds.
+	 * this function will wait for any event or until timeout is hit. Note, that
+	 * it guarantees that it will wait AT LEAST for specified number of
+	 * milliseconds.
 	 * @param timeout - maximum time in milliseconds to wait.
-	 * @param out_events - buffer where to put pointers to triggered waitable objects.
-	 *                     The buffer size must be equal or greater than the number of waitables
-	 *                     currently added to the wait set, otherwise not all triggered waitables
-	 *                     will be reported to this buffer.
+	 * @param out_events - buffer where to put pointers to triggered waitable
+	 * objects. If the buffer size is not enough to hold all triggered
+	 * waitables, then some of them will not be reported as triggered.
 	 * @return number of objects triggered. If 0 then timeout was hit.
-	 *         NOTE: for some reason, on Windows it can return 0 before timeout was hit.
+	 *         NOTE: for some reason, on Windows it can return 0 before timeout
+	 * was hit.
 	 */
-	unsigned wait(uint32_t timeout, utki::span<waitable*> out_events = nullptr)
+	unsigned wait(uint32_t timeout, utki::span<event_info> out_events)
 	{
 		return this->wait_internal(false, timeout, out_events);
 	}
 
 private:
-	unsigned wait_internal(bool infinite, uint32_t timeout, utki::span<waitable*> out_events);
+	unsigned wait_internal(bool infinite, uint32_t timeout, utki::span<event_info> out_events);
 
 #if M_OS == M_OS_LINUX
-	unsigned wait_internal_linux(int timeout, utki::span<waitable*> out_events);
+	unsigned wait_internal_linux(int timeout, utki::span<event_info> out_events);
 #endif
 
 #if M_OS == M_OS_MACOSX

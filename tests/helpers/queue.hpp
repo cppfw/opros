@@ -9,10 +9,7 @@
 #include <list>
 #include <functional>
 
-
 namespace helpers{
-
-
 
 /**
  * @brief Message queue.
@@ -24,38 +21,40 @@ namespace helpers{
  * shall only be used to wait for READ. If you are trying to wait for WRITE the behavior will be
  * undefined.
  */
-class queue : public opros::waitable{
+class queue :
+	public opros::waitable
+{
 public:
-	typedef std::function<void()> T_Message;
+	using message_type = std::function<void()>;
 	
 private:
 	utki::spin_lock mut;
 
-	std::list<T_Message> messages;
+	std::list<message_type> messages;
 	
-#if M_OS == M_OS_WINDOWS
-	//use Event to implement waitable on Windows
-	HANDLE eventForWaitable;
-#elif M_OS == M_OS_MACOSX
-	//use pipe to implement waitable in *nix systems
-	int pipeEnds[2];
-#elif M_OS == M_OS_LINUX
-	//use eventfd()
-	int eventFD;
+#if CFG_OS == CFG_OS_WINDOWS
+#elif CFG_OS == CFG_OS_MACOSX
+	// use pipe to implement waitable in *nix systems
+	// one end will be saved in waitable::handle
+	// and the other one in this member variable
+	int pipe_end;
+#elif CFG_OS == CFG_OS_LINUX
 #else
 #	error "Unsupported OS"
 #endif
 
-	//forbid copying
-	queue(const queue&);
-	queue& operator=(const queue&);
-
 public:
+
+	queue(const queue&) = delete;
+	queue& operator=(const queue&) = delete;
+
+	queue(queue&&) = delete;
+	queue& operator=(queue&&) = delete;
+
 	/**
 	 * @brief Constructor, creates empty message queue.
 	 */
 	queue();
-
 	
 	/**
 	 * @brief Destructor.
@@ -63,15 +62,11 @@ public:
 	 */
 	~queue()noexcept;
 
-
-
 	/**
 	 * @brief Pushes a new message to the queue.
 	 * @param msg - the message to push into the queue.
 	 */
-	void pushMessage(T_Message&& msg)noexcept;
-
-
+	void push_message(message_type&& msg)noexcept;
 
 	/**
 	 * @brief Get message from queue, does not block if no messages queued.
@@ -80,32 +75,18 @@ public:
 	 * @return auto-pointer to Message instance.
 	 * @return invalid auto-pointer if there are no messages in the queue.
 	 */
-	T_Message peekMsg();
+	message_type peek_msg();
 
-
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 protected:
-	HANDLE get_handle()override;
+	void set_waiting_flags(utki::flags<opros::ready>)override;
+	utki::flags<opros::ready> get_readiness_flags()override;
 
-	utki::flags<opros::ready> flagsMask;
-
-	void set_waiting_flags(utki::flags<opros::ready> wait_for)override;
-
-	bool check_signaled()override;
-
-#elif M_OS == M_OS_LINUX
-public:
-	int get_handle()override;
-
-#elif M_OS == M_OS_MACOSX
-public:
-	int get_handle()override;
-
+#elif CFG_OS == CFG_OS_LINUX
+#elif CFG_OS == CFG_OS_MACOSX
 #else
 #	error "Unsupported OS"
 #endif
 };
-
-
 
 }

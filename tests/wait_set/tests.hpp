@@ -1,11 +1,13 @@
 #pragma once
 
-
-
 namespace test_message_queue_as_waitable{
-void Run();
+void run();
 }//~namespace
 
 namespace test_general{
-void Run();
+void run();
 }//~namespace
+
+namespace test_threads{
+void run();
+}

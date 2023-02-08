@@ -1,9 +1,7 @@
 #include "main.hpp"
 
-
-
 int main(int argc, char *argv[]){
-	TestTingWaitSet();
+	test_wait_set();
 
 	return 0;
 }

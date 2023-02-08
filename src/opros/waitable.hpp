@@ -32,15 +32,29 @@ SOFTWARE.
 #include <utki/debug.hpp>
 #include <utki/flags.hpp>
 
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 #	include <utki/windows.hpp>
 #endif
 
 namespace opros {
 
+/**
+ * @brief Readiness flags.
+ */
 enum class ready {
+	/**
+	 * @brief Flag indicating ready to read.
+	 */
 	read,
+
+	/**
+	 * @brief Flag indicating ready to write.
+	 */
 	write,
+
+	/**
+	 * @brief Flag indicating error state.
+	 */
 	error,
 
 	enum_size // this must always be the last element of the enum
@@ -54,69 +68,49 @@ class waitable
 {
 	friend class wait_set;
 
-	bool is_added_to_waitset = false;
-
 public:
 	/**
 	 * @brief User data assotiated with the waitable.
 	 */
 	void* user_data = nullptr;
 
-protected:
-	utki::flags<ready> readiness_flags;
-
-	waitable() = default;
-
 	waitable(const waitable& w) = delete;
 	waitable& operator=(const waitable& w) = delete;
 
-	// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
-	// NOLINTNEXTLINE(bugprone-exception-escape)
-	waitable(waitable&& w) noexcept(false);
+protected:
+#if CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX
+	waitable(int handle) :
+		handle(handle)
+	{}
+#elif CFG_OS == CFG_OS_WINDOWS
+	waitable(HANDLE handle) :
+		handle(handle)
+	{}
+#else
+#	error "Unknown OS"
+#endif
 
-	// TODO: remove lint suppression when https://github.com/llvm/llvm-project/issues/55143 is fixed
-	// NOLINTNEXTLINE(bugprone-exception-escape)
-	waitable& operator=(waitable&& w) noexcept(false);
+	// Destructor is protected because this class is supposed to be used as a base
+	// class, but is not supposed to be destroyed via base pointer.
+	// TODO: is it possible to check it with static_assert? if so, add test and
+	// move this note there
+#if CFG_OS == CFG_OS_WINDOWS
+	virtual
+#endif
+		~waitable() = default;
 
-	bool is_added() const noexcept
-	{
-		return this->is_added_to_waitset;
-	}
-
-public:
-	virtual ~waitable() noexcept
-	{
-		ASSERT(!this->is_added(), [](auto& o) {
-			o << "~waitable(): the waitable is currently added to some wait_set()";
-		})
-	}
-
-	const decltype(readiness_flags)& flags() const noexcept
-	{
-		return this->readiness_flags;
-	}
-
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 
 protected:
-	virtual HANDLE get_handle() = 0;
+	HANDLE handle;
 
-	virtual void set_waiting_flags(utki::flags<ready>) {}
+	virtual void set_waiting_flags(utki::flags<ready>) = 0;
+	virtual utki::flags<ready> get_readiness_flags() = 0;
 
-	virtual bool check_signaled()
-	{
-		return !this->readiness_flags.is_clear();
-	}
+#elif CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX || CFG_OS == CFG_OS_UNIX
 
-#elif M_OS == M_OS_LINUX || M_OS == M_OS_MACOSX || M_OS == M_OS_UNIX
-
-public:
-	/**
-	 * @brief Get Unix file descriptor.
-	 * This method is specific to Unix-based operating systems, like Linux, MAC OS X, Unix.
-	 * This method is made public in order to ease embedding waitables to existing epoll() sets.
-	 */
-	virtual int get_handle() = 0;
+protected:
+	int handle;
 
 #else
 #	error "Unsupported OS"

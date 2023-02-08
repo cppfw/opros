@@ -16,6 +16,8 @@ this_cxxflags += $(addprefix -I,$(CONAN_INCLUDE_DIRS))
 this_cxxflags_test += $(addprefix -I,$(CONAN_INCLUDE_DIRS))
 this_ldflags += $(addprefix -L,$(CONAN_LIB_DIRS))
 
+this_ldlibs += -lutki
+
 $(eval $(prorab-build-lib))
 
 $(eval $(prorab-clang-format))
