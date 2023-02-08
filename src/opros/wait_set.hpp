@@ -36,14 +36,14 @@ SOFTWARE.
 #include <utki/debug.hpp>
 #include <utki/span.hpp>
 
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 #	include <utki/windows.hpp>
 
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 #	include <sys/epoll.h>
 #	include <unistd.h>
 
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 #	include <sys/event.h>
 #	include <sys/types.h>
 #	include <unistd.h>
@@ -73,15 +73,15 @@ class wait_set
 	const unsigned wait_set_capacity;
 	unsigned size_of_wait_set = 0;
 
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 	std::vector<waitable*> waitables;
 	std::vector<HANDLE> handles; // used to pass array of HANDLEs to WaitForMultipleObjectsEx()
 
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 	int epollSet;
 
 	std::vector<epoll_event> revents; // used for getting the result from epoll_wait()
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 	int queue; // kqueue
 
 	std::vector<struct kevent> revents; // used for getting the result
@@ -112,11 +112,11 @@ public:
 			},
 			SL
 		);
-#if M_OS == M_OS_WINDOWS
+#if CFG_OS == CFG_OS_WINDOWS
 		// do nothing
-#elif M_OS == M_OS_LINUX
+#elif CFG_OS == CFG_OS_LINUX
 		close(this->epollSet);
-#elif M_OS == M_OS_MACOSX
+#elif CFG_OS == CFG_OS_MACOSX
 		close(this->queue);
 #else
 #	error "Unsupported OS"
@@ -204,11 +204,11 @@ public:
 private:
 	unsigned wait_internal(bool infinite, uint32_t timeout, utki::span<event_info> out_events);
 
-#if M_OS == M_OS_LINUX
+#if CFG_OS == CFG_OS_LINUX
 	unsigned wait_internal_linux(int timeout, utki::span<event_info> out_events);
 #endif
 
-#if M_OS == M_OS_MACOSX
+#if CFG_OS == CFG_OS_MACOSX
 	void add_filter(waitable& w, int16_t filter);
 	void remove_filter(waitable& w, int16_t filter);
 #endif

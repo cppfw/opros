@@ -168,7 +168,7 @@ void run(){
 
 	//TODO: read ulimit
 	size_t num_threads =
-#if M_OS == M_OS_MACOSX
+#if CFG_OS == CFG_OS_MACOSX
 			50
 #else
 			500
