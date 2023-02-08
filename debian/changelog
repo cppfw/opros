@@ -1,3 +1,9 @@
+libopros (1.0.71) unstable; urgency=medium
+
+  * rename M_* -> CFG_* macros
+
+ -- Ivan Gagis <igagis@gmail.com>  Wed, 08 Feb 2023 11:19:06 +0200
+
 libopros (1.0.70) unstable; urgency=medium
 
   * redesign
