@@ -38,9 +38,23 @@ SOFTWARE.
 
 namespace opros {
 
+/**
+ * @brief Readiness flags.
+ */
 enum class ready {
+	/**
+	 * @brief Flag indicating ready to read.
+	 */
 	read,
+
+	/**
+	 * @brief Flag indicating ready to write.
+	 */
 	write,
+
+	/**
+	 * @brief Flag indicating error state.
+	 */
 	error,
 
 	enum_size // this must always be the last element of the enum

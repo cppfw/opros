@@ -35,7 +35,7 @@ SOFTWARE.
 using namespace opros;
 
 wait_set::wait_set(unsigned max_size) :
-	max_size_of_wait_set(max_size)
+	wait_set_capacity(max_size)
 #if CFG_OS == CFG_OS_WINDOWS
 	,
 	waitables(max_size),
@@ -311,7 +311,7 @@ unsigned wait_set::wait_internal_linux(int timeout, utki::span<event_info> out_e
 			event_info& ei = out_events[num_events_stored];
 			++num_events_stored;
 
-			ei.w = w;
+			ei.object = w;
 			ei.flags.clear();
 
 			if ((e->events & EPOLLERR) != 0) {

@@ -61,7 +61,7 @@ SOFTWARE.
 namespace opros {
 
 struct event_info {
-	waitable* w;
+	waitable* object;
 	utki::flags<ready> flags;
 };
 
@@ -70,7 +70,7 @@ struct event_info {
  */
 class wait_set
 {
-	const unsigned max_size_of_wait_set;
+	const unsigned wait_set_capacity;
 	unsigned size_of_wait_set = 0;
 
 #if M_OS == M_OS_WINDOWS
@@ -127,14 +127,14 @@ public:
 	 * @brief Get maximum size of the wait set.
 	 * @return maximum number of waitables this wait_set can hold.
 	 */
-	unsigned max_size() const noexcept
+	unsigned capacity() const noexcept
 	{
-		return this->max_size_of_wait_set;
+		return this->wait_set_capacity;
 	}
 
 	/**
 	 * @brief Get number of waitables already added to the wait_set.
-	 * @return number of waitables added to th wait_set.
+	 * @return number of waitables added to the wait_set.
 	 */
 	unsigned size() const noexcept
 	{

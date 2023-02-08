@@ -61,12 +61,12 @@ void run(){
 		auto num_triggered = ws.wait(nullptr);
 		utki::assert(num_triggered == 1, [&](auto&o){o << "num_triggered = " << num_triggered;}, SL);
 		utki::assert(ws.wait(utki::make_span(buf)) == 1, SL);
-		utki::assert(buf[0].w == &q1, SL);
+		utki::assert(buf[0].object== &q1, SL);
 	}
 
 	utki::assert(ws.wait(100, nullptr) == 1, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 1, SL);
-	utki::assert(buf[0].w == &q1, SL);
+	utki::assert(buf[0].object== &q1, SL);
 
 	// check that no objects trigger after reading from queue
 	q1.peek_msg(); // should not block since one message was pushed before
@@ -80,17 +80,17 @@ void run(){
 	q2.push_message([](){});
 	utki::assert(ws.wait(nullptr) == 2, SL);
 	utki::assert(ws.wait(utki::make_span(buf)) == 2, SL);
-	utki::assert((buf[0].w == &q1 && buf[1].w == &q2) || (buf[0].w == &q2 && buf[1].w == &q1), SL);
+	utki::assert((buf[0].object== &q1 && buf[1].object== &q2) || (buf[0].object== &q2 && buf[1].object== &q1), SL);
 
 	utki::assert(ws.wait(100, nullptr) == 2, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 2, SL);
-	utki::assert((buf[0].w == &q1 && buf[1].w == &q2) || (buf[0].w == &q2 && buf[1].w == &q1), SL);
+	utki::assert((buf[0].object == &q1 && buf[1].object== &q2) || (buf[0].object== &q2 && buf[1].object== &q1), SL);
 
 	// check that no objects trigger after reading from queue
 	q1.peek_msg(); // should not block since one message was pushed before
 	utki::assert(ws.wait(100, nullptr) == 1, SL);
 	utki::assert(ws.wait(100, utki::make_span(buf)) == 1, SL);
-	utki::assert(buf[0].w == &q2, SL);
+	utki::assert(buf[0].object == &q2, SL);
 
 	q2.peek_msg(); // should not block since one message was pushed before
 	utki::assert(ws.wait(100, nullptr) == 0, SL);
