@@ -379,7 +379,7 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 
 	if (res == WAIT_FAILED) {
 		throw std::system_error(
-			GetLastError(),
+			int(GetLastError()),
 			std::generic_category(),
 			"wait_set::wait(): WaitForMultipleObjectsEx() failed"
 		);

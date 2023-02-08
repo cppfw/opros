@@ -22,13 +22,13 @@ queue::queue():
 		](){
 #if CFG_OS == CFG_OS_WINDOWS
 	auto handle = CreateEvent(
-			NULL, // security attributes
+			nullptr, // security attributes
 			TRUE, // manual-reset
 			FALSE, // not signalled initially
-			NULL // no name
+			nullptr // no name
 		);
-	if(handle == NULL){
-		throw std::system_error(GetLastError(), std::generic_category(), "could not create event (Win32) for implementing Waitable");
+	if(handle == nullptr){
+		throw std::system_error(int(GetLastError()), std::generic_category(), "could not create event (Win32) for implementing Waitable");
 	}
 	return handle;
 #elif CFG_OS == CFG_OS_MACOSX
@@ -97,7 +97,7 @@ queue::message_type queue::peek_msg(){
 #if CFG_OS == CFG_OS_WINDOWS
 			if(ResetEvent(this->handle) == 0){
 				ASSERT(false)
-				throw std::system_error(GetLastError(), std::generic_category(), "queue::wait(): ResetEvent() failed");
+				throw std::system_error(int(GetLastError()), std::generic_category(), "queue::wait(): ResetEvent() failed");
 			}
 #elif CFG_OS == CFG_OS_MACOSX
 			{
