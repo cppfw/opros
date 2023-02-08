@@ -118,6 +118,12 @@ jobs:
     steps:
     - name: git clone
       uses: myci-actions/checkout@master
+    - name: install clang-tidy and clang-format
+      run: |
+        brew install llvm
+        ln -s "$(brew --prefix llvm)/bin/clang-format" "/usr/local/bin/clang-format"
+        ln -s "$(brew --prefix llvm)/bin/clang-tidy" "/usr/local/bin/clang-tidy"
+        ln -s "$(brew --prefix llvm)/bin/clang-apply-replacements" "/usr/local/bin/clang-apply-replacements"
     - name: add cppfw tap
       run: |
         brew tap cppfw/tap
@@ -223,7 +229,6 @@ jobs:
         install: >-
           msys2-devel
           mingw-w64-${{ matrix.arch }}-toolchain
-          mingw-w64-${{ matrix.arch }}-clang-tools-extra
     - name: add cppfw pacman msys repo
       uses: myci-actions/add-pacman-repo@master
       with:

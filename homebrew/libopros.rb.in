@@ -5,8 +5,6 @@ class Libopros < Formula
   sha256 "$(sha256)"
 
   depends_on "prorab" => :build
-  depends_on "clang-format" => :build
-  depends_on "fmenezes/tap/clang-tidy" => :build # TODO: switch to official formulae when it is available
   depends_on "libutki"
 
   # use gmake here because otherwise homebrew uses default Mac's make which is of too old version 3.81
