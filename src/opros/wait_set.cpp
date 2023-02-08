@@ -411,7 +411,7 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 			auto flags = w.get_readiness_flags();
 
 			if (num_events < out_events.size()) {
-				out_events[num_events].w = &w;
+				out_events[num_events].object = &w;
 				out_events[num_events].flags = flags;
 			}
 			++num_events;
@@ -493,12 +493,12 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 					// check if waitable is already added
 					unsigned k = 0;
 					for (; k != out_i; ++k) {
-						if (out_events[k].w == w) {
+						if (out_events[k].object == w) {
 							break;
 						}
 					}
 					if (k == out_i) {
-						oe.w = w;
+						oe.object = w;
 						++out_i;
 					}
 				}
