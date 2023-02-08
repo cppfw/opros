@@ -94,8 +94,9 @@ void wait_set::add_filter(waitable& w, int16_t filter)
 
 	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
 
-	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing
-									 // NULL will cause to wait indefinitely.
+	// 0 to make effect of polling, because passing
+	// NULL will cause to wait indefinitely.
+	const timespec timeout = {0, 0};
 
 	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
 	if (res < 0) {
