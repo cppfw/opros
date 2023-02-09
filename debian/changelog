@@ -1,3 +1,9 @@
+libopros (1.0.72) unstable; urgency=medium
+
+  * fix lint issues
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 09 Feb 2023 15:55:12 +0200
+
 libopros (1.0.71) unstable; urgency=medium
 
   * rename M_* -> CFG_* macros
