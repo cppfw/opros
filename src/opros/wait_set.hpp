@@ -92,10 +92,10 @@ class wait_set
 public:
 	/**
 	 * @brief Constructor.
-	 * @param max_size - maximum number of waitable objects that can be added to
+	 * @param capacity - maximum number of waitable objects that can be added to
 	 * the wait set.
 	 */
-	wait_set(unsigned max_size);
+	wait_set(unsigned capacity);
 
 	/**
 	 * @brief Destructor.

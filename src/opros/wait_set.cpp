@@ -34,49 +34,49 @@ SOFTWARE.
 
 using namespace opros;
 
-wait_set::wait_set(unsigned max_size) :
-	wait_set_capacity(max_size)
+wait_set::wait_set(unsigned capacity) :
+	wait_set_capacity(capacity)
 #if CFG_OS == CFG_OS_WINDOWS
 	,
-	waitables(max_size),
-	handles(max_size)
+	waitables(capacity),
+	handles(capacity)
 {
-	ASSERT(max_size <= MAXIMUM_WAIT_OBJECTS, [&](auto& o) {
-		o << "max_size should be less than " << MAXIMUM_WAIT_OBJECTS;
+	ASSERT(capacity <= MAXIMUM_WAIT_OBJECTS, [&](auto& o) {
+		o << "capacity should be less than " << MAXIMUM_WAIT_OBJECTS;
 	})
-	if (max_size > MAXIMUM_WAIT_OBJECTS) {
+	if (capacity > MAXIMUM_WAIT_OBJECTS) {
 		throw std::invalid_argument("wait_set::wait_set(): requested wait_set maximum size is too big");
 	}
 }
 
 #elif CFG_OS == CFG_OS_LINUX
 	,
-	revents(max_size)
+	revents(capacity)
 {
-	if (max_size > std::numeric_limits<int>::max()) {
-		throw std::invalid_argument("wait_set(): given max_size is too big, should be <= INT_MAX");
+	if (capacity > std::numeric_limits<int>::max()) {
+		throw std::invalid_argument("wait_set(): given capacity is too big, should be <= INT_MAX");
 	}
-	ASSERT(int(max_size) > 0)
-	this->epollSet = epoll_create(int(max_size));
+	ASSERT(int(capacity) > 0)
+	this->epollSet = epoll_create(int(capacity));
 	if (this->epollSet < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): epoll_create() failed");
 	}
 }
 #elif CFG_OS == CFG_OS_MACOSX
 {
-	if (std::numeric_limits<decltype(max_size)>::max()
+	if (std::numeric_limits<decltype(capacity)>::max()
 		>= std::numeric_limits<decltype(this->revents)::size_type>::max() / 2)
 	{
-		// the first 'if' is to prevent compiler warning that comparison of max_size
+		// the first 'if' is to prevent compiler warning that comparison of capacity
 		// with too big constant number is always true
-		if (max_size > std::numeric_limits<decltype(this->revents)::size_type>::max() / 2) {
+		if (capacity > std::numeric_limits<decltype(this->revents)::size_type>::max() / 2) {
 			throw std::invalid_argument(
-				"wait_set(): given max_size is too big, "
+				"wait_set(): given capacity is too big, "
 				"should be less than max(size_t) / 2"
 			);
 		}
 	}
-	this->revents.resize(max_size * 2);
+	this->revents.resize(size_t(capacity) * 2);
 	this->queue = kqueue();
 	if (this->queue == -1) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): kqueue creation failed");
@@ -465,8 +465,14 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 	};
 
 	for (;;) {
-		int res =
-			kevent(this->queue, 0, 0, this->revents.data(), int(this->revents.size()), (wait_infinitly) ? 0 : &ts);
+		int res = kevent(
+			this->queue,
+			nullptr,
+			0,
+			this->revents.data(),
+			int(this->revents.size()),
+			(wait_infinitly) ? nullptr : &ts
+		);
 
 		if (res < 0) {
 			if (errno == EINTR) {

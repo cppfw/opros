@@ -32,8 +32,8 @@ queue::queue():
 	}
 	return handle;
 #elif CFG_OS == CFG_OS_MACOSX
-	int ends[2];
-	if(::pipe(&ends[0]) < 0){
+	std::array<int, 2> ends;
+	if(::pipe(ends.data()) < 0){
 		throw std::system_error(errno, std::generic_category(), "could not create pipe (*nix) for implementing Waitable");
 	}
 	this->pipe_end = ends[1];
@@ -64,7 +64,7 @@ queue::~queue()noexcept{
 #endif
 }
 
-void queue::push_message(std::function<void()>&& msg)noexcept{
+void queue::push_message(std::function<void()>&& msg){
 	std::lock_guard<decltype(this->mut)> mutex_guard(this->mut);
 	this->messages.push_back(std::move(msg));
 	
@@ -75,8 +75,8 @@ void queue::push_message(std::function<void()>&& msg)noexcept{
 		}
 #elif CFG_OS == CFG_OS_MACOSX
 		{
-			std::uint8_t one_byte_buf[1];
-			if(write(this->pipe_end, one_byte_buf, 1) != 1){
+			std::array<uint8_t, 1> one_byte_buf;
+			if(write(this->pipe_end, one_byte_buf.data(), 1) != 1){
 				ASSERT(false)
 			}
 		}
@@ -101,8 +101,8 @@ queue::message_type queue::peek_msg(){
 			}
 #elif CFG_OS == CFG_OS_MACOSX
 			{
-				std::uint8_t one_byte_buf[1];
-				if(read(this->handle, one_byte_buf, 1) != 1){
+				std::array<uint8_t, 1> one_byte_buf;
+				if(read(this->handle, one_byte_buf.data(), 1) != 1){
 					throw std::system_error(errno, std::generic_category(), "queue::wait(): read() failed");
 				}
 			}

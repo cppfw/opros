@@ -70,7 +70,7 @@ public:
 	 * @brief Pushes a new message to the queue.
 	 * @param msg - the message to push into the queue.
 	 */
-	void push_message(message_type&& msg)noexcept;
+	void push_message(message_type&& msg);
 
 	/**
 	 * @brief Get message from queue, does not block if no messages queued.
