@@ -6,7 +6,7 @@
 		{
 			"label": "build",
 			"type": "shell",
-			"command": "make",
+			"command": "make lint=off",
 			"problemMatcher": [
 				"$gcc"
 			],
@@ -57,6 +57,13 @@
 			"label": "format",
 			"type": "shell",
 			"command": "make apply-format",
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "lint",
+			"type": "shell",
+			"command": "make lint=on",
 			"problemMatcher": [],
 			"group": "build"
 		}

@@ -60,11 +60,6 @@ prepare() {
 
 build() {
 	cd "$rootDir"
-
-	# run lint
-	make config=tidy
-
-	# make release build
 	make
 }
 
