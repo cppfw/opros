@@ -11,6 +11,10 @@
 #	include <cstring>
 #endif
 
+#if CFG_OS == CFG_OS_MACOSX
+#	include <array>
+#endif
+
 using namespace helpers;
 
 queue::queue():
