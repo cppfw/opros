@@ -419,7 +419,7 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 			// On Windows, sometimes event triggers, but then no readiness flags are reported.
 			// As a workaround, here we need to check if there are any readiness
 			// flags actually set.
-			if(!flags.is_clear()){
+			if (!flags.is_clear()) {
 				if (num_events < out_events.size()) {
 					out_events[num_events].object = &w;
 					out_events[num_events].flags = flags;
