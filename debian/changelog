@@ -1,3 +1,9 @@
+libopros (1.0.73) unstable; urgency=medium
+
+  * fix windows problem
+
+ -- Ivan Gagis <igagis@gmail.com>  Sun, 12 Feb 2023 13:24:59 +0200
+
 libopros (1.0.72) unstable; urgency=medium
 
   * fix lint issues
