@@ -112,6 +112,16 @@ protected:
 protected:
 	int handle;
 
+public:
+	/**
+	 * @brief Get the file descriptor.
+	 * @return Unix file descriptor.
+	 */
+	int get_handle() noexcept
+	{
+		return this->handle;
+	}
+
 #else
 #	error "Unsupported OS"
 #endif
