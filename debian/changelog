@@ -1,3 +1,9 @@
+libopros (1.0.76) unstable; urgency=medium
+
+  * add public accessor to waitable::handle
+
+ -- Ivan Gagis <igagis@gmail.com>  Tue, 21 Feb 2023 22:45:35 +0200
+
 libopros (1.0.75) unstable; urgency=medium
 
   * add waitable::get_handle()
