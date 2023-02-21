@@ -112,19 +112,21 @@ protected:
 protected:
 	int handle;
 
-public:
-	/**
-	 * @brief Get the file descriptor.
-	 * @return Unix file descriptor.
-	 */
-	int get_handle() noexcept
-	{
-		return this->handle;
-	}
-
 #else
 #	error "Unsupported OS"
 #endif
+
+public:
+	/**
+	 * @brief Get underlying platform-dependent handle.
+	 * On *nix systems and Macos it returns file descriptor.
+	 * On Windows it returns HANDLE.
+	 * @return Underlying platform-dependent handle.
+	 */
+	decltype(handle) get_handle() noexcept
+	{
+		return this->handle;
+	}
 };
 
 } // namespace opros
