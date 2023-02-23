@@ -26,10 +26,12 @@ SOFTWARE.
 
 #pragma once
 
+#include <array>
 #include <cerrno>
 #include <cstdint>
 #include <sstream>
 #include <stdexcept>
+#include <variant>
 #include <vector>
 
 #include <utki/config.hpp>
@@ -60,9 +62,10 @@ SOFTWARE.
 
 namespace opros {
 
+// TODO: doxygen
 struct event_info {
-	waitable* object;
 	utki::flags<ready> flags;
+	void* user_data;
 };
 
 /**
@@ -73,8 +76,40 @@ class wait_set
 	const unsigned wait_set_capacity;
 	unsigned size_of_wait_set = 0;
 
+	// for small wait_set we use static array instead of vector
+	constexpr static const unsigned static_capacity_threshold = 3;
+
+	using out_events_array_type = std::array<event_info, static_capacity_threshold>;
+	using out_events_vector_type = std::vector<event_info>;
+
+	// define the buffer which will hold triggered events info
+	std::variant<out_events_array_type, out_events_vector_type> out_events_variant;
+
+	utki::span<event_info> get_out_events() noexcept
+	{
+		try {
+			if (std::holds_alternative<out_events_array_type>(this->out_events_variant)) {
+				auto& a = std::get<out_events_array_type>(this->out_events_variant);
+				ASSERT(this->wait_set_capacity <= a.size())
+				return utki::make_span(a.data(), this->wait_set_capacity);
+			}
+			ASSERT(std::holds_alternative<out_events_vector_type>(this->out_events_variant))
+			return std::get<out_events_vector_type>(this->out_events_variant);
+		} catch (std::bad_variant_access&) {
+			ASSERT(false)
+			return nullptr;
+		}
+	}
+
+	utki::span<const event_info> triggered{nullptr};
+
 #if CFG_OS == CFG_OS_WINDOWS
-	std::vector<waitable*> waitables;
+	struct added_waitable_info {
+		waitable* w;
+		void* user_data;
+	};
+
+	std::vector<added_waitable_info> waitables;
 	std::vector<HANDLE> handles; // used to pass array of HANDLEs to WaitForMultipleObjectsEx()
 
 #elif CFG_OS == CFG_OS_LINUX
@@ -145,16 +180,18 @@ public:
 	 * @brief Add waitable object to the wait set.
 	 * @param w - waitable object to add to the wait_set.
 	 * @param wait_for - determine events waiting for which we are interested.
+	 * @param user_data - user data associated with the waitable object.
 	 */
-	void add(waitable& w, utki::flags<ready> wait_for);
+	void add(waitable& w, utki::flags<ready> wait_for, void* user_data);
 
 	/**
 	 * @brief Change wait flags for a given waitable.
 	 * Changes wait flags for a given waitable, which is in this wait_set.
 	 * @param w - waitable for which the changing of wait flags is needed.
 	 * @param wait_for - new wait flags to be set for the given waitable.
+	 * @param user_data - user data associated with the waitable object.
 	 */
-	void change(waitable& w, utki::flags<ready> wait_for);
+	void change(waitable& w, utki::flags<ready> wait_for, void* user_data);
 
 	/**
 	 * @brief Remove waitable from wait set.
@@ -165,21 +202,12 @@ public:
 	/**
 	 * @brief wait for event.
 	 * This function blocks calling thread execution until one of the waitable
-	 * objects in the wait_set triggers. Upon return from the function, pointers
-	 * to triggered objects are placed in the 'out_events' buffer and the return
-	 * value from the function indicates number of these objects which have
-	 * triggered. Note, that it does not change the readiness state of
-	 * non-triggered objects.
-	 * @param out_events - pointer to buffer where to put pointers to triggered
-	 * waitable objects. If the buffer size is not enough to hold all triggered
-	 * waitables, then some of them will not be reported as triggered.
-	 * @return number of objects triggered.
-	 *         NOTE: for some reason, on Windows it can return 0 objects
-	 * triggered.
+	 * objects in the wait_set triggers.
 	 */
-	unsigned wait(utki::span<event_info> out_events)
+	void wait()
 	{
-		return this->wait_internal(true, 0, out_events);
+		[[maybe_unused]] bool res = this->wait_internal(true, 0);
+		ASSERT(res)
 	}
 
 	/**
@@ -189,27 +217,32 @@ public:
 	 * it guarantees that it will wait AT LEAST for specified number of
 	 * milliseconds.
 	 * @param timeout - maximum time in milliseconds to wait.
-	 * @param out_events - buffer where to put pointers to triggered waitable
-	 * objects. If the buffer size is not enough to hold all triggered
-	 * waitables, then some of them will not be reported as triggered.
-	 * @return number of objects triggered. If 0 then timeout was hit.
-	 *         NOTE: for some reason, on Windows it can return 0 before timeout
-	 * was hit.
+	 * @return true in case the function returned before the timeout has elapsed.
+	 * @return false in case the function has returned due to the timeout.
 	 */
-	unsigned wait(uint32_t timeout, utki::span<event_info> out_events)
+	bool wait(uint32_t timeout)
 	{
-		return this->wait_internal(false, timeout, out_events);
+		return this->wait_internal(false, timeout);
+	}
+
+	/**
+	 * @brief Get triggered events since last call to wait().
+	 * @return Triggered events since last call of wait() function.
+	 */
+	utki::span<const event_info> get_triggered() const noexcept
+	{
+		return this->triggered;
 	}
 
 private:
-	unsigned wait_internal(bool infinite, uint32_t timeout, utki::span<event_info> out_events);
+	bool wait_internal(bool infinite, uint32_t timeout);
 
 #if CFG_OS == CFG_OS_LINUX
-	unsigned wait_internal_linux(int timeout, utki::span<event_info> out_events);
+	bool wait_internal_linux(int timeout);
 #endif
 
 #if CFG_OS == CFG_OS_MACOSX
-	void add_filter(waitable& w, int16_t filter);
+	void add_filter(waitable& w, int16_t filter, void* user_data);
 	void remove_filter(waitable& w, int16_t filter) noexcept;
 #endif
 };

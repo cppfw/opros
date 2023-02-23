@@ -35,7 +35,16 @@ SOFTWARE.
 using namespace opros;
 
 wait_set::wait_set(unsigned capacity) :
-	wait_set_capacity(capacity)
+	wait_set_capacity(capacity),
+	out_events_variant([this]() {
+		decltype(this->out_events_variant) ret;
+		if (this->wait_set_capacity <= static_capacity_threshold) {
+			ret.emplace<out_events_array_type>();
+		} else {
+			ret.emplace<out_events_vector_type>(this->wait_set_capacity);
+		}
+		return ret;
+	}())
 #if CFG_OS == CFG_OS_WINDOWS
 	,
 	waitables(capacity),
@@ -63,20 +72,19 @@ wait_set::wait_set(unsigned capacity) :
 	}
 }
 #elif CFG_OS == CFG_OS_MACOSX
+	,
+	// kevent() reports read and write events separately, so the total number of simultaneous events
+	// reported by kevent() can be more than the total number of waitable objects waited on,
+	// but it is ok to use buffer with less capacity to get the triggered events, then the events
+	// which did not fit into the buffer will be reported the next time.
+	// Using the buffer of the same size as wait_set capacity makes it easier to unify the behaviour
+	// across different platforms.
+	revents(capacity)
 {
-	if (std::numeric_limits<decltype(capacity)>::max()
-		>= std::numeric_limits<decltype(this->revents)::size_type>::max() / 2)
-	{
-		// the first 'if' is to prevent compiler warning that comparison of capacity
-		// with too big constant number is always true
-		if (capacity > std::numeric_limits<decltype(this->revents)::size_type>::max() / 2) {
-			throw std::invalid_argument(
-				"wait_set(): given capacity is too big, "
-				"should be less than max(size_t) / 2"
-			);
-		}
+	if (capacity > std::numeric_limits<int>::max()) {
+		throw std::invalid_argument("wait_set(): given capacity is too big, should be <= INT_MAX");
 	}
-	this->revents.resize(size_t(capacity) * 2);
+	ASSERT(int(capacity) > 0)
 	this->queue = kqueue();
 	if (this->queue == -1) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): kqueue creation failed");
@@ -88,17 +96,17 @@ wait_set::wait_set(unsigned capacity) :
 
 #if CFG_OS == CFG_OS_MACOSX
 
-void wait_set::add_filter(waitable& w, int16_t filter)
+void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 {
 	struct kevent e;
 
-	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, (void*)&w);
+	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, user_data);
 
 	// 0 to make effect of polling, because passing
 	// NULL will cause to wait indefinitely.
 	const timespec timeout = {0, 0};
 
-	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
+	int res = kevent(this->queue, &e, 1, nullptr, 0, &timeout);
 	if (res < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::add(): add_filter(): kevent() failed");
 	}
@@ -122,7 +130,7 @@ void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing
 									 // NULL will cause to wait indefinitely.
 
-	int res = kevent(this->queue, &e, 1, &e, 1, &timeout);
+	int res = kevent(this->queue, &e, 1, nullptr, 0, &timeout);
 	if (res < 0) {
 		// ignore the failure
 		LOG([&](auto& o) {
@@ -136,7 +144,7 @@ void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 
 #endif
 
-void wait_set::add(waitable& w, utki::flags<ready> wait_for)
+void wait_set::add(waitable& w, utki::flags<ready> wait_for, void* user_data)
 {
 #if CFG_OS == CFG_OS_WINDOWS
 	ASSERT(this->size() <= this->handles.size())
@@ -149,12 +157,16 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 	w.set_waiting_flags(wait_for);
 
 	this->handles[this->size_of_wait_set] = w.handle;
-	this->waitables[this->size_of_wait_set] = &w;
+	{
+		auto& wi = this->waitables[this->size_of_wait_set];
+		wi.w = &w;
+		wi.user_data = user_data;
+	}
 
 #elif CFG_OS == CFG_OS_LINUX
 	epoll_event e;
 	e.data.fd = w.handle;
-	e.data.ptr = &w;
+	e.data.ptr = user_data;
 	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
 		| (wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
 	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_ADD, w.handle, &e);
@@ -170,10 +182,10 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 	ASSERT(this->size() <= this->revents.size() / 2)
 
 	if (wait_for.get(ready::read)) {
-		this->add_filter(w, EVFILT_READ);
+		this->add_filter(w, EVFILT_READ, user_data);
 	}
 	if (wait_for.get(ready::write)) {
-		this->add_filter(w, EVFILT_WRITE);
+		this->add_filter(w, EVFILT_WRITE, user_data);
 	}
 #else
 #	error "Unsupported OS"
@@ -182,14 +194,14 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 	++this->size_of_wait_set;
 }
 
-void wait_set::change(waitable& w, utki::flags<ready> wait_for)
+void wait_set::change(waitable& w, utki::flags<ready> wait_for, void* user_data)
 {
 #if CFG_OS == CFG_OS_WINDOWS
 	// check if the waitable object is added to this wait set
 	{
 		unsigned i;
 		for (i = 0; i < this->size(); ++i) {
-			if (this->waitables[i] == &w) {
+			if (this->waitables[i].w == &w) {
 				break;
 			}
 		}
@@ -205,7 +217,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 #elif CFG_OS == CFG_OS_LINUX
 	epoll_event e;
 	e.data.fd = w.handle;
-	e.data.ptr = &w;
+	e.data.ptr = user_data;
 	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
 		| (wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
 	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_MOD, w.handle, &e);
@@ -214,12 +226,12 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 	}
 #elif CFG_OS == CFG_OS_MACOSX
 	if (wait_for.get(ready::read)) {
-		this->add_filter(w, EVFILT_READ);
+		this->add_filter(w, EVFILT_READ, user_data);
 	} else {
 		this->remove_filter(w, EVFILT_READ);
 	}
 	if (wait_for.get(ready::write)) {
-		this->add_filter(w, EVFILT_WRITE);
+		this->add_filter(w, EVFILT_WRITE, user_data);
 	} else {
 		this->remove_filter(w, EVFILT_WRITE);
 	}
@@ -237,7 +249,7 @@ void wait_set::remove(waitable& w) noexcept
 	{
 		unsigned i;
 		for (i = 0; i < this->size_of_wait_set; ++i) {
-			if (this->waitables[i] == &w) {
+			if (this->waitables[i].w == &w) {
 				break;
 			}
 		}
@@ -282,19 +294,21 @@ void wait_set::remove(waitable& w) noexcept
 
 #if CFG_OS == CFG_OS_LINUX
 
-unsigned wait_set::wait_internal_linux(int timeout, utki::span<event_info> out_events)
+bool wait_set::wait_internal_linux(int timeout)
 {
 	// TRACE(<< "going to epoll_wait() with timeout = " << timeout << std::endl)
 
-	int res;
+	auto out_events = this->get_out_events();
+
+	int num_events_triggered;
 
 	while (true) {
 		ASSERT(this->revents.size() <= std::numeric_limits<int>::max())
-		res = epoll_wait(this->epoll_set, this->revents.data(), int(this->revents.size()), timeout);
+		num_events_triggered = epoll_wait(this->epoll_set, this->revents.data(), int(this->revents.size()), timeout);
 
-		// TRACE(<< "epoll_wait() returned " << res << std::endl)
+		// TRACE(<< "epoll_wait() returned " << num_events_triggered << std::endl)
 
-		if (res < 0) {
+		if (num_events_triggered < 0) {
 			// if interrupted by signal, try waiting again.
 			if (errno == EINTR) {
 				continue;
@@ -304,43 +318,50 @@ unsigned wait_set::wait_internal_linux(int timeout, utki::span<event_info> out_e
 		break;
 	};
 
-	ASSERT(res >= 0)
-	ASSERT(unsigned(res) <= this->revents.size())
-
-	unsigned num_events_stored = 0;
-	for (epoll_event* e = this->revents.data(); e < this->revents.data() + res; ++e) {
-		auto w = static_cast<waitable*>(e->data.ptr);
-		ASSERT(w)
-
-		if (num_events_stored < out_events.size()) {
-			event_info& ei = out_events[num_events_stored];
-			++num_events_stored;
-
-			ei.object = w;
-			ei.flags.clear();
-
-			if ((e->events & EPOLLERR) != 0) {
-				ei.flags.set(ready::error);
-			}
-			if ((e->events & (unsigned(EPOLLIN) | unsigned(EPOLLPRI))) != 0) {
-				ei.flags.set(ready::read);
-			}
-			if ((e->events & EPOLLOUT) != 0) {
-				ei.flags.set(ready::write);
-			}
-
-			ASSERT(!ei.flags.is_clear())
-		}
+	if (num_events_triggered == 0) {
+		// timeout hit
+		this->triggered = nullptr;
+		return false;
 	}
 
-	ASSERT(res >= 0) // NOTE: 'res' can be zero, if no events happened in the
-					 // specified timeout
-	return unsigned(res);
+	ASSERT(num_events_triggered > 0)
+	ASSERT(this->revents.size() == out_events.size())
+	ASSERT(size_t(num_events_triggered) <= this->revents.size())
+	ASSERT(size_t(num_events_triggered) <= out_events.size())
+
+	unsigned out_i = 0;
+	for (const auto& e : utki::make_span(this->revents.data(), num_events_triggered)) {
+		ASSERT(out_i < out_events.size())
+		event_info& ei = out_events[out_i];
+		++out_i;
+
+		ei.flags.clear();
+		ei.user_data = e.data.ptr;
+
+		if ((e.events & EPOLLERR) != 0) {
+			ei.flags.set(ready::error);
+		}
+		if ((e.events & (unsigned(EPOLLIN) | unsigned(EPOLLPRI))) != 0) {
+			ei.flags.set(ready::read);
+		}
+		if ((e.events & EPOLLOUT) != 0) {
+			ei.flags.set(ready::write);
+		}
+
+		ASSERT(!ei.flags.is_clear())
+	}
+
+	ASSERT(out_i > 0)
+	ASSERT(size_t(out_i) <= out_events.size())
+	ASSERT(out_i == unsigned(num_events_triggered))
+	this->triggered = utki::make_span(out_events.data(), num_events_triggered);
+
+	return true;
 }
 
 #endif
 
-unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::span<event_info> out_events)
+bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 {
 	if (this->size_of_wait_set == 0) {
 		throw std::logic_error(
@@ -386,15 +407,20 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 	}
 
 	if (res == WAIT_TIMEOUT) {
-		return 0;
+		this->triggered = nullptr;
+		return false;
 	}
 
 	ASSERT(WAIT_OBJECT_0 <= res && res < (WAIT_OBJECT_0 + this->size_of_wait_set))
 
+	auto out_events = this->get_out_events();
+	ASSERT(out_events.size() == this->waitables.size())
+	ASSERT(this->handles.size() == this->waitables.size())
+
 	// check for activities
 	unsigned num_events = 0;
 	for (unsigned i = 0; i < this->size_of_wait_set; ++i) {
-		auto& w = *this->waitables[i];
+		auto& wi = this->waitables[i];
 
 		// Check if handle is in signalled state.
 		// In case we have auto-reset events (see
@@ -404,7 +430,7 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 		// WaitForSingleObjectEx() with zero timeout to check if the event was/is in signalled state.
 		if (res - WAIT_OBJECT_0 == i
 			|| WaitForSingleObjectEx(
-				   w.handle,
+				   wi.w->handle,
 				   0, // 0 ms timeout
 				   FALSE // do not stop waiting on IO completion
 			   ) == WAIT_OBJECT_0)
@@ -413,32 +439,33 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 
 			// NOTE: Need to call get_readiness_flags() even if 'num_events < out_events.size()',
 			// because it resets the readiness state of the HANDLE.
-			auto flags = w.get_readiness_flags();
+			ASSERT(wi.w)
+			auto flags = wi.w->get_readiness_flags();
 
 			// WORKAROUND:
 			// On Windows, sometimes event triggers, but then no readiness flags are reported.
 			// As a workaround, here we need to check if there are any readiness
 			// flags actually set.
 			if (!flags.is_clear()) {
-				if (num_events < out_events.size()) {
-					out_events[num_events].object = &w;
-					out_events[num_events].flags = flags;
-				}
+				ASSERT(num_events < out_events.size())
+
+				out_events[num_events].user_data = wi.user_data;
+				out_events[num_events].flags = flags;
+
 				++num_events;
 			}
 		}
 	}
 
-	// NOTE: Sometimes the event is reported as signaled, but no actual activity
-	// is there.
-	//       Don't know why.
-	//		ASSERT(num_events > 0)
+	ASSERT(num_events <= this->size_of_wait_set)
+	ASSERT(num_events <= out_events.size())
+	this->triggered = utki::make_span(out_events.data(), num_events);
 
-	return num_events;
+	return true;
 
 #elif CFG_OS == CFG_OS_LINUX
 	if (wait_infinitly) {
-		return this->wait_internal_linux(-1, out_events);
+		return this->wait_internal_linux(-1);
 	}
 
 	// in linux, epoll_wait() gets timeout as int argument, while we have timeout
@@ -451,18 +478,19 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 		ASSERT(int(max_time_step) >= 0, [&](auto& o) {
 			o << "timeout = 0x" << std::hex << timeout;
 		})
-		auto res = this->wait_internal_linux(int(max_time_step), out_events);
+		auto res = this->wait_internal_linux(int(max_time_step));
 		if (res != 0) {
 			return res;
 		}
 		timeout -= max_time_step;
 		if (timeout == 0) {
-			return 0;
+			// timeout hit
+			return false;
 		}
 	}
 
 	ASSERT(int(timeout) >= 0)
-	return this->wait_internal_linux(int(timeout), out_events);
+	return this->wait_internal_linux(int(timeout));
 
 #elif CFG_OS == CFG_OS_MACOSX
 	struct timespec ts = {
@@ -471,7 +499,8 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 	};
 
 	for (;;) {
-		int res = kevent(
+		ASSERT(this->revents.size() <= std::numeric_limits<int>::max())
+		int num_events_triggered = kevent(
 			this->queue,
 			nullptr,
 			0,
@@ -480,48 +509,60 @@ unsigned wait_set::wait_internal(bool wait_infinitly, uint32_t timeout, utki::sp
 			(wait_infinitly) ? nullptr : &ts
 		);
 
-		if (res < 0) {
+		if (num_events_triggered < 0) {
 			if (errno == EINTR) {
 				continue;
 			}
 			throw std::system_error(errno, std::generic_category(), "wait_set::wait(): kevent() failed");
-		} else if (res == 0) {
-			return 0; // timeout
-		} else if (res > 0) {
-			unsigned out_i = 0; // index into out_events
-			for (unsigned i = 0; i != unsigned(res); ++i) {
-				if (out_i < out_events.size()) {
-					const auto& e = this->revents[i];
-					auto w = reinterpret_cast<waitable*>(e.udata);
+		}
 
-					auto& oe = out_events[out_i];
-					oe.flags.clear();
+		if (num_events_triggered == 0) {
+			// timeout hit
+			this->triggered = nullptr;
+			return false;
+		}
 
-					if (e.filter == EVFILT_WRITE) {
-						oe.flags.set(ready::write);
-					} else if (e.filter == EVFILT_READ) {
-						oe.flags.set(ready::read);
-					}
+		ASSERT(num_events_triggered > 0)
 
-					if ((e.flags & EV_ERROR) != 0) {
-						oe.flags.set(ready::error);
-					}
+		auto out_events = this->get_out_events();
 
-					// check if waitable is already added
-					unsigned k = 0;
-					for (; k != out_i; ++k) {
-						if (out_events[k].object == w) {
-							break;
-						}
-					}
-					if (k == out_i) {
-						oe.object = w;
-						++out_i;
-					}
+		ASSERT(out_events.size() == this->revents.size())
+
+		size_t out_i = 0; // index into out_events
+
+		for (const auto& e : utki::make_span(this->revents.data(), size_t(num_events_triggered))) {
+			utki::flags<opros::ready> flags{false};
+
+			if ((e.flags & EV_ERROR) != 0) {
+				flags.set(ready::error);
+			} else {
+				// no error condition, then set the flag based on filter type
+				if (e.filter == EVFILT_WRITE) {
+					flags.set(ready::write);
+				} else if (e.filter == EVFILT_READ) {
+					flags.set(ready::read);
+				} else {
+					// unsupported event, skip it
+					continue;
 				}
 			}
-			return unsigned(res);
+
+			auto& oe = out_events[out_i];
+			++out_i;
+
+			oe.flags = flags;
+			oe.user_data = e.udata;
 		}
+
+		ASSERT(out_i <= out_events.size())
+
+		// out_i can be less than number of events triggered because there can be unsupported events
+		// which are not counted
+		ASSERT(out_i <= size_t(num_events_triggered))
+
+		this->triggered = utki::make_span(out_events.data(), out_i);
+
+		return true;
 	}
 #else
 #	error "Unsupported OS"

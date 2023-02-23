@@ -69,11 +69,6 @@ class waitable
 	friend class wait_set;
 
 public:
-	/**
-	 * @brief User data assotiated with the waitable.
-	 */
-	void* user_data = nullptr;
-
 	waitable(const waitable& w) = delete;
 	waitable& operator=(const waitable& w) = delete;
 
