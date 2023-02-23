@@ -78,7 +78,7 @@ class wait_set
 	std::vector<HANDLE> handles; // used to pass array of HANDLEs to WaitForMultipleObjectsEx()
 
 #elif CFG_OS == CFG_OS_LINUX
-	int epollSet;
+	int epoll_set;
 
 	std::vector<epoll_event> revents; // used for getting the result from epoll_wait()
 #elif CFG_OS == CFG_OS_MACOSX
@@ -115,7 +115,7 @@ public:
 #if CFG_OS == CFG_OS_WINDOWS
 		// do nothing
 #elif CFG_OS == CFG_OS_LINUX
-		close(this->epollSet);
+		close(this->epoll_set);
 #elif CFG_OS == CFG_OS_MACOSX
 		close(this->queue);
 #else

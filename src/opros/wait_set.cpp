@@ -57,8 +57,8 @@ wait_set::wait_set(unsigned capacity) :
 		throw std::invalid_argument("wait_set(): given capacity is too big, should be <= INT_MAX");
 	}
 	ASSERT(int(capacity) > 0)
-	this->epollSet = epoll_create(int(capacity));
-	if (this->epollSet < 0) {
+	this->epoll_set = epoll_create(int(capacity));
+	if (this->epoll_set < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): epoll_create() failed");
 	}
 }
@@ -117,7 +117,7 @@ void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 {
 	struct kevent e;
 
-	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, 0);
+	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, nullptr);
 
 	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing
 									 // NULL will cause to wait indefinitely.
@@ -157,7 +157,7 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for)
 	e.data.ptr = &w;
 	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
 		| (wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
-	int res = epoll_ctl(this->epollSet, EPOLL_CTL_ADD, w.handle, &e);
+	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_ADD, w.handle, &e);
 	if (res < 0) {
 		LOG([&](auto& o) {
 			o << "wait_set::add(): epoll_ctl() failed. If you are adding socket, "
@@ -208,7 +208,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for)
 	e.data.ptr = &w;
 	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
 		| (wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
-	int res = epoll_ctl(this->epollSet, EPOLL_CTL_MOD, w.handle, &e);
+	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_MOD, w.handle, &e);
 	if (res < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::change(): epoll_ctl() failed");
 	}
@@ -263,7 +263,7 @@ void wait_set::remove(waitable& w) noexcept
 	}
 
 #elif CFG_OS == CFG_OS_LINUX
-	int res = epoll_ctl(this->epollSet, EPOLL_CTL_DEL, w.handle, nullptr);
+	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_DEL, w.handle, nullptr);
 	if (res < 0) {
 		ASSERT(false, [&](auto& o) {
 			o << "wait_set::Remove(): epoll_ctl failed, probably the waitable was "
@@ -290,7 +290,7 @@ unsigned wait_set::wait_internal_linux(int timeout, utki::span<event_info> out_e
 
 	while (true) {
 		ASSERT(this->revents.size() <= std::numeric_limits<int>::max())
-		res = epoll_wait(this->epollSet, this->revents.data(), int(this->revents.size()), timeout);
+		res = epoll_wait(this->epoll_set, this->revents.data(), int(this->revents.size()), timeout);
 
 		// TRACE(<< "epoll_wait() returned " << res << std::endl)
 
