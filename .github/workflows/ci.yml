@@ -295,8 +295,6 @@ jobs:
     container: ${{ matrix.image_owner }}${{ matrix.os }}:${{ matrix.codename }}
     name: conan - linux - ${{ matrix.arch }}
     steps:
-      - name: clean
-        uses: myci-actions/clean@master
       - name: add llvm repo (for clang-format)
         uses: myci-actions/add-deb-repo@master
         with:
