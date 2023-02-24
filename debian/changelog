@@ -1,3 +1,9 @@
+libopros (1.0.77) unstable; urgency=medium
+
+  * API redesign
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 24 Feb 2023 16:08:49 +0200
+
 libopros (1.0.76) unstable; urgency=medium
 
   * add public accessor to waitable::handle
