@@ -16,7 +16,7 @@ class OprosConan(ConanFile):
 	options = {"shared": [True, False], "fPIC": [True, False]}
 	default_options = {"shared": False, "fPIC": True}
 	generators = "AutotoolsDeps" # this will set CXXFLAGS etc. env vars
-	requires = "utki/[>=0.0.0]@cppfw/main"
+	requires = "utki/[>=1.1.192]@cppfw/main"
 	
 	def config_options(self):
 		if self.settings.os == "Windows":
