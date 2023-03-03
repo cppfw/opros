@@ -1,3 +1,9 @@
+libopros (1.0.78) unstable; urgency=medium
+
+  * migrate to conan2
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 03 Mar 2023 12:57:24 +0200
+
 libopros (1.0.77) unstable; urgency=medium
 
   * API redesign
