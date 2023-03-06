@@ -31,10 +31,13 @@ class OprosConan(ConanFile):
 		scm_commit = git.get_commit()
 		update_conandata(self, {"sources": {"commit": scm_commit, "url": scm_url}})
 
-	# copy local sources for package building
-	def export_sources(self):
-		source_folder = os.path.join(self.recipe_folder, "..")
-		copy(self, "*", source_folder, self.export_sources_folder)
+	def source(self):
+		git = Git(self)
+		sources = self.conan_data["sources"]
+		# shallow fetch commit
+		git.fetch_commit(url=sources["url"], commit=sources['commit'])
+		# shallow clone submodules
+		git.run("submodule update --init --remote --depth 1")
 
 	def build(self):
 		self.run("make lint=off")
