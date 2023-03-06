@@ -1,3 +1,9 @@
+libopros (1.0.79) unstable; urgency=medium
+
+  * conan: clone sources from git
+
+ -- Ivan Gagis <igagis@gmail.com>  Mon, 06 Mar 2023 16:24:45 +0200
+
 libopros (1.0.78) unstable; urgency=medium
 
   * migrate to conan2
