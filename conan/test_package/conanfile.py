@@ -3,7 +3,7 @@ import os
 from conan import ConanFile, tools
 from conan.tools.cmake import CMake, cmake_layout
 
-class UtkiTestConan(ConanFile):
+class TestConan(ConanFile):
 	settings = "os", "compiler", "build_type", "arch"
 	generators = "CMakeToolchain", "CMakeDeps"
 
