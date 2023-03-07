@@ -1,3 +1,9 @@
+libopros (1.0.82) unstable; urgency=medium
+
+  * conan: build on ubuntu
+
+ -- Ivan Gagis <igagis@gmail.com>  Tue, 07 Mar 2023 18:04:54 +0200
+
 libopros (1.0.81) unstable; urgency=medium
 
   * update conan packages
