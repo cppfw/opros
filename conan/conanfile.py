@@ -6,7 +6,6 @@ from conan.tools.layout import basic_layout
 
 class OprosConan(ConanFile):
 	name = "opros"
-	version = "$(version)"
 	license = "MIT"
 	author = "Ivan Gagis <igagis@gmail.com>"
 	url = "http://github.com/cppfw/" + name
