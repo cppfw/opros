@@ -1,3 +1,9 @@
+libopros (1.0.83) unstable; urgency=medium
+
+  * conan: add package_type=library
+
+ -- Ivan Gagis <igagis@gmail.com>  Mon, 17 Apr 2023 16:53:29 +0300
+
 libopros (1.0.82) unstable; urgency=medium
 
   * conan: build on ubuntu
