@@ -1,3 +1,10 @@
+libopros (1.0.84) unstable; urgency=medium
+
+  * conan: package only shared or only static binaries depending on the
+    options
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 11 May 2023 13:25:04 +0300
+
 libopros (1.0.83) unstable; urgency=medium
 
   * conan: add package_type=library
