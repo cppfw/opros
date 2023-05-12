@@ -19,8 +19,7 @@ $(prorab_this_name): $(abspath $(d)../../src/out/$(c)/libopros$(dot_so))
 
 this_test_deps := $(prorab_this_name)
 this_test_cmd:= $(prorab_this_name)
-# for conan get ld paths from LDFLAGS
-this_test_ld_path := ../../src/out/$(c) $(patsubst -L%,%,$(filter -L%,$(LDFLAGS)))
+this_test_ld_path := ../../src/out/$(c)
 $(eval $(prorab-test))
 
 #include makefile for building opros
