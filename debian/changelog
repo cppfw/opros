@@ -1,3 +1,9 @@
+libopros (1.0.85) unstable; urgency=medium
+
+  * conan: fetch latest commit
+
+ -- Ivan Gagis <igagis@gmail.com>  Mon, 15 May 2023 15:12:35 +0300
+
 libopros (1.0.84) unstable; urgency=medium
 
   * conan: package only shared or only static binaries depending on the
