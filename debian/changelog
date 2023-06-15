@@ -1,3 +1,9 @@
+libopros (1.0.86) unstable; urgency=medium
+
+  * fix lint issues
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 15 Jun 2023 17:05:30 +0300
+
 libopros (1.0.85) unstable; urgency=medium
 
   * conan: fetch latest commit
