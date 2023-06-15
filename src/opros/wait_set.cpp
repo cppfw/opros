@@ -199,8 +199,8 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for, void* user_data)
 #if CFG_OS == CFG_OS_WINDOWS
 	// check if the waitable object is added to this wait set
 	{
-		unsigned i;
-		for (i = 0; i < this->size(); ++i) {
+		unsigned i = 0;
+		for (; i < this->size(); ++i) {
 			if (this->waitables[i].w == &w) {
 				break;
 			}
@@ -247,8 +247,8 @@ void wait_set::remove(waitable& w) noexcept
 #if CFG_OS == CFG_OS_WINDOWS
 	// remove object from array
 	{
-		unsigned i;
-		for (i = 0; i < this->size_of_wait_set; ++i) {
+		unsigned i = 0;
+		for (; i < this->size_of_wait_set; ++i) {
 			if (this->waitables[i].w == &w) {
 				break;
 			}
@@ -371,13 +371,16 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 	}
 
 #if CFG_OS == CFG_OS_WINDOWS
-	DWORD wait_timeout;
+	DWORD wait_timeout{};
 	if (wait_infinitly) {
 		wait_timeout = INFINITE;
 	} else {
-		static_assert(INFINITE == 0xffffffff, "check that INFINITE macro is max uint32_T failed");
-		if (timeout == 0xffffffff) {
-			wait_timeout = 0xffffffff - 1;
+		static_assert(
+			INFINITE == std::numeric_limits<DWORD>::max(),
+			"check that INFINITE macro is max uint32_t failed"
+		);
+		if (timeout == std::numeric_limits<decltype(timeout)>::max()) {
+			wait_timeout = std::numeric_limits<DWORD>::max() - 1;
 		} else {
 			wait_timeout = DWORD(timeout);
 		}

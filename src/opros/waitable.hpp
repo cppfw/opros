@@ -92,10 +92,7 @@ protected:
 	// class, but is not supposed to be destroyed via base pointer.
 	// TODO: is it possible to check it with static_assert? if so, add test and
 	// move this note there
-#if CFG_OS == CFG_OS_WINDOWS
-	virtual
-#endif
-		~waitable() = default;
+	~waitable() = default;
 
 #if CFG_OS == CFG_OS_WINDOWS
 
