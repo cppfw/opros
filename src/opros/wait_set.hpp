@@ -65,7 +65,7 @@ namespace opros {
 // TODO: doxygen
 struct event_info {
 	utki::flags<ready> flags;
-	void* user_data;
+	void* user_data{};
 };
 
 /**
@@ -131,6 +131,12 @@ public:
 	 * the wait set.
 	 */
 	wait_set(unsigned capacity);
+
+	wait_set(const wait_set&) = delete;
+	wait_set& operator=(const wait_set&) = delete;
+
+	wait_set(wait_set&&) = delete;
+	wait_set& operator=(wait_set&&) = delete;
 
 	/**
 	 * @brief Destructor.

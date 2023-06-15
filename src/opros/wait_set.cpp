@@ -164,7 +164,7 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for, void* user_data)
 	}
 
 #elif CFG_OS == CFG_OS_LINUX
-	epoll_event e;
+	epoll_event e{};
 	e.data.fd = w.handle;
 	e.data.ptr = user_data;
 	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
@@ -215,7 +215,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for, void* user_data)
 	w.set_waiting_flags(wait_for);
 
 #elif CFG_OS == CFG_OS_LINUX
-	epoll_event e;
+	epoll_event e{};
 	e.data.fd = w.handle;
 	e.data.ptr = user_data;
 	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
@@ -300,7 +300,7 @@ bool wait_set::wait_internal_linux(int timeout)
 
 	auto out_events = this->get_out_events();
 
-	int num_events_triggered;
+	int num_events_triggered{};
 
 	while (true) {
 		ASSERT(this->revents.size() <= std::numeric_limits<int>::max())

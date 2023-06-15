@@ -69,8 +69,11 @@ class waitable
 	friend class wait_set;
 
 public:
-	waitable(const waitable& w) = delete;
-	waitable& operator=(const waitable& w) = delete;
+	waitable(const waitable&) = delete;
+	waitable& operator=(const waitable&) = delete;
+
+	waitable(waitable&&) = delete;
+	waitable& operator=(waitable&&) = delete;
 
 protected:
 #if CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX

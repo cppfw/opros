@@ -112,7 +112,7 @@ queue::message_type queue::peek_msg(){
 			}
 #elif CFG_OS == CFG_OS_LINUX
 			{
-				eventfd_t value;
+				eventfd_t value{};
 				if(eventfd_read(this->handle, &value) < 0){
 					throw std::system_error(errno, std::generic_category(), "queue::wait(): eventfd_read() failed");
 				}
