@@ -28,6 +28,8 @@ SOFTWARE.
 
 #include <cstring>
 
+#include <utki/time.hpp>
+
 #if CFG_OS == CFG_OS_MACOSX
 #	include <sys/time.h>
 #endif
@@ -98,7 +100,7 @@ wait_set::wait_set(unsigned capacity) :
 
 void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 {
-	struct kevent e;
+	struct kevent e {};
 
 	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, user_data);
 
@@ -123,7 +125,7 @@ void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 
 void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 {
-	struct kevent e;
+	struct kevent e {};
 
 	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, nullptr);
 
@@ -497,8 +499,9 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 
 #elif CFG_OS == CFG_OS_MACOSX
 	struct timespec ts = {
-		decltype(timespec::tv_sec)(timeout / 1000), // seconds
-		decltype(timespec::tv_nsec)((timeout % 1000) * 1000000) // nanoseconds
+		decltype(timespec::tv_sec)(timeout / utki::num_millisec_in_sec), // seconds
+		decltype(timespec::tv_nsec)(timeout % utki::num_millisec_in_sec) * utki::num_millisec_in_sec
+			* utki::num_millisec_in_sec // nanoseconds
 	};
 
 	for (;;) {
