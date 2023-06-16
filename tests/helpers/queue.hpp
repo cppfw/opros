@@ -37,7 +37,7 @@ private:
 	// use pipe to implement waitable in *nix systems
 	// one end will be saved in waitable::handle
 	// and the other one in this member variable
-	int pipe_end{};
+	int pipe_end = -1;
 #elif CFG_OS == CFG_OS_LINUX
 #else
 #	error "Unsupported OS"

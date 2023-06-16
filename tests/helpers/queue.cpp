@@ -36,7 +36,7 @@ queue::queue():
 	}
 	return handle;
 #elif CFG_OS == CFG_OS_MACOSX
-	std::array<int, 2> ends{};
+	std::array<int, 2> ends{-1, -1};
 	if(::pipe(ends.data()) < 0){
 		throw std::system_error(errno, std::generic_category(), "could not create pipe (*nix) for implementing Waitable");
 	}
@@ -112,7 +112,7 @@ queue::message_type queue::peek_msg(){
 			}
 #elif CFG_OS == CFG_OS_LINUX
 			{
-				eventfd_t value{};
+				eventfd_t value = 0;
 				if(eventfd_read(this->handle, &value) < 0){
 					throw std::system_error(errno, std::generic_category(), "queue::wait(): eventfd_read() failed");
 				}
