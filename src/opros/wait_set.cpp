@@ -501,7 +501,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 	struct timespec ts = {
 		decltype(timespec::tv_sec)(timeout / utki::num_millisec_in_sec), // seconds
 		decltype(timespec::tv_nsec)(
-			timeout % utki::num_millisec_in_sec * (utki::num_millisec_in_sec * utki::num_millisec_in_sec)
+			(timeout % utki::num_millisec_in_sec) * utki::num_millisec_in_sec * utki::num_millisec_in_sec
 		) // nanoseconds
 	};
 
