@@ -17,7 +17,7 @@
 
 using namespace helpers;
 
-queue::queue():
+queue::queue(): // NOLINT
 	opros::waitable(
 		[
 #if CFG_OS == CFG_OS_MACOSX
