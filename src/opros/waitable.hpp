@@ -64,12 +64,7 @@ enum class ready {
  * @brief Base class for objects which can be waited for.
  * Base class for objects which can be used in wait sets.
  */
-#if CFG_OS == CFG_OS_WINDOWS
-// NOLINTNEXTLINE(cppcoreguidelines-virtual-class-destructor)
 class waitable
-#else
-class waitable
-#endif
 {
 	friend class wait_set;
 
@@ -93,14 +88,12 @@ protected:
 #	error "Unknown OS"
 #endif
 
+protected:
 	// Destructor is protected because this class is supposed to be used as a base
 	// class, but is not supposed to be destroyed via base pointer.
 	// TODO: is it possible to check it with static_assert? if so, add test and
 	// move this note there
-#if CFG_OS == CFG_OS_WINDOWS
-	virtual
-#endif
-		~waitable() = default;
+	~waitable() = default;
 
 #if CFG_OS == CFG_OS_WINDOWS
 
