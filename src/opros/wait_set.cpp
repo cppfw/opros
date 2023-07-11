@@ -27,6 +27,7 @@ SOFTWARE.
 #include "wait_set.hpp"
 
 #include <cstring>
+#include <ratio>
 
 #include <utki/util.hpp>
 
@@ -499,8 +500,8 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 
 #elif CFG_OS == CFG_OS_MACOSX
 	struct timespec ts = {
-		decltype(timespec::tv_sec)(timeout / utki::reciprocal_milli), // seconds
-		decltype(timespec::tv_nsec)((timeout % utki::reciprocal_milli) * utki::reciprocal_nano) // nanoseconds
+		decltype(timespec::tv_sec)(timeout / std::milli::den), // seconds
+		decltype(timespec::tv_nsec)((timeout % std::milli::den) * std::nano::den) // nanoseconds
 	};
 
 	for (;;) {
