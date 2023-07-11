@@ -501,7 +501,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 #elif CFG_OS == CFG_OS_MACOSX
 	struct timespec ts = {
 		decltype(timespec::tv_sec)(timeout / std::milli::den), // seconds
-		decltype(timespec::tv_nsec)((timeout % std::milli::den) * std::nano::den) // nanoseconds
+		decltype(timespec::tv_nsec)((timeout % std::milli::den) * std::milli::den) // nanoseconds
 	};
 
 	for (;;) {
