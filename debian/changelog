@@ -1,3 +1,9 @@
+libopros (1.0.90) unstable; urgency=medium
+
+  * deploy to archlinux
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 24 Aug 2023 19:15:52 +0300
+
 libopros (1.0.89) unstable; urgency=medium
 
   * use std::ratio
