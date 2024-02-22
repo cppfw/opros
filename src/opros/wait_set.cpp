@@ -170,8 +170,8 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for, void* user_data)
 	epoll_event e{};
 	e.data.fd = w.handle;
 	e.data.ptr = user_data;
-	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
-		| (wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
+	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0) |
+		(wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
 	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_ADD, w.handle, &e);
 	if (res < 0) {
 		LOG([&](auto& o) {
@@ -221,8 +221,8 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for, void* user_data)
 	epoll_event e{};
 	e.data.fd = w.handle;
 	e.data.ptr = user_data;
-	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0)
-		| (wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
+	e.events = (wait_for.get(ready::read) ? (unsigned(EPOLLIN) | unsigned(EPOLLPRI)) : 0) |
+		(wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
 	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_MOD, w.handle, &e);
 	if (res < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::change(): epoll_ctl() failed");
@@ -434,12 +434,12 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 		// of the event which made WaitForMultipleObjectsEx() to return will be reset, so we need to check if it is that
 		// event by comparing index to what was returned by WaitForMultipleObjectsEx(). Otherwise, we call
 		// WaitForSingleObjectEx() with zero timeout to check if the event was/is in signalled state.
-		if (res - WAIT_OBJECT_0 == i
-			|| WaitForSingleObjectEx(
-				   wi.w->handle,
-				   0, // 0 ms timeout
-				   FALSE // do not stop waiting on IO completion
-			   ) == WAIT_OBJECT_0)
+		if (res - WAIT_OBJECT_0 == i ||
+			WaitForSingleObjectEx(
+				wi.w->handle,
+				0, // 0 ms timeout
+				FALSE // do not stop waiting on IO completion
+			) == WAIT_OBJECT_0)
 		{
 			// the object is in signalled state
 
