@@ -1,3 +1,9 @@
+libopros (1.0.92) unstable; urgency=medium
+
+  * bookworm
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 22 Feb 2024 21:11:34 +0200
+
 libopros (1.0.91) unstable; urgency=medium
 
   * archlinux: deploy
