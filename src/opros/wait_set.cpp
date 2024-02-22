@@ -273,7 +273,7 @@ void wait_set::remove(waitable& w) noexcept
 	// clear wait flags
 	try {
 		w.set_waiting_flags(false);
-	} catch (...) {
+	} catch (...) { // NOLINT(bugprone-empty-catch)
 		// ignore error
 	}
 
