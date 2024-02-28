@@ -1,3 +1,9 @@
+libopros (1.0.93) unstable; urgency=medium
+
+  * aptian
+
+ -- Ivan Gagis <igagis@gmail.com>  Wed, 28 Feb 2024 20:44:28 +0200
+
 libopros (1.0.92) unstable; urgency=medium
 
   * bookworm
