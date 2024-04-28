@@ -1,3 +1,9 @@
+libopros (1.0.96) unstable; urgency=medium
+
+  * homebrew bin
+
+ -- Ivan Gagis <igagis@gmail.com>  Sun, 28 Apr 2024 22:46:38 +0300
+
 libopros (1.0.95) unstable; urgency=medium
 
   * homebrew, add missing dep
