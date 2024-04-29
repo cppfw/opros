@@ -186,10 +186,10 @@ jobs:
       with: {name: PATH, value: "$HOMEBREW_PREFIX/opt/make/libexec/gnubin:$PATH"}
     - name: set CFLAGS
       uses: myci-actions/export-env-var@master
-      with: {name: CFLAGS, value: "-I $HOMEBREW_PREFIX/include $CFLAGS"}
+      with: {name: CFLAGS, value: "-isystem $HOMEBREW_PREFIX/include $CFLAGS"}
     - name: set CXXFLAGS
       uses: myci-actions/export-env-var@master
-      with: {name: CXXFLAGS, value: "-I $HOMEBREW_PREFIX/include $CXXFLAGS"}
+      with: {name: CXXFLAGS, value: "-isystem $HOMEBREW_PREFIX/include $CXXFLAGS"}
     - name: set LDFLAGS
       uses: myci-actions/export-env-var@master
       with: {name: LDFLAGS, value: "-L $HOMEBREW_PREFIX/lib $LDFLAGS"}
