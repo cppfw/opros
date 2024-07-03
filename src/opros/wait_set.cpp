@@ -101,7 +101,7 @@ wait_set::wait_set(unsigned capacity) :
 
 void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 {
-	struct kevent e {};
+	struct kevent e{};
 
 	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, user_data);
 
@@ -126,7 +126,7 @@ void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 
 void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 {
-	struct kevent e {};
+	struct kevent e{};
 
 	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, nullptr);
 
