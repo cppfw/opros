@@ -1,3 +1,9 @@
+libopros (1.0.98) unstable; urgency=medium
+
+  * build for ubuntu noble
+
+ -- Ivan Gagis <igagis@gmail.com>  Fri, 05 Jul 2024 00:32:42 +0300
+
 libopros (1.0.97) unstable; urgency=medium
 
   * homebrew bin 2
