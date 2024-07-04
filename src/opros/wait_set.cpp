@@ -101,11 +101,7 @@ wait_set::wait_set(unsigned capacity) :
 
 void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 {
-	// turn off clang-format because it is not stable on this line
-
-	// clang-format off
-	struct kevent e{};
-	// clang-format on
+	kevent e{};
 
 	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, user_data);
 
@@ -130,11 +126,7 @@ void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 
 void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 {
-	// turn off clang-format because it is not stable on this line
-
-	// clang-format off
-	struct kevent e{};
-	// clang-format on
+	kevent e{};
 
 	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, nullptr);
 
@@ -507,7 +499,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 	return this->wait_internal_linux(int(timeout));
 
 #elif CFG_OS == CFG_OS_MACOSX
-	struct timespec ts = {
+	timespec ts = {
 		decltype(timespec::tv_sec)(timeout / std::milli::den), // seconds
 		decltype(timespec::tv_nsec)((timeout % std::milli::den) * std::micro::den) // nanoseconds
 	};
