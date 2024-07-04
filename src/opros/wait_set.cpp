@@ -101,7 +101,9 @@ wait_set::wait_set(unsigned capacity) :
 
 void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 {
-	kevent e{};
+	struct kevent e
+		// WORKAROUND: clang-format is unstable on this line
+		{};
 
 	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, user_data);
 
@@ -126,7 +128,9 @@ void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 
 void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 {
-	kevent e{};
+	struct kevent e
+		// WORKAROUND: clang-format is unstable on this line
+		{};
 
 	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, nullptr);
 
