@@ -415,7 +415,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 	}
 
 	if (res == WAIT_TIMEOUT) {
-		this->triggered = nullptr;
+		this->triggered = {};
 		return false;
 	}
 
@@ -526,7 +526,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 
 		if (num_events_triggered == 0) {
 			// timeout hit
-			this->triggered = nullptr;
+			this->triggered = {};
 			return false;
 		}
 
