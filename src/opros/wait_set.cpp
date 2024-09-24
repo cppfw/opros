@@ -325,7 +325,7 @@ bool wait_set::wait_internal_linux(int timeout)
 
 	if (num_events_triggered == 0) {
 		// timeout hit
-		this->triggered = nullptr;
+		this->triggered = {};
 		return false;
 	}
 

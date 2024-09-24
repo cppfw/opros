@@ -97,11 +97,11 @@ class wait_set
 			return std::get<out_events_vector_type>(this->out_events_variant);
 		} catch (std::bad_variant_access&) {
 			ASSERT(false)
-			return nullptr;
+			return {};
 		}
 	}
 
-	utki::span<const event_info> triggered{nullptr};
+	utki::span<const event_info> triggered;
 
 #if CFG_OS == CFG_OS_WINDOWS
 	struct added_waitable_info {
