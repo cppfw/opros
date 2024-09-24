@@ -1,3 +1,9 @@
+libopros (1.0.99) unstable; urgency=medium
+
+  * update
+
+ -- Ivan Gagis <igagis@gmail.com>  Tue, 24 Sep 2024 16:09:18 +0300
+
 libopros (1.0.98) unstable; urgency=medium
 
   * build for ubuntu noble
