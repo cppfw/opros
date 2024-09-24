@@ -20,17 +20,16 @@ Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: cross-platform C++ waiting library.
  Waiting library.
 
-Package: libopros$(soname)-dbg
+Package: libopros$(soname)-dbgsrc
 Section: debug
-Architecture: any
-Depends: libopros$(soname) (= ${binary:Version}), ${misc:Depends}
-Description: debugging symbols for libopros$(soname) package.
- Debug symbols for libopros.
+Architecture: all
+Depends: libopros$(soname)-dbgsym (= ${binary:Version}), ${misc:Depends}
+Description: debugging sources for libopros$(soname) package.
 
 Package: libopros-dev
 Section: libdevel
 Architecture: any
-Depends: libopros$(soname) (= ${binary:Version}), libopros$(soname)-dbg (= ${binary:Version}), ${misc:Depends},
+Depends: libopros$(soname) (= ${binary:Version}), ${misc:Depends},
 		libutki-dev
 Suggests: libopros-doc
 Description: cross-platform C++ waiting library.
