@@ -1,3 +1,9 @@
+libopros (1.0.100) unstable; urgency=medium
+
+  * debian: dbgsrc package
+
+ -- Ivan Gagis <igagis@gmail.com>  Tue, 24 Sep 2024 16:23:21 +0300
+
 libopros (1.0.99) unstable; urgency=medium
 
   * update
