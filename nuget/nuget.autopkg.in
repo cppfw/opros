@@ -18,9 +18,9 @@ nuget{
 		title: C++ event waiting library;
 		authors: {Ivan Gagis};
 		owners: {Ivan Gagis};
-		licenseUrl: "https://raw.githubusercontent.com/cppfw/opros/master/LICENSE";
+		licenseUrl: "https://raw.githubusercontent.com/cppfw/opros/main/LICENSE";
 		projectUrl: "https://github.com/cppfw/opros";
-		iconUrl: "https://github.com/cppfw/opros/blob/master/logo.svg";
+		iconUrl: "https://github.com/cppfw/opros/blob/main/logo.svg";
 		requireLicenseAcceptance:false;
 		summary: C++ event waiting library;
 
@@ -78,7 +78,7 @@ nuget{
 		}
 */
 		// ======== v142 =========
-
+/*
 		[x86,v142,release,MultiThreaded] {
 			lib: ..\msvs_solution\v142_Release_MT\libopros.lib;
 		}
@@ -103,7 +103,7 @@ nuget{
 		[x64,v142,debug,MultiThreadedDebugDLL] {
 			lib: ..\msvs_solution\x64\v142_Debug_MD\libopros.lib;
 		}
-
+*/
 		//==== v143 tools ====
 
 		[x86,v143,release,MultiThreaded] {
