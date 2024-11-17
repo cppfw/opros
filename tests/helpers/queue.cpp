@@ -106,6 +106,7 @@ queue::message_type queue::peek_msg(){
 #elif CFG_OS == CFG_OS_MACOSX
 			{
 				std::array<uint8_t, 1> one_byte_buf{};
+				// NOLINTNEXTLINE(clang-analyzer-unix.BlockInCriticalSection, "this read() is in non-blocking mode")
 				if(read(this->handle, one_byte_buf.data(), 1) != 1){
 					throw std::system_error(errno, std::generic_category(), "queue::wait(): read() failed");
 				}
