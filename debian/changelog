@@ -1,3 +1,9 @@
+libopros (1.0.102) unstable; urgency=medium
+
+  * vcpkgize
+
+ -- Ivan Gagis <igagis@gmail.com>  Mon, 25 Nov 2024 22:17:45 +0200
+
 libopros (1.0.101) unstable; urgency=medium
 
   * conan: rebuild
