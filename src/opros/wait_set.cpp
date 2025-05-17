@@ -115,8 +115,9 @@ void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
 		throw std::system_error(errno, std::generic_category(), "wait_set::add(): add_filter(): kevent() failed");
 	}
 
-	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to
-									  // kevent() documentation.
+	// EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
+	ASSERT((e.flags & EV_ERROR) != 0)
+
 	if (e.data != 0) { // data should be 0 if added successfully
 		LOG([&](auto& o) {
 			o << "wait_set::add(): e.data = " << e.data << std::endl;
@@ -132,8 +133,8 @@ void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 
 	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, nullptr);
 
-	const timespec timeout = {0, 0}; // 0 to make effect of polling, because passing
-									 // NULL will cause to wait indefinitely.
+	// Set to 0 to make effect of polling, because passing NULL will cause to wait indefinitely.
+	const timespec timeout = {0, 0};
 
 	int res = kevent(this->queue, &e, 1, nullptr, 0, &timeout);
 	if (res < 0) {
@@ -143,8 +144,8 @@ void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 		})
 	}
 
-	ASSERT((e.flags & EV_ERROR) != 0) // EV_ERROR is always returned because of EV_RECEIPT, according to
-									  // kevent() documentation.
+	// EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
+	ASSERT((e.flags & EV_ERROR) != 0)
 }
 
 #endif
@@ -263,8 +264,9 @@ void wait_set::remove(waitable& w) noexcept
 			o << "wait_set::remove(): waitable is not added to wait set";
 		})
 
-		unsigned num_object = this->size_of_wait_set - 1; // decrease number of objects before
-														  // shifting the object handles in the array
+		// decrease number of objects before shifting the object handles in the array
+		unsigned num_object = this->size_of_wait_set - 1;
+
 		// shift object handles in the array
 		for (; i < num_object; ++i) {
 			this->handles[i] = this->handles[i + 1];
