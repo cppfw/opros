@@ -1,3 +1,9 @@
+libopros (1.0.106) unstable; urgency=medium
+
+  * debian dbg package
+
+ -- Ivan Gagis <igagis@gmail.com>  Mon, 30 Jun 2025 16:11:36 +0300
+
 libopros (1.0.105) unstable; urgency=medium
 
   * cmake: config transient deps
