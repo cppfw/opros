@@ -16,21 +16,37 @@ Standards-Version: 3.9.2
 Package: libopros$(soname)
 Section: libs
 Architecture: any
-Depends: ${shlibs:Depends}, ${misc:Depends}
+Depends:
+	${shlibs:Depends},
+	${misc:Depends}
 Description: cross-platform C++ waiting library.
- Waiting library.
+	Waiting library.
+
+Package: libopros-dbg$(soname)
+Section: libs
+Architecture: any
+Depends:
+	${shlibs:Depends},
+	${misc:Depends}
+Description: cross-platform C++ waiting library.
+	Debug version of libopros.
 
 Package: libopros$(soname)-dbgsrc
 Section: debug
 Architecture: all
-Depends: libopros$(soname)-dbgsym (= ${binary:Version}), ${misc:Depends}
+Depends:
+	libopros$(soname)-dbgsym (= ${binary:Version}),
+	libopros-dbg$(soname)-dbgsym (= ${binary:Version}),
+	${misc:Depends}
 Description: debugging sources for libopros$(soname) package.
 
 Package: libopros-dev
 Section: libdevel
 Architecture: any
-Depends: libopros$(soname) (= ${binary:Version}), ${misc:Depends},
-		libutki-dev
+Depends:
+	libopros$(soname) (= ${binary:Version}), ${misc:Depends},
+	libopros-dbg$(soname) (= ${binary:Version}), ${misc:Depends},
+	libutki-dev
 Suggests: libopros-doc
 Description: cross-platform C++ waiting library.
  Waiting library.
