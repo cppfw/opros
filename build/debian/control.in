@@ -44,8 +44,9 @@ Package: libopros-dev
 Section: libdevel
 Architecture: any
 Depends:
-	libopros$(soname) (= ${binary:Version}), ${misc:Depends},
-	libopros-dbg$(soname) (= ${binary:Version}), ${misc:Depends},
+	libopros$(soname) (= ${binary:Version}),
+	libopros-dbg$(soname) (= ${binary:Version}),
+	${misc:Depends},
 	libutki-dev
 Suggests: libopros-doc
 Description: cross-platform C++ waiting library.
