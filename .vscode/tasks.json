@@ -13,9 +13,9 @@
 			"group": "build"
 		},
 		{
-			"label": "build-dbg",
+			"label": "build-dev",
 			"type": "shell",
-			"command": "make config=dbg",
+			"command": "make config=dev",
 			"problemMatcher": [
 				"$gcc"
 			],
@@ -39,9 +39,9 @@
 			"group": "build"
 		},
 		{
-			"label": "test_dbg",
+			"label": "test-dev",
 			"type": "shell",
-			"command": "make test config=dbg",
+			"command": "make test config=dev",
 			"dependsOn": "build_debug",
 			"problemMatcher": [],
 			"group": "build"
