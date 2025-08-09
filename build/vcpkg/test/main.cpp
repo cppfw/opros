@@ -1,3 +1,5 @@
+#include <iostream>
+
 #include <opros/wait_set.hpp>
 
 int main(int argc, const char** argv){
