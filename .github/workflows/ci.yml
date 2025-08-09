@@ -29,12 +29,12 @@ jobs:
           repo-name: cppfw
           keys-asc: https://gagis.hopto.org/repo/cppfw/pubkey.gpg
           install: myci locales git pipx
-      - name: add llvm repo (for clang-format)
-        uses: myci-actions/add-deb-repo@main
-        with:
-          repo: deb http://apt.llvm.org/${{ env.linux_release }} llvm-toolchain-${{ env.linux_release }} main
-          repo-name: llvm
-          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      # - name: add llvm repo (for clang-format)
+      #   uses: myci-actions/add-deb-repo@main
+      #   with:
+      #     repo: deb http://apt.llvm.org/${{ env.linux_release }} llvm-toolchain-${{ env.linux_release }} main
+      #     repo-name: llvm
+      #     keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
       - name: git clone
         uses: myci-actions/checkout@main
       - name: prepare debian package
@@ -101,12 +101,12 @@ jobs:
           repo-name: cppfw
           keys-asc: https://gagis.hopto.org/repo/cppfw/pubkey.gpg
           install: myci git
-      - name: add llvm repo (for clang-format)
-        uses: myci-actions/add-deb-repo@main
-        with:
-          repo: deb https://apt.llvm.org/${{ matrix.codename }} llvm-toolchain-${{ matrix.codename }} main
-          repo-name: llvm
-          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      # - name: add llvm repo (for clang-format)
+      #   uses: myci-actions/add-deb-repo@main
+      #   with:
+      #     repo: deb https://apt.llvm.org/${{ matrix.codename }} llvm-toolchain-${{ matrix.codename }} main
+      #     repo-name: llvm
+      #     keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
       - name: install ci tools
         run: |
           apt --quiet install --assume-yes devscripts equivs
@@ -188,12 +188,12 @@ jobs:
           repo-name: cppfw
           keys-asc: https://gagis.hopto.org/repo/cppfw/pubkey.gpg
           install: myci git devscripts equivs
-      - name: add llvm repo (for clang-format)
-        uses: myci-actions/add-deb-repo@main
-        with:
-          repo: deb https://apt.llvm.org/${{ matrix.codename }} llvm-toolchain-${{ matrix.codename }} main
-          repo-name: llvm
-          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      # - name: add llvm repo (for clang-format)
+      #   uses: myci-actions/add-deb-repo@main
+      #   with:
+      #     repo: deb https://apt.llvm.org/${{ matrix.codename }} llvm-toolchain-${{ matrix.codename }} main
+      #     repo-name: llvm
+      #     keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
       - name: git clone
         uses: myci-actions/checkout@main
       - name: set PACKAGE_VERSION
@@ -563,13 +563,13 @@ jobs:
     container: ${{ matrix.image_owner }}${{ matrix.os }}:${{ matrix.codename }}
     name: conan - linux | ${{ matrix.image_owner }}
     steps:
-      - name: add llvm repo (for clang-format)
-        uses: myci-actions/add-deb-repo@main
-        with:
-          repo: deb https://apt.llvm.org/${{ matrix.codename }} llvm-toolchain-${{ matrix.codename }} main
-          repo-name: llvm
-          keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
-          install: clang-format clang-tidy
+      # - name: add llvm repo (for clang-format)
+      #   uses: myci-actions/add-deb-repo@main
+      #   with:
+      #     repo: deb https://apt.llvm.org/${{ matrix.codename }} llvm-toolchain-${{ matrix.codename }} main
+      #     repo-name: llvm
+      #     keys-asc: https://apt.llvm.org/llvm-snapshot.gpg.key
+      #     install: clang-format clang-tidy
       - name: add cppfw deb repo
         uses: myci-actions/add-deb-repo@main
         with:
