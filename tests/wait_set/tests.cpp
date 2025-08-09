@@ -1,5 +1,6 @@
 #include <vector>
 #include <thread>
+#include <iostream>
 
 #include <utki/debug.hpp>
 #include "../../src/opros/wait_set.hpp"
@@ -34,8 +35,6 @@ void run(){
 	thread.join();
 }
 }
-
-
 
 namespace test_general{
 void run(){
