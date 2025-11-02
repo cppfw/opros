@@ -8,4 +8,4 @@
 
 Event waiting library in C++.
 
-link:wiki/Main.adoc[WiKi]
+link:wiki/main.adoc[WiKi]
