@@ -200,7 +200,14 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for, void* user_data)
 	++this->size_of_wait_set;
 }
 
-void wait_set::change(waitable& w, utki::flags<ready> wait_for, void* user_data)
+void wait_set::change(
+	waitable& w, //
+	utki::flags<ready> wait_for,
+	void*
+#if CFG_OS == CFG_OS_LINUX || CFG_OS == CFG_OS_MACOSX
+		user_data
+#endif
+)
 {
 #if CFG_OS == CFG_OS_WINDOWS
 	// check if the waitable object is added to this wait set
@@ -211,7 +218,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for, void* user_data)
 				break;
 			}
 		}
-		ASSERT(i <= this->size())
+		utki::assert(i <= this->size(), SL);
 		if (i == this->size()) {
 			throw std::logic_error("wait_set::change(): the waitable is not added to this wait set");
 		}
@@ -248,7 +255,7 @@ void wait_set::change(waitable& w, utki::flags<ready> wait_for, void* user_data)
 
 void wait_set::remove(waitable& w) noexcept
 {
-	ASSERT(this->size() != 0)
+	utki::assert(this->size() != 0, SL);
 
 #if CFG_OS == CFG_OS_WINDOWS
 	// remove object from array
@@ -259,10 +266,14 @@ void wait_set::remove(waitable& w) noexcept
 				break;
 			}
 		}
-		ASSERT(i <= this->size_of_wait_set)
-		ASSERT(i != this->size_of_wait_set, [&](auto& o) {
-			o << "wait_set::remove(): waitable is not added to wait set";
-		})
+		utki::assert(i <= this->size_of_wait_set, SL);
+		utki::assert(
+			i != this->size_of_wait_set,
+			[&](auto& o) {
+				o << "wait_set::remove(): waitable is not added to wait set";
+			},
+			SL
+		);
 
 		// decrease number of objects before shifting the object handles in the array
 		unsigned num_object = this->size_of_wait_set - 1;
