@@ -53,9 +53,13 @@ wait_set::wait_set(unsigned capacity) :
 	waitables(capacity),
 	handles(capacity)
 {
-	ASSERT(capacity <= MAXIMUM_WAIT_OBJECTS, [&](auto& o) {
-		o << "capacity should be less than " << MAXIMUM_WAIT_OBJECTS;
-	})
+	utki::assert(
+		capacity <= MAXIMUM_WAIT_OBJECTS,
+		[&](auto& o) {
+			o << "capacity should be less than " << MAXIMUM_WAIT_OBJECTS;
+		},
+		SL
+	);
 	if (capacity > MAXIMUM_WAIT_OBJECTS) {
 		throw std::invalid_argument("wait_set::wait_set(): requested wait_set maximum size is too big");
 	}
@@ -68,7 +72,7 @@ wait_set::wait_set(unsigned capacity) :
 	if (capacity > std::numeric_limits<int>::max()) {
 		throw std::invalid_argument("wait_set(): given capacity is too big, should be <= INT_MAX");
 	}
-	ASSERT(int(capacity) > 0)
+	utki::assert(int(capacity) > 0, SL);
 	this->epoll_set = epoll_create(int(capacity));
 	if (this->epoll_set < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): epoll_create() failed");
@@ -87,7 +91,7 @@ wait_set::wait_set(unsigned capacity) :
 	if (capacity > std::numeric_limits<int>::max()) {
 		throw std::invalid_argument("wait_set(): given capacity is too big, should be <= INT_MAX");
 	}
-	ASSERT(int(capacity) > 0)
+	utki::assert(int(capacity) > 0, SL);
 	this->queue = kqueue();
 	if (this->queue == -1) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::wait_set(): kqueue creation failed");
@@ -99,34 +103,56 @@ wait_set::wait_set(unsigned capacity) :
 
 #if CFG_OS == CFG_OS_MACOSX
 
-void wait_set::add_filter(waitable& w, int16_t filter, void* user_data)
+void wait_set::add_filter(
+	waitable& w, //
+	int16_t filter,
+	void* user_data
+)
 {
 	using kevent_struct = struct kevent;
 	kevent_struct e{};
 
-	EV_SET(&e, w.handle, filter, EV_ADD | EV_RECEIPT, 0, 0, user_data);
+	EV_SET(
+		&e, //
+		w.handle,
+		filter,
+		EV_ADD | EV_RECEIPT,
+		0,
+		0,
+		user_data
+	);
 
 	// 0 to make effect of polling, because passing
 	// NULL will cause to wait indefinitely.
 	const timespec timeout = {0, 0};
 
-	int res = kevent(this->queue, &e, 1, nullptr, 0, &timeout);
+	int res = kevent(
+		this->queue, //
+		&e,
+		1,
+		nullptr,
+		0,
+		&timeout
+	);
 	if (res < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::add(): add_filter(): kevent() failed");
 	}
 
 	// EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
-	ASSERT((e.flags & EV_ERROR) != 0)
+	utki::assert((e.flags & EV_ERROR) != 0, SL);
 
 	if (e.data != 0) { // data should be 0 if added successfully
-		LOG([&](auto& o) {
+		utki::log_debug([&](auto& o) {
 			o << "wait_set::add(): e.data = " << e.data << std::endl;
-		})
+		});
 		throw std::runtime_error("wait_set::add(): add_filter(): kevent() failed to add filter");
 	}
 }
 
-void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
+void wait_set::remove_filter(
+	waitable& w, //
+	int16_t filter
+) noexcept
 {
 	using kevent_struct = struct kevent;
 	kevent_struct e{};
@@ -139,13 +165,13 @@ void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 	int res = kevent(this->queue, &e, 1, nullptr, 0, &timeout);
 	if (res < 0) {
 		// ignore the failure
-		LOG([&](auto& o) {
+		utki::log_debug([&](auto& o) {
 			o << "wait_set::remove(): remove_filter(): kevent() failed" << std::endl;
-		})
+		});
 	}
 
 	// EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
-	ASSERT((e.flags & EV_ERROR) != 0)
+	utki::assert((e.flags & EV_ERROR) != 0, SL);
 }
 
 #endif
@@ -153,7 +179,7 @@ void wait_set::remove_filter(waitable& w, int16_t filter) noexcept
 void wait_set::add(waitable& w, utki::flags<ready> wait_for, void* user_data)
 {
 #if CFG_OS == CFG_OS_WINDOWS
-	ASSERT(this->size() <= this->handles.size())
+	utki::assert(this->size() <= this->handles.size(), SL);
 	if (this->size() == this->handles.size()) {
 		throw std::logic_error("wait_set::add(): wait set is full");
 	}
@@ -177,15 +203,15 @@ void wait_set::add(waitable& w, utki::flags<ready> wait_for, void* user_data)
 		(wait_for.get(ready::write) ? EPOLLOUT : 0) | (EPOLLERR);
 	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_ADD, w.handle, &e);
 	if (res < 0) {
-		LOG([&](auto& o) {
+		utki::log_debug([&](auto& o) {
 			o << "wait_set::add(): epoll_ctl() failed. If you are adding socket, "
 				 "please check that is is opened before adding to wait_set."
 			  << std::endl;
-		})
+		});
 		throw std::system_error(errno, std::generic_category(), "wait_set::add(): epoll_ctl() failed");
 	}
 #elif CFG_OS == CFG_OS_MACOSX
-	ASSERT(this->size() <= this->revents.size() / 2)
+	utki::assert(this->size() <= this->revents.size() / 2, SL);
 
 	if (wait_for.get(ready::read)) {
 		this->add_filter(w, EVFILT_READ, user_data);
@@ -295,10 +321,14 @@ void wait_set::remove(waitable& w) noexcept
 #elif CFG_OS == CFG_OS_LINUX
 	int res = epoll_ctl(this->epoll_set, EPOLL_CTL_DEL, w.handle, nullptr);
 	if (res < 0) {
-		ASSERT(false, [&](auto& o) {
-			o << "wait_set::Remove(): epoll_ctl failed, probably the waitable was "
-				 "not added to the wait set";
-		})
+		utki::assert(
+			false,
+			[&](auto& o) {
+				o << "wait_set::Remove(): epoll_ctl failed, probably the waitable was "
+					 "not added to the wait set";
+			},
+			SL
+		);
 	}
 #elif CFG_OS == CFG_OS_MACOSX
 	this->remove_filter(w, EVFILT_READ);
@@ -321,7 +351,7 @@ bool wait_set::wait_internal_linux(int timeout)
 	int num_events_triggered{};
 
 	while (true) {
-		ASSERT(this->revents.size() <= std::numeric_limits<int>::max())
+		utki::assert(this->revents.size() <= std::numeric_limits<int>::max(), SL);
 		num_events_triggered = epoll_wait(this->epoll_set, this->revents.data(), int(this->revents.size()), timeout);
 
 		// TRACE(<< "epoll_wait() returned " << num_events_triggered << std::endl)
@@ -342,14 +372,14 @@ bool wait_set::wait_internal_linux(int timeout)
 		return false;
 	}
 
-	ASSERT(num_events_triggered > 0)
-	ASSERT(this->revents.size() == out_events.size())
-	ASSERT(size_t(num_events_triggered) <= this->revents.size())
-	ASSERT(size_t(num_events_triggered) <= out_events.size())
+	utki::assert(num_events_triggered > 0, SL);
+	utki::assert(this->revents.size() == out_events.size(), SL);
+	utki::assert(size_t(num_events_triggered) <= this->revents.size(), SL);
+	utki::assert(size_t(num_events_triggered) <= out_events.size(), SL);
 
 	unsigned out_i = 0;
 	for (const auto& e : utki::make_span(this->revents.data(), num_events_triggered)) {
-		ASSERT(out_i < out_events.size())
+		utki::assert(out_i < out_events.size(), SL);
 		event_info& ei = out_events[out_i];
 		++out_i;
 
@@ -366,12 +396,12 @@ bool wait_set::wait_internal_linux(int timeout)
 			ei.flags.set(ready::write);
 		}
 
-		ASSERT(!ei.flags.is_clear())
+		utki::assert(!ei.flags.is_clear(), SL);
 	}
 
-	ASSERT(out_i > 0)
-	ASSERT(size_t(out_i) <= out_events.size())
-	ASSERT(out_i == unsigned(num_events_triggered))
+	utki::assert(out_i > 0, SL);
+	utki::assert(size_t(out_i) <= out_events.size(), SL);
+	utki::assert(out_i == unsigned(num_events_triggered), SL);
 	this->triggered = utki::make_span(out_events.data(), num_events_triggered);
 
 	return true;
@@ -414,10 +444,10 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 
 	// Return value cannot be WAIT_IO_COMPLETION because we supplied FALSE as
 	// last parameter to WaitForMultipleObjectsEx().
-	ASSERT(res != WAIT_IO_COMPLETION)
+	utki::assert(res != WAIT_IO_COMPLETION, SL);
 
 	// we are not expecting abandoned mutexes
-	ASSERT(res < WAIT_ABANDONED_0 || (WAIT_ABANDONED_0 + this->size_of_wait_set) <= res)
+	utki::assert(res < WAIT_ABANDONED_0 || (WAIT_ABANDONED_0 + this->size_of_wait_set) <= res, SL);
 
 	if (res == WAIT_FAILED) {
 		throw std::system_error(
@@ -432,11 +462,11 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 		return false;
 	}
 
-	ASSERT(WAIT_OBJECT_0 <= res && res < (WAIT_OBJECT_0 + this->size_of_wait_set))
+	utki::assert(WAIT_OBJECT_0 <= res && res < (WAIT_OBJECT_0 + this->size_of_wait_set), SL);
 
 	auto out_events = this->get_out_events();
-	ASSERT(out_events.size() == this->waitables.size())
-	ASSERT(this->handles.size() == this->waitables.size())
+	utki::assert(out_events.size() == this->waitables.size(), SL);
+	utki::assert(this->handles.size() == this->waitables.size(), SL);
 
 	// check for activities
 	unsigned num_events = 0;
@@ -460,7 +490,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 
 			// NOTE: Need to call get_readiness_flags() even if 'num_events < out_events.size()',
 			// because it resets the readiness state of the HANDLE.
-			ASSERT(wi.w)
+			utki::assert(wi.w, SL);
 			auto flags = wi.w->get_readiness_flags();
 
 			// WORKAROUND:
@@ -468,7 +498,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 			// As a workaround, here we need to check if there are any readiness
 			// flags actually set.
 			if (!flags.is_clear()) {
-				ASSERT(num_events < out_events.size())
+				utki::assert(num_events < out_events.size(), SL);
 
 				out_events[num_events].user_data = wi.user_data;
 				out_events[num_events].flags = flags;
@@ -478,8 +508,8 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 		}
 	}
 
-	ASSERT(num_events <= this->size_of_wait_set)
-	ASSERT(num_events <= out_events.size())
+	utki::assert(num_events <= this->size_of_wait_set, SL);
+	utki::assert(num_events <= out_events.size(), SL);
 	this->triggered = utki::make_span(out_events.data(), num_events);
 
 	return true;
@@ -496,9 +526,13 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 	auto max_time_step = uint32_t(std::numeric_limits<int>::max());
 
 	while (timeout >= max_time_step) {
-		ASSERT(int(max_time_step) >= 0, [&](auto& o) {
-			o << "timeout = 0x" << std::hex << timeout;
-		})
+		utki::assert(
+			int(max_time_step) >= 0,
+			[&](auto& o) {
+				o << "timeout = 0x" << std::hex << timeout;
+			},
+			SL
+		);
 		auto res = this->wait_internal_linux(int(max_time_step));
 		if (res != 0) {
 			return res;
@@ -510,7 +544,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 		}
 	}
 
-	ASSERT(int(timeout) >= 0)
+	utki::assert(int(timeout) >= 0, SL);
 	return this->wait_internal_linux(int(timeout));
 
 #elif CFG_OS == CFG_OS_MACOSX
@@ -520,7 +554,7 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 	};
 
 	for (;;) {
-		ASSERT(this->revents.size() <= std::numeric_limits<int>::max())
+		utki::assert(this->revents.size() <= std::numeric_limits<int>::max(), SL);
 		int num_events_triggered = kevent(
 			this->queue,
 			nullptr,
@@ -543,11 +577,11 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 			return false;
 		}
 
-		ASSERT(num_events_triggered > 0)
+		utki::assert(num_events_triggered > 0, SL);
 
 		auto out_events = this->get_out_events();
 
-		ASSERT(out_events.size() == this->revents.size())
+		utki::assert(out_events.size() == this->revents.size(), SL);
 
 		size_t out_i = 0; // index into out_events
 
@@ -575,11 +609,11 @@ bool wait_set::wait_internal(bool wait_infinitly, uint32_t timeout)
 			oe.user_data = e.udata;
 		}
 
-		ASSERT(out_i <= out_events.size())
+		utki::assert(out_i <= out_events.size(), SL);
 
 		// out_i can be less than number of events triggered because there can be unsupported events
 		// which are not counted
-		ASSERT(out_i <= size_t(num_events_triggered))
+		utki::assert(out_i <= size_t(num_events_triggered), SL);
 
 		this->triggered = utki::make_span(out_events.data(), out_i);
 
