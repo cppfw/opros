@@ -141,11 +141,14 @@ void wait_set::add_filter(
 	// EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
 	utki::assert((e.flags & EV_ERROR) != 0, SL);
 
-	if (e.data != 0) { // data should be 0 if added successfully
+	// data should be 0 if added successfully, otherwise it contains error code.
+	if (e.data != 0) {
 		utki::log_debug([&](auto& o) {
 			o << "wait_set::add(): e.data = " << e.data << std::endl;
 		});
-		throw std::runtime_error("wait_set::add(): add_filter(): kevent() failed to add filter");
+		throw std::runtime_error(
+			utki::cat("wait_set::add(): add_filter(): kevent() failed to add filter, e.data = ", e.data)
+		);
 	}
 }
 
