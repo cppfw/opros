@@ -90,13 +90,13 @@ class wait_set
 		try {
 			if (std::holds_alternative<out_events_array_type>(this->out_events_variant)) {
 				auto& a = std::get<out_events_array_type>(this->out_events_variant);
-				ASSERT(this->wait_set_capacity <= a.size())
+				utki::assert(this->wait_set_capacity <= a.size(), SL);
 				return utki::make_span(a.data(), this->wait_set_capacity);
 			}
-			ASSERT(std::holds_alternative<out_events_vector_type>(this->out_events_variant))
+			utki::assert(std::holds_alternative<out_events_vector_type>(this->out_events_variant), SL);
 			return std::get<out_events_vector_type>(this->out_events_variant);
 		} catch (std::bad_variant_access&) {
-			ASSERT(false)
+			utki::assert(false, SL);
 			return {};
 		}
 	}
@@ -213,7 +213,7 @@ public:
 	void wait()
 	{
 		[[maybe_unused]] bool res = this->wait_internal(true, 0);
-		ASSERT(res)
+		utki::assert(res, SL);
 	}
 
 	/**
