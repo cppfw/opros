@@ -110,10 +110,11 @@ void wait_set::add_filter(
 )
 {
 	using kevent_struct = struct kevent;
-	kevent_struct e{};
+	kevent_struct event{};
+	kevent_struct out_event{};
 
 	EV_SET(
-		&e, //
+		&event, //
 		w.handle,
 		filter,
 		EV_ADD | EV_RECEIPT,
@@ -128,26 +129,27 @@ void wait_set::add_filter(
 
 	int res = kevent(
 		this->queue, //
-		&e,
-		1,
-		nullptr,
-		0,
+		&event, // changelist: events/filters to add, modify or delete.
+		1, // number of entries in changelist.
+		&out_event, // eventlist: output buffer for triggered/receipt events.
+		1, // number of entries available in eventlist.
 		&timeout
 	);
 	if (res < 0) {
 		throw std::system_error(errno, std::generic_category(), "wait_set::add(): add_filter(): kevent() failed");
 	}
+	utki::assert(res == 1, SL);
 
 	// EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
-	utki::assert((e.flags & EV_ERROR) != 0, SL);
+	utki::assert((out_event.flags & EV_ERROR) != 0, SL);
 
 	// data should be 0 if added successfully, otherwise it contains error code.
-	if (e.data != 0) {
+	if (out_event.data != 0) {
 		utki::log_debug([&](auto& o) {
-			o << "wait_set::add(): e.data = " << e.data << std::endl;
+			o << "wait_set::add(): out_event.data = " << out_event.data << std::endl;
 		});
 		throw std::runtime_error(
-			utki::cat("wait_set::add(): add_filter(): kevent() failed to add filter, e.data = ", e.data)
+			utki::cat("wait_set::add(): add_filter(): kevent() failed to add filter, out_event.data = ", out_event.data)
 		);
 	}
 }
@@ -158,23 +160,40 @@ void wait_set::remove_filter(
 ) noexcept
 {
 	using kevent_struct = struct kevent;
-	kevent_struct e{};
+	kevent_struct event{};
+	kevent_struct out_event{};
 
-	EV_SET(&e, w.handle, filter, EV_DELETE | EV_RECEIPT, 0, 0, nullptr);
+	EV_SET(
+		&event, //
+		w.handle,
+		filter,
+		EV_DELETE | EV_RECEIPT,
+		0,
+		0,
+		nullptr
+	);
 
 	// Set to 0 to make effect of polling, because passing NULL will cause to wait indefinitely.
 	const timespec timeout = {0, 0};
 
-	int res = kevent(this->queue, &e, 1, nullptr, 0, &timeout);
+	int res = kevent(
+		this->queue, //
+		&event, // changelist: events/filters to add, modify or delete.
+		1, // number of entries in changelist.
+		&out_event, // eventlist: output buffer for triggered/receipt events.
+		1, // number of entries available in eventlist.
+		&timeout
+	);
 	if (res < 0) {
 		// ignore the failure
 		utki::log_debug([&](auto& o) {
 			o << "wait_set::remove(): remove_filter(): kevent() failed" << std::endl;
 		});
 	}
+	utki::assert(res == 1, SL);
 
 	// EV_ERROR is always returned because of EV_RECEIPT, according to kevent() documentation.
-	utki::assert((e.flags & EV_ERROR) != 0, SL);
+	utki::assert((out_event.flags & EV_ERROR) != 0, SL);
 }
 
 #endif
