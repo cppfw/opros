@@ -29,6 +29,7 @@ SOFTWARE.
 #include <cstring>
 #include <ratio>
 
+#include <utki/string.hpp>
 #include <utki/util.hpp>
 
 #if CFG_OS == CFG_OS_MACOSX
