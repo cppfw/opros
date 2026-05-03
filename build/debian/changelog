@@ -1,3 +1,9 @@
+libopros (1.0.109) unstable; urgency=medium
+
+  * minor code tweaks
+
+ -- Ivan Gagis <igagis@gmail.com>  Sun, 03 May 2026 11:29:52 +0300
+
 libopros (1.0.108) unstable; urgency=medium
 
   * vcpkg: myci dep made non-host
