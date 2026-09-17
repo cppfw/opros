@@ -280,6 +280,7 @@ jobs:
     - name: add cppfw tap
       run: |
         brew tap cppfw/tap
+        brew trust cppfw/tap
         brew update
     - name: install ci tools
       run: brew install myci make
@@ -519,6 +520,7 @@ jobs:
     - name: add cppfw tap
       run: |
         brew tap cppfw/tap
+        brew trust cppfw/tap
         brew update
     - name: install ci tools
       run: brew install myci cmake
@@ -628,6 +630,7 @@ jobs:
       - name: add cppfw tap
         run: |
           brew tap cppfw/tap
+          brew trust cppfw/tap
           brew update
       - name: install ci tools
         run: brew install myci conan
