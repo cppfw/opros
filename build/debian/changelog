@@ -1,3 +1,9 @@
+libopros (1.0.110) unstable; urgency=medium
+
+  * update
+
+ -- Ivan Gagis <igagis@gmail.com>  Thu, 05 Nov 2026 01:43:10 +0200
+
 libopros (1.0.109) unstable; urgency=medium
 
   * minor code tweaks
