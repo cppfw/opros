@@ -66,7 +66,16 @@ namespace opros {
  * @brief Information about a triggered event.
  */
 struct event_info {
+	/**
+	 * @brief Event flags.
+	 * Flags indicating which events have been triggered.
+	 */
 	utki::flags<ready> flags;
+
+	/**
+	 * @brief User data.
+	 * User data associated with the waitable object which triggered the event.
+	 */
 	void* user_data{};
 };
 
@@ -87,6 +96,10 @@ class wait_set
 	// define the buffer which will hold triggered events info
 	std::variant<out_events_array_type, out_events_vector_type> out_events_variant;
 
+	/**
+	 * @brief Get span for the buffer holding triggered events info.
+	 * @return span for the buffer which will hold triggered events info.
+	 */
 	utki::span<event_info> get_out_events() noexcept
 	{
 		try {
@@ -243,14 +256,37 @@ public:
 	}
 
 private:
+	/**
+	 * @brief Wait for event internally.
+	 * @param infinite - true to wait indefinitely, false to wait with timeout.
+	 * @param timeout - maximum time in milliseconds to wait, used only if infinite is false.
+	 * @return true if an event has been triggered, false if the timeout has elapsed.
+	 */
 	bool wait_internal(bool infinite, uint32_t timeout);
 
 #if CFG_OS == CFG_OS_LINUX
+	/**
+	 * @brief Wait for event on Linux using epoll.
+	 * @param timeout - maximum time in milliseconds to wait, -1 to wait indefinitely.
+	 * @return true if an event has been triggered, false if the timeout has elapsed.
+	 */
 	bool wait_internal_linux(int timeout);
 #endif
 
 #if CFG_OS == CFG_OS_MACOSX
+	/**
+	 * @brief Add a filter for the given waitable to the kqueue.
+	 * @param w - waitable object to add the filter for.
+	 * @param filter - kqueue filter to add.
+	 * @param user_data - user data associated with the waitable object.
+	 */
 	void add_filter(waitable& w, int16_t filter, void* user_data);
+
+	/**
+	 * @brief Remove a filter for the given waitable from the kqueue.
+	 * @param w - waitable object to remove the filter for.
+	 * @param filter - kqueue filter to remove.
+	 */
 	void remove_filter(waitable& w, int16_t filter) noexcept;
 #endif
 };
