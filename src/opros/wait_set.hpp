@@ -62,7 +62,9 @@ SOFTWARE.
 
 namespace opros {
 
-// TODO: doxygen
+/**
+ * @brief Information about a triggered event.
+ */
 struct event_info {
 	utki::flags<ready> flags;
 	void* user_data{};
